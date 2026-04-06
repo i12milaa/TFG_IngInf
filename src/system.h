@@ -1,0 +1,40 @@
+#ifndef SYSTEM_H
+#define SYSTEM_H
+
+#include <Arduino.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/queue.h>
+#include "task_radar.h" 
+
+enum SystemState {
+    STATE_CONFIG,
+    STATE_WAIT_WIFI,
+    STATE_SYNC,
+    STATE_RADAR
+};
+
+class SystemManager {
+public:
+    static SystemManager& instance() {
+        static SystemManager instance;
+        return instance;
+    }
+
+    void init();
+    void changeState(SystemState newState);
+
+    SystemState currentState;
+    QueueHandle_t queueCommands;
+    QueueHandle_t queueResults;
+    uint8_t radarId;
+
+    uint32_t t0_last_superframe;  
+    float current_angle_logic;    
+    bool sweep_direction_up;      
+
+private:
+    SystemManager() : currentState(STATE_CONFIG), radarId(0), 
+                      t0_last_superframe(0), current_angle_logic(0.0), sweep_direction_up(true) {}
+};
+
+#endif
