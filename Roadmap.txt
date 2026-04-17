@@ -1,0 +1,160 @@
+================================================================================
+
+ROADMAP TÉCNICO EXPERTO: SISTEMA DE RADARES DEFENSIVOS
+
+Arquitectura: ESP32 / FreeRTOS / LwIP (TCP)
+
+Framework Base: Interfaz orientada a eventos, partición Core0/Core1
+
+================================================================================
+
+
+
+FASE 1: UNIFICACIÓN DE LA FSM (MÁQUINA DE ESTADOS)
+
+--------------------------------------------------------------------------------
+
+Objetivo: Integrar el control y las comunicaciones (actualmente disgregadas en main.cpp y task_comms.cpp) en un flujo unificado y jerárquico bajo un framework basado en eventos (system.h/c).
+
+
+
+- Diseño Estructural de la FSM: Se definirán bloques funcionales usando la arquitectura de macros del sistema:
+
+  > STATE_MACHINE(RadarFSM)
+
+  > TASK_BEGIN(RadarTask)
+
+  > TASK_LOOP() y evaluación vía SWITCH_ST.
+
+
+
+- Transición de Estados Estrictos:
+
+  1. INITIALIZATION: Configuración en frío de periféricos, PWM del servomotor e inicialización de colas/semáforos del sistema global (radar_sys). Transición inmediata mediante SWITCH_ST(WAITING_FOR_NWK).
+
+  2. WAITING_FOR_NWK: Estado de contención esperando las flags del handler de eventos (WiFi CONNECTED e IP ENABLED) y establecimiento vinculante del socket TCP (CONNECT->ACCEPT).
+
+  3. SYNC_CONTROL: Handshake crítico. Aseguramiento y alineamiento de la base de tiempos local contra el servidor Python central, preparando la Supertrama (SF).
+
+  4. RADAR_EXECUTION: Core routine. Generación de las demandas de posicionamiento y escaneo asíncrono. Recepción y transmisión paralela.
+
+  5. REPORTING: Encapsulado y transmisión de paquetes de telemetría extraídos, comprobando el heap para no desbordar al LwIP stack.
+
+
+
+
+
+FASE 2: ANTICIPACIÓN MECÁNICA (PARALELISMO A NIVEL DE HARDWARE-SOFTWARE)
+
+--------------------------------------------------------------------------------
+
+Objetivo: Erradicar la latencia en las Supertramas (SF) por el estado suspendido del hardware durante los I/O bloqueantes del socket TCP.
+
+
+
+- Anticipación de la Trama MSG_ANGLE_REQ: Inmediatamente después de colocar el paquete TCP en la cola del LwIP (y no bloqueándose a la espera de un ACK del backend Python), el microcontrolador ordenará la modulación del PWM basándose en target_angle_shared.
+
+- Ejecución en Paralelo (Dead-Time Mitigation): El servomotor consume un tiempo mecánico intrínseco. Durante este mismo periodo de movimiento se estará operando sobre la red para recibir el permiso de actuación/validación lógica.
+
+- Sincronización Segura: Se utilizará notificaciones directas al hilo (FreeRTOS Task Notification) o un SemaphoreHandle_t binario. La captura real del sensor radar quedará pausada hasta que se cumplan ambas precondiciones atómicas:
+
+  1. Que se haya recibido el paquete de validación desde el servidor de Python.
+
+  2. Que la flag volátil is_movement_done generada por el driver mecánico retorne positiva, garantizando que target_angle_shared equivale a la posición real.
+
+
+
+
+
+FASE 3: ESTABILIDAD WIFI Y RTOS HARD-CORE
+
+--------------------------------------------------------------------------------
+
+Objetivo: Resolver por completo los eventos de 'WiFi Starvation' originados por retenciones CPU y falta de liberación de contexto para el hilo IDLE que procesa los mantenimientos del stack.
+
+
+
+- Gestión TCP/IP y Watchdog: Prohibir bajo severidad el uso de ciclos 'while' bloqueantes y la función genérica 'delay()'. Serán reemplazados sin excepción por vTaskDelay(pdMS_TO_TICKS(X)), delegando tiempos muertos al kernel scheduler.
+
+- Arquitectura Interrupciones/Callbacks: Toda inicialización y reconexión Wifi sale del poll secuencial. Se emplearán callbacks nativos registrados bajo esp_event_handler_register() para administrar eventos SYSTEM_EVENT_STA_DISCONNECTED.
+
+- Aislamiento en Asimétrico Biprocesador (AMP): Partición incondicional a través de xTaskCreatePinnedToCore():
+
+  > CORE 0 (PRO_CPU): Reservado enteramente para transacciones de banda alta. EventLooP WiFi y handler del servidor TCP nativo (task_comms.cpp).
+
+  > CORE 1 (APP_CPU): Determinismo para captura en tiempo real. Ciclos bloqueantes cortos del Hardware, Muestreos ADC y la máquina de estados completa del radar general (task_radar.cpp).
+
+
+
+
+
+FASE 4: REFACTORIZACIÓN DE ARCHIVOS
+
+--------------------------------------------------------------------------------
+
+Objetivo: Implementar Modularidad C/C++ Pura y separar las lógicas dependientes de la arquitectura temporal y del negocio.
+
+
+
+- Árbol de Directorios Requerido:
+
+  /core
+
+    main.cpp  (Iniciador unificado, creación de tareas)
+
+    system.c/h (Framework de macros de la FSM, variables de entorno)
+
+  /drivers
+
+    drv_servo.cpp/h (Abstracción del hardware de control angular)
+
+    drv_radar.cpp/h (Física perimetral y analógica del sensor)
+
+  /tasks
+
+    task_comms.cpp (Red LwIP/Socket, parser Python->ESP)
+
+    task_radar.cpp (Orquestación del hardware mecánico y peticiones)
+
+
+
+- Definiciones de Entorno (platformio.ini):
+
+  Debe inyectar parámetros agresivos de compilación para maximización de recursos y punteros, usando 'build_flags = -O2' e inclusión automática '-I core -I drivers -I tasks'. Reforzar freq a 240000000L.
+
+
+
+
+
+================================================================================
+
+PROMPTS DE ACCIÓN PARA IA (GENERACIÓN DE CÓDIGO)
+
+Copie y pegue cada prompt independientemente en su instancia LLM designada:
+
+================================================================================
+
+
+
+PROMPT FASE 1:
+
+Actúa como un experto en ESP-IDF y FreeRTOS. Diseña e implementa el framework base system.h y system.c conteniendo la definición exacta de las macros requeridas: STATE_MACHINE, TASK_BEGIN, TASK_LOOP y SWITCH_ST. Posterior a eso, utiliza estas herramientas para declarar conceptualmente el esqueleto de main.cpp para la máquina de estados global (radar_sys). Esta máquina de estados transicionará forzosamente por: INITIALIZATION, WAITING_FOR_NWK, SYNC_CONTROL, RADAR_EXECUTION y REPORTING. Configura inicializadores huecos.
+
+
+
+PROMPT FASE 2:
+
+Actúa como Arquitecto C++ en ESP32. Genera las funciones núcleo del archivo task_radar.cpp asumiendo un escenario de paralelismo mecánico. Al generar la petición TCP de tipo 'MSG_ANGLE_REQ', implementa código que lance de forma inmediata e independiente el accionamiento del sistema mecánico y servo hacia la variable compartida 'target_angle_shared' sin bloqueo recursivo. Demuestra el uso efectivo de un semáforo de FreeRTOS para poner a hibernar la captura final del sensor, y solo despertarla si concurren los estados lógicos del TCP y la variable atómica 'is_movement_done' es evaluada como true por el driver del servo.
+
+
+
+PROMPT FASE 3:
+
+Actúa como experto en networking sobre RTOS. Escribe el snippet necesario completo y optimizado para lidiar con el error "WiFi Starvation". Refactoriza la conectividad para que únicamente dependa del API de eventos esp_event_handler_register() manejado asíncronamente; asegurando la sanidad del heap. Posteriormente, muestra la inicialización de tareas con xTaskCreatePinnedToCore garantizando de forma inmutable la asignación de la red y task_comms al Core 0 (PRO_CPU) y la gestión física de los actuadores del radar al Core 1 (APP_CPU). El código proporcionado debe utilizar sin excepción directivas vTaskDelay sobre el obsoleto delay.
+
+
+
+PROMPT FASE 4:
+
+Actúa como DevOps de software embebido. Redacta el manifiesto del archivo de entorno platformio.ini preparado y estabilizado para este controlador ESP32 que requiere soporte de sockets TCP. Configura la estructuración para compilar bajo carpetas aisladas: /core, /drivers y /tasks (usando build_flags y el preprocesador para inyectar estos paths sin colisiones temporales). Incluye también forzado del framwork a arduino/espidf según proceda, velocidad a 240MHz y asignación estática preferencial de nivel de optimización tipo -O2.
+

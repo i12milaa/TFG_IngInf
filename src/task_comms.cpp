@@ -145,9 +145,15 @@ bool connectToServer() {
 }
 
 void sendPacket(uint8_t type, void* payload, uint16_t length) {
+    uint8_t out_buf[128]; // Buffer temporal
     PacketHeader header;
     header.type = type;
     header.length = length;
-    client.write((uint8_t*)&header, sizeof(PacketHeader));
-    if (length > 0) client.write((uint8_t*)payload, length);
+    
+    // Juntamos cabecera y datos en un solo bloque de memoria
+    memcpy(out_buf, &header, sizeof(PacketHeader));
+    if (length > 0) memcpy(out_buf + sizeof(PacketHeader), payload, length);
+    
+    // Un solo disparo TCP (reduce la latencia drásticamente)
+    client.write(out_buf, sizeof(PacketHeader) + length);
 }
