@@ -1,0 +1,29 @@
+{
+    "1": {
+        "mode": "SEARCH",
+        "search_dir": -1.0,
+        "track_dir": 1.0,
+        "misses": 0,
+        "current_angle": 0.0,
+        "track_min": 0.0,
+        "track_max": 0.0
+    },
+    "3": {
+        "mode": "SEARCH",
+        "search_dir": -1.0,
+        "track_dir": 1.0,
+        "misses": 0,
+        "current_angle": 0.0,
+        "track_min": 0.0,
+        "track_max": 0.0
+    },
+    "2": {
+        "mode": "TRACK",
+        "search_dir": -1.0,
+        "track_dir": 1.0,
+        "misses": 0,
+        "current_angle": 0.0,
+        "track_min": -40.0,
+        "track_max": 0.0
+    }
+}

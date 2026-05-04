@@ -8,7 +8,10 @@ import os
 
 HOST = '0.0.0.0'
 PORT = 8080
-CONFIG_FILE = 'grid_config.json'
+
+_HERE = os.path.dirname(os.path.abspath(__file__))
+CONFIG_FILE = os.path.join(_HERE, 'config', 'grid_config.json')
+STATE_FILE  = os.path.join(_HERE, 'config', 'radar_state.json')
 
 MSG_HELLO_REQ        = 0xA0
 MSG_HELLO_ACK        = 0xA1
@@ -18,39 +21,39 @@ MSG_REPORT_REQ       = 0xB2
 MSG_ANGLE_REQ        = 0xC0
 MSG_DATA_REPORT      = 0xD0
 
-# Parámetros de Geometría y Tracking
 SWEEP_ANGLE_TOTAL = 90.0
 A_MAX = SWEEP_ANGLE_TOTAL / 2.0
 A_MIN = -A_MAX
 DIRTY_MARGIN = 15.0
 TRACK_MARGIN = 15.0
-TRACK_LIMIT_DIST = 20.0
+TRACK_LIMIT_DIST = 10.0
 MAX_MISSES = 3
 STEP_ANGLE = 5.0
 STEAL_MARGIN = 2.0 
 
-# Física del Motor
 MOTOR_STEPS_REV = 200
 MICROSTEPPING = 16
 GEAR_RATIO = 1.0
-STEP_DELAY_MS = 2.2 
+STEP_DELAY_MS = 0.9 
 
 class ArbitroServer:
     def __init__(self):
-        self.clients = {}         
-        self.client_sockets = {}  
-        self.requests = {}        
-        self.reports_received = set() 
-        self.latest_reports = {}   
-        self.track_states = {}     
+        self.clients = {}
+        self.client_sockets = {}
+        self.requests = {}
+        self.reports_received = set()
+        self.latest_reports = {}
+        self.track_states = {}
+        self.strikes = {}
+        self.grace_until_sf = {}   # SF hasta el que ignoramos strikes por nodo recién conectado
         self.lock = threading.Lock()
         self.seq = 0
         self.current_phase = 0 
         self.running = True
         self.grid = self.load_grid()
+        self.track_states = self.load_state() 
         self._last_save_time = 0
         self._save_debounce_interval = 2 
-        # Socket para enviar datos a la interfaz gráfica
         self.udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     def load_grid(self):
@@ -63,6 +66,38 @@ class ArbitroServer:
         with open(CONFIG_FILE, 'w') as f:
             json.dump(self.grid, f, indent=4)
 
+    def load_state(self):
+        if os.path.exists(STATE_FILE):
+            print("\n==================================================")
+            print("💾 ATENCIÓN: Se ha detectado una sesión anterior.")
+            print("==================================================")
+            ans = input("¿Deseas reanudar las posiciones de los radares? (s/n): ")
+            
+            if ans.lower() == 's':
+                try:
+                    with open(STATE_FILE, 'r') as f:
+                        data = json.load(f)
+                        print("[SYS] Memoria cargada. IMPORTANTE: Los radares NO deben haberse movido a mano.")
+                        return {int(k): v for k, v in data.items()}
+                except Exception as e:
+                    print(f"[ERR] No se pudo cargar el estado: {e}")
+            else:
+                print("[SYS] Memoria descartada. Asumiendo que has centrado los radares a mano (0º).")
+                try:
+                    os.remove(STATE_FILE)
+                except:
+                    pass
+        return {}
+
+    def save_state(self):
+        print(f"\n[SYS] Guardando estado de radares en {STATE_FILE}...")
+        try:
+            with open(STATE_FILE, 'w') as f:
+                json.dump(self.track_states, f, indent=4)
+            print("[SYS] Estado guardado correctamente.")
+        except Exception as e:
+            print(f"[ERR] Error al guardar el estado: {e}")
+
     def calculate_global_coords(self, radar_id, local_angle, distance):
         cfg = next((r for r in self.grid.values() if r["id"] == radar_id), None)
         if not cfg or distance <= 0: return None
@@ -72,7 +107,6 @@ class ArbitroServer:
         return (obj_x, obj_y)
 
     def calcular_trilateracion(self, id1, d1, id2, d2):
-        """Calcula la intersección de dos circunferencias (Validación Híbrida)"""
         cfg1 = next((r for r in self.grid.values() if r["id"] == id1), None)
         cfg2 = next((r for r in self.grid.values() if r["id"] == id2), None)
         if not cfg1 or not cfg2: return None
@@ -106,9 +140,15 @@ class ArbitroServer:
                 'search_dir': 1.0,
                 'track_dir': 1.0,
                 'misses': 0,
-                'current_angle': 0.0
+                'current_angle': 0.0,
+                'track_min': 0.0,
+                'track_max': 0.0
             }
-        return self.track_states[r_id]
+        state = self.track_states[r_id]
+        # Migración para estados guardados sin estos campos
+        state.setdefault('track_min', 0.0)
+        state.setdefault('track_max', 0.0)
+        return state
 
     def handle_client(self, conn, addr):
         radar_id = None
@@ -131,6 +171,8 @@ class ArbitroServer:
                     mac_bytes = struct.unpack('<6B', payload[:6])
                     mac_str = ":".join([f"{b:02X}" for b in mac_bytes])
                     
+                    saved_angle = 0.0 
+                    
                     with self.lock:
                         if mac_str in self.grid:
                             radar_id = self.grid[mac_str]["id"]
@@ -141,12 +183,18 @@ class ArbitroServer:
                             if now - self._last_save_time > self._save_debounce_interval:
                                 self.save_grid()
                                 self._last_save_time = now
+                                
+                        if radar_id in self.track_states:
+                            saved_angle = self.track_states[radar_id]['current_angle']
                             
                         self.clients[conn] = radar_id
                         self.client_sockets[radar_id] = conn
+                        self.strikes[radar_id] = 0
+                        # 4 SFs de gracia (~1200ms) para que el nodo complete su arranque
+                        self.grace_until_sf[radar_id] = self.seq + 4
                     
-                    print(f"[SYS] Conectado MAC {mac_str} -> ID {radar_id}")
-                    conn.sendall(struct.pack('<BHH', MSG_HELLO_ACK, 2, radar_id))
+                    print(f"[SYS] Conectado MAC {mac_str} -> ID {radar_id} (Reanudando en {saved_angle}º)")
+                    conn.sendall(struct.pack('<BHBf', MSG_HELLO_ACK, 5, radar_id, saved_angle))
 
                 elif msg_type == MSG_ANGLE_REQ:
                     with self.lock:
@@ -191,6 +239,7 @@ class ArbitroServer:
                 if radar_id in self.client_sockets: del self.client_sockets[radar_id]
                 if radar_id is not None and radar_id in self.requests: del self.requests[radar_id]
                 if radar_id is not None and radar_id in self.reports_received: self.reports_received.discard(radar_id)
+                if radar_id is not None and radar_id in self.grace_until_sf: del self.grace_until_sf[radar_id]
             conn.close()
 
     def orchestration_loop(self):
@@ -213,6 +262,7 @@ class ArbitroServer:
                 self.requests.clear()
                 self.reports_received.clear()
                 self.latest_reports.clear()
+                expected_nodes = list(self.client_sockets.keys()) # Guardamos quién debería responder
                 for r_id, sock in list(self.client_sockets.items()):
                     try: sock.sendall(struct.pack('<BH', MSG_SUPERFRAME_START, 8) + payload_sf)
                     except: pass
@@ -223,20 +273,41 @@ class ArbitroServer:
                     if len(self.requests) >= len(self.client_sockets): break
                 time.sleep(0.01)
                 timeout += 1
-                if timeout > 50: break # Mantenemos tu timeout original
+                if timeout > 50: break 
 
             with self.lock:
                 active_reqs = list(self.requests.keys())
                 self.current_phase = 2 
 
+            # Nodos fantasma: conectados pero no pidieron ángulo
+            for r_id in expected_nodes:
+                if r_id not in active_reqs:
+                    # Si ya no está en client_sockets es que se cayó solo — no castigar
+                    if r_id not in self.client_sockets:
+                        continue
+                    # Nodo recién conectado, todavía inicializando — no castigar
+                    if self.seq <= self.grace_until_sf.get(r_id, 0):
+                        continue
+                    self.strikes[r_id] = self.strikes.get(r_id, 0) + 1
+                    print(f"  [WARN] Nodo {r_id} fantasma (sin petición). Strike {self.strikes[r_id]}/5")
+                    if self.strikes[r_id] >= 5:
+                        print(f"  [KICK] Nodo {r_id} atascado en inicio. Forzando cierre...")
+                        sock = self.client_sockets.pop(r_id, None)
+                        if sock:
+                            try: sock.close()
+                            except: pass
+                        self.requests.pop(r_id, None)
+                        self.strikes[r_id] = 0
+
             if not active_reqs:
+                time.sleep(0.2)
                 self.seq += 1
                 continue
 
             slots_assigned = {}
             used_angles = {}
             max_movement_time_ms = 0
-            SLOT_DURATION = 100
+            SLOT_DURATION = 50
 
             for r_id in active_reqs:
                 state = self.get_state(r_id)
@@ -250,15 +321,17 @@ class ArbitroServer:
                         target_angle = A_MIN
                         state['search_dir'] = 1.0
                 else:
+                    # Barrido acotado: oscila entre los extremos angulares detectados ±5°
+                    # Techo/suelo en los límites físicos del motor (±60°)
+                    obj_left  = max(A_MIN - TRACK_MARGIN, state['track_min'] - 5.0)
+                    obj_right = min(A_MAX + TRACK_MARGIN, state['track_max'] + 5.0)
                     target_angle = state['current_angle'] + (state['track_dir'] * STEP_ANGLE)
-                    if target_angle >= (A_MAX + TRACK_MARGIN):
-                        target_angle = A_MAX + TRACK_MARGIN
+                    if target_angle >= obj_right:
+                        target_angle = obj_right
                         state['track_dir'] = -1.0
-                        state['misses'] += 1 
-                    elif target_angle <= (A_MIN - TRACK_MARGIN):
-                        target_angle = A_MIN - TRACK_MARGIN
+                    elif target_angle <= obj_left:
+                        target_angle = obj_left
                         state['track_dir'] = 1.0
-                        state['misses'] += 1 
 
                 mov_time = self.calculate_movement_time(state['current_angle'], target_angle)
                 if mov_time > max_movement_time_ms:
@@ -283,7 +356,7 @@ class ArbitroServer:
                 slots_assigned[r_id] = assigned_slot
                 used_angles[r_id] = global_angle
 
-            BASE_MOVEMENT_TIME = max_movement_time_ms + 50 
+            BASE_MOVEMENT_TIME = max_movement_time_ms + 100
             max_delay_ms = 0
 
             for r_id in active_reqs:
@@ -302,7 +375,7 @@ class ArbitroServer:
                         print(f"  -> N{r_id} Asignado: {target_angle:5.1f}° (Slot {assigned_slot}, Centro en {delay_ms}ms) | Modo: {state['mode']}")
                     except: pass
             
-            time.sleep((max_delay_ms + 150) / 1000.0)
+            time.sleep((max_delay_ms + 50) / 1000.0)
 
             packet_req = struct.pack('<BH', MSG_REPORT_REQ, 0)
             with self.lock:
@@ -315,17 +388,48 @@ class ArbitroServer:
                         try: sock.sendall(packet_req)
                         except: pass
 
+            # Esperar proporcional al tiempo real del SF, no un fijo hardcodeado.
+            # El nodo tiene max_delay_ms para moverse + medir. Esperamos hasta que
+            # todos los nodos conectados hayan reportado, con margen extra.
+            report_timeout_ms = max_delay_ms + 400
+            report_timeout_iters = int(report_timeout_ms / 10)
             timeout = 0
             while self.running:
                 with self.lock:
-                    if len(self.reports_received) >= len(self.requests): break
+                    connected_reqs = [r for r in active_reqs if r in self.client_sockets]
+                    if len(self.reports_received) >= len(connected_reqs): break
                 time.sleep(0.01)
                 timeout += 1
-                if timeout > 50: break # Mantenemos tu timeout original
+                if timeout > report_timeout_iters: break
 
+            # 50ms de gracia para reportes que llegan justo al límite
+            time.sleep(0.05)
+
+            for r_id in active_reqs:
+                # Si el nodo ya no está conectado, no tiene sentido penalizarlo
+                if r_id not in self.client_sockets:
+                    continue
+                if r_id not in self.reports_received:
+                    # Nodo recién conectado, todavía inicializando — no castigar
+                    if self.seq <= self.grace_until_sf.get(r_id, 0):
+                        continue
+                    self.strikes[r_id] = self.strikes.get(r_id, 0) + 1
+                    print(f"  [WARN] Nodo {r_id} no responde. Strike {self.strikes[r_id]}/5")
+                    if self.strikes[r_id] >= 5:
+                        print(f"  [KICK] Nodo {r_id} atascado en medición. Forzando cierre...")
+                        # Limpiar inmediatamente para que el siguiente SF no lo incluya
+                        sock = self.client_sockets.pop(r_id, None)
+                        if sock:
+                            try: sock.close()
+                            except: pass
+                        self.requests.pop(r_id, None)
+                        self.strikes[r_id] = 0
+                else:
+                    self.strikes[r_id] = 0
+
+            # Solo detecciones DEFCON 1 (≤10cm) califican para decisiones de tracking
             hits = {r_id: data for r_id, data in self.latest_reports.items() if 0 < data['dist'] <= TRACK_LIMIT_DIST}
 
-            # VALIDACIÓN DE TRILATERACIÓN (Se imprime en consola si hay solape)
             if 1 in hits and 2 in hits:
                 pos_tri = self.calcular_trilateracion(1, hits[1]['dist'], 2, hits[2]['dist'])
                 if pos_tri: print(f"  [VALIDACIÓN] Trilateración N1-N2: ({pos_tri[0]:.1f}, {pos_tri[1]:.1f})")
@@ -333,55 +437,66 @@ class ArbitroServer:
                 pos_tri = self.calcular_trilateracion(2, hits[2]['dist'], 3, hits[3]['dist'])
                 if pos_tri: print(f"  [VALIDACIÓN] Trilateración N2-N3: ({pos_tri[0]:.1f}, {pos_tri[1]:.1f})")
 
-            clean_hits = []
-            overlap_left = []  
-            overlap_right = [] 
+            # Zonas por ángulo LOCAL de cada nodo:
+            #   clean:    abs ≤ 30°  → sin riesgo de cross-talk, TRACKs simultáneos ilimitados
+            #   sucia:    30° < abs ≤ 45°  → solapa con el barrido del nodo adyacente
+            #   tracking: abs > 45°  → margen extra solo accesible en modo TRACK
+            # Pares de conflicto:
+            #   N1 ángulos positivos  ↔  N2 ángulos negativos  (N1 apunta hacia N2 en positivo)
+            #   N2 ángulos positivos  ↔  N3 ángulos negativos
+            CLEAN_LIMIT = A_MAX - DIRTY_MARGIN  # 45 - 15 = 30°
+            CONFLICT_PAIRS = [(1, 2), (2, 3)]   # (nodo_izq, nodo_der)
 
-            for r_id, data in hits.items():
-                a = data['angle']
-                cfg = next((r for r in self.grid.values() if r["id"] == r_id), None)
-                if not cfg: continue
-                global_a = (cfg["theta"] + a) % 360
-                
-                if 95 <= global_a <= 140:
-                    overlap_left.append(r_id)
-                elif 40 <= global_a <= 85:
-                    overlap_right.append(r_id)
-                else:
-                    clean_hits.append(r_id)
-
-            winners = set(clean_hits)
+            winners = set()
             losers = set()
 
-            def resolve_conflict(conflict_list):
-                if not conflict_list: return
-                if len(conflict_list) == 1:
-                    winners.add(conflict_list[0])
-                    return
-                
-                best_id = None
-                best_dist = 9999.0
-                
-                for c_id in conflict_list:
-                    dist = hits[c_id]['dist']
-                    state = self.get_state(c_id)
-                    if state['mode'] == 'TRACK': dist -= STEAL_MARGIN
-                    
-                    if dist < best_dist:
-                        best_dist = dist
-                        best_id = c_id
-                
-                winners.add(best_id)
-                for c_id in conflict_list:
-                    if c_id != best_id: losers.add(c_id)
+            for (na, nb) in CONFLICT_PAIRS:
+                na_conflict = (na in hits and hits[na]['angle'] > 0 and abs(hits[na]['angle']) > CLEAN_LIMIT)
+                nb_conflict = (nb in hits and hits[nb]['angle'] < 0 and abs(hits[nb]['angle']) > CLEAN_LIMIT)
 
-            resolve_conflict(overlap_left)
-            resolve_conflict(overlap_right)
+                if na_conflict and nb_conflict:
+                    # Ambos detectan en la zona solapada → trilateración decide
+                    state_a = self.get_state(na)
+                    state_b = self.get_state(nb)
+                    eff_da = hits[na]['dist'] - (STEAL_MARGIN if state_a['mode'] == 'TRACK' else 0)
+                    eff_db = hits[nb]['dist'] - (STEAL_MARGIN if state_b['mode'] == 'TRACK' else 0)
+                    if eff_da <= eff_db:
+                        winners.add(na); losers.add(nb)
+                        print(f"  [CONFLICTO] N{na}/N{nb}: N{na} gana ({hits[na]['dist']:.1f} vs {hits[nb]['dist']:.1f} cm)")
+                    else:
+                        winners.add(nb); losers.add(na)
+                        print(f"  [CONFLICTO] N{na}/N{nb}: N{nb} gana ({hits[nb]['dist']:.1f} vs {hits[na]['dist']:.1f} cm)")
+
+            # Cualquier hit no involucrado en un conflicto → ganador automático
+            # (zona limpia, zona sucia sin par opuesto, zona tracking sin par opuesto)
+            for r_id in hits:
+                if r_id not in winners and r_id not in losers:
+                    winners.add(r_id)
 
             for r_id in active_reqs:
                 state = self.get_state(r_id)
                 if r_id in winners:
-                    if state['mode'] == 'SEARCH': state['track_dir'] = state['search_dir'] 
+                    a = hits[r_id]['angle']
+                    if state['mode'] == 'SEARCH' or state['misses'] > 0:
+                        # Primera detección o re-detección tras miss(es): reiniciar ventana
+                        # para no arrastrar los bordes del trackeo anterior
+                        if state['mode'] == 'SEARCH':
+                            state['track_dir'] = state['search_dir']
+                        state['track_min'] = a
+                        state['track_max'] = a
+                    else:
+                        # Trackeo continuo sin interrupciones: expandir ventana
+                        prev_min = state['track_min']
+                        prev_max = state['track_max']
+                        state['track_min'] = min(state['track_min'], a)
+                        state['track_max'] = max(state['track_max'], a)
+                        # Si el objeto fue detectado EN el borde de la ventana, el nodo
+                        # ya había reversado (en el paso de asignación). Deshacer esa
+                        # inversión para que siga explorando hacia afuera en el siguiente SF.
+                        if a > prev_max and state['track_dir'] == -1.0:
+                            state['track_dir'] = 1.0
+                        elif a < prev_min and state['track_dir'] == 1.0:
+                            state['track_dir'] = -1.0
                     state['mode'] = 'TRACK'
                     state['misses'] = 0
                 elif r_id in losers:
@@ -390,12 +505,10 @@ class ArbitroServer:
                 else:
                     if state['mode'] == 'TRACK':
                         state['misses'] += 1
-                        state['track_dir'] *= -1.0 
                         if state['misses'] >= MAX_MISSES:
                             state['mode'] = 'SEARCH'
                             state['misses'] = 0
 
-            # ENVÍO UDP A PYGAME
             ui_state = {
                 "seq": self.seq,
                 "radars": {r: self.get_state(r) for r in self.client_sockets.keys()},
@@ -421,15 +534,15 @@ class ArbitroServer:
             while self.running:
                 try:
                     conn, addr = server.accept()
-                    # AÑADE ESTA LÍNEA EXACTAMENTE AQUÍ:
                     conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-                    
                     threading.Thread(target=self.handle_client, args=(conn, addr), daemon=True).start()
                 except socket.timeout:
                     continue
         except KeyboardInterrupt:
-            self.running = False
+            print("\n[SYS] Servidor detenido por el usuario (Ctrl+C).")
         finally:
+            self.running = False
+            self.save_state() 
             server.close()
 
 if __name__ == "__main__":

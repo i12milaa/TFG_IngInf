@@ -13,27 +13,64 @@ float calcularSiguienteAngulo();
 
 void TaskComms(void *pvParameters) {
     uint8_t buffer[128];
+    uint32_t last_msg_time = millis(); 
 
     for (;;) {
-        // ESTADO 2: WAITING FOR CONNECTION (Manejo robusto de reconexión)
         if (!client.connected()) {
             client.stop();
 
+            // Al desconectarse del servidor, volver a 0° para dejar el hardware en estado conocido
+            if (SystemManager::instance().motorActive) {
+                Serial.println("[COMMS] Servidor caido. Iniciando homing...");
+
+                HwCommand flushCmd;
+                while (xQueueReceive(SystemManager::instance().queueCommands, &flushCmd, 0));
+                HwResult flushRes;
+                while (xQueueReceive(SystemManager::instance().queueResults, &flushRes, 0));
+
+                HwCommand cmdHome;
+                cmdHome.type = HW_CMD_HOME;
+                xQueueSend(SystemManager::instance().queueCommands, &cmdHome, portMAX_DELAY);
+
+                // Esperar HOME_DONE específicamente; descartar resultados de slot pendientes
+                HwResult homeRes;
+                uint32_t t_home = millis();
+                while (millis() - t_home < 15000) {
+                    if (xQueueReceive(SystemManager::instance().queueResults, &homeRes, pdMS_TO_TICKS(200)) == pdPASS) {
+                        if (homeRes.type == HW_RES_HOME_DONE) break;
+                    }
+                }
+
+                SystemManager::instance().motorActive = false;
+                SystemManager::instance().justHomed   = true;
+                Serial.println("[COMMS] Homing completado. Esperando servidor...");
+            }
+
+            SystemManager::instance().changeState(SYNC_CONTROL);
+
             if (!connectToServer()) {
-                vTaskDelay(pdMS_TO_TICKS(1000));
+                vTaskDelay(pdMS_TO_TICKS(50));
                 continue;
             }
 
-            // ESTADO 3: SYNC (Solicita ID al servidor)
             Payload_HelloReq req;
             WiFi.macAddress(req.mac_address);
             sendPacket(MSG_HELLO_REQ, &req, sizeof(req));
+            last_msg_time = millis();
             vTaskDelay(pdMS_TO_TICKS(100));
             continue;
         }
 
-        // ESTADO 4: RADAR (Procesamiento de Supertrama)
+        // Si el servidor no dice nada en 5s, cortamos (los SFs pueden durar ~1-2s)
+        if (SystemManager::instance().currentState == RADAR && (millis() - last_msg_time > 5000)) {
+            Serial.println("[ERR] Servidor zombie (timeout). Reiniciando red...");
+            client.stop(); 
+            continue;
+        }
+
         if (client.available() >= sizeof(PacketHeader)) {
+            last_msg_time = millis(); 
+            
             PacketHeader header;
             client.readBytes((uint8_t*)&header, sizeof(PacketHeader));
             
@@ -59,9 +96,30 @@ void TaskComms(void *pvParameters) {
                 case MSG_HELLO_ACK: {
                     Payload_HelloAck* p = (Payload_HelloAck*)buffer;
                     SystemManager::instance().radarId = p->assigned_id;
-                    SystemManager::instance().current_angle_logic = 0.0f;
+                    SystemManager::instance().current_angle_logic = p->saved_angle;
                     SystemManager::instance().sweep_direction_up = true;
-                    SystemManager::instance().changeState(STATE_RADAR);
+
+                    HwCommand cmdInit;
+                    if (SystemManager::instance().justHomed) {
+                        // Motor está en 0° (homing previo). Moverlo físicamente a la posición guardada.
+                        cmdInit.type  = HW_CMD_MOVE;
+                        Serial.printf("[COMMS] Post-homing: moviendo a posicion guardada %.1f°\n", p->saved_angle);
+                    } else {
+                        // Arranque normal: el motor no se ha movido. Solo sincronizar variables.
+                        cmdInit.type  = HW_CMD_SYNC_POS;
+                    }
+                    cmdInit.param = p->saved_angle;
+                    xQueueSend(SystemManager::instance().queueCommands, &cmdInit, portMAX_DELAY);
+                    SystemManager::instance().justHomed = false;
+
+                    // Esperar confirmación (hasta 1s; el movimiento máximo de ±45° tarda ~320ms)
+                    HwResult res;
+                    xQueueReceive(SystemManager::instance().queueResults, &res, pdMS_TO_TICKS(1000));
+                    HwResult flush;
+                    while (xQueueReceive(SystemManager::instance().queueResults, &flush, 0));
+
+                    SystemManager::instance().changeState(RADAR);
+                    SystemManager::instance().motorActive = true;
                     break;
                 }
 
@@ -83,10 +141,8 @@ void TaskComms(void *pvParameters) {
                         HwCommand cmd;
                         cmd.type = HW_CMD_EXECUTE_SLOT;
                         cmd.param = p->confirmed_angle;
-                        // Calcula el tiempo absoluto en el que debe ocurrir el disparo
                         cmd.execution_time_ms = SystemManager::instance().t0_last_superframe + p->start_delay_ms;
                         
-                        // Limpia comandos viejos (si los hubiera) y encola la orden a la API del radar
                         HwCommand flushCmd;
                         while(xQueueReceive(SystemManager::instance().queueCommands, &flushCmd, 0));
                         xQueueSend(SystemManager::instance().queueCommands, &cmd, portMAX_DELAY);
@@ -98,8 +154,7 @@ void TaskComms(void *pvParameters) {
 
                 case MSG_REPORT_REQ: {
                     HwResult res;
-                    // Espera generosa (1000ms) para garantizar que el hardware ha terminado la física
-                    if (xQueueReceive(SystemManager::instance().queueResults, &res, pdMS_TO_TICKS(1000)) == pdPASS) {
+                    if (xQueueReceive(SystemManager::instance().queueResults, &res, pdMS_TO_TICKS(2500)) == pdPASS) {
                         if (res.type == HW_RES_SLOT_DONE) {
                             Payload_DataReport rep;
                             rep.radar_id = SystemManager::instance().radarId;
@@ -145,15 +200,13 @@ bool connectToServer() {
 }
 
 void sendPacket(uint8_t type, void* payload, uint16_t length) {
-    uint8_t out_buf[128]; // Buffer temporal
+    uint8_t out_buf[128]; 
     PacketHeader header;
     header.type = type;
     header.length = length;
     
-    // Juntamos cabecera y datos en un solo bloque de memoria
     memcpy(out_buf, &header, sizeof(PacketHeader));
     if (length > 0) memcpy(out_buf + sizeof(PacketHeader), payload, length);
     
-    // Un solo disparo TCP (reduce la latencia drásticamente)
     client.write(out_buf, sizeof(PacketHeader) + length);
 }

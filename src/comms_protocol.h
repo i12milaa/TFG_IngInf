@@ -24,6 +24,7 @@ struct Payload_HelloReq {
 
 struct Payload_HelloAck {
     uint8_t assigned_id;
+    float saved_angle; 
 };
 
 struct Payload_SuperFrame {

@@ -158,3 +158,10 @@ PROMPT FASE 4:
 
 Actúa como DevOps de software embebido. Redacta el manifiesto del archivo de entorno platformio.ini preparado y estabilizado para este controlador ESP32 que requiere soporte de sockets TCP. Configura la estructuración para compilar bajo carpetas aisladas: /core, /drivers y /tasks (usando build_flags y el preprocesador para inyectar estos paths sin colisiones temporales). Incluye también forzado del framwork a arduino/espidf según proceda, velocidad a 240MHz y asignación estática preferencial de nivel de optimización tipo -O2.
 
+
+
+RADAR N1: DESDE EL RADAR IZQUIERDA SON MEDIDAS NEGATIVAS Y DERECHA MEDIDAS POSITIVA EN MODO DEBUG, SE MUEVE PERFECTO SIN NINGUN PROBLEMA Y HACE LO QUE DEBERIA DE HACER EN MODO DEBUG.
+
+RADAR N2: DESDE EL RADAR IZQUIERDA SON MEDIDAS POSITIVAS Y DERECHA MEDIDAS NEGATIVAS EN MODO DEBUG, POR LO DEMAS FUNCIONA TODO SIN PROBLEMA SI SE LE HACE LA INVERSION DE MOVIMIENTO.
+
+RADAR N3: DESDE EL RADAR IZQUIERDA SON MEDIDAS POSITIVAS Y DERECHA MEDIDAS NEGATIVAS EN MODO DEBUG, POR LO DEMAS FUNCIONA TODO SIN PROBLEMA SI SE LE HACE LA INVERSION DE MOVIMIENTO.

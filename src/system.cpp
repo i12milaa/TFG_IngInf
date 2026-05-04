@@ -3,19 +3,15 @@
 
 void SystemManager::init() {
     Serial.begin(115200);
-    // Esperar un poco a que el serial estabilice
     delay(500);
     Serial.println("[SYSTEM] Iniciando gestor del sistema...");
 
-    // 1. Crear Cola de Comandos (Red -> Hardware)
-    // Caben 10 comandos. Si se llena, la red espera.
     queueCommands = xQueueCreate(10, sizeof(HwCommand));
     if (queueCommands == NULL) {
         Serial.println("[ERROR] No se pudo crear queueCommands");
-        while(1); // Bloqueo de seguridad
+        while(1);
     }
 
-    // 2. Crear Cola de Resultados (Hardware -> Red)
     queueResults = xQueueCreate(10, sizeof(HwResult));
     if (queueResults == NULL) {
         Serial.println("[ERROR] No se pudo crear queueResults");
@@ -24,8 +20,8 @@ void SystemManager::init() {
 
     Serial.println("[SYSTEM] Colas FreeRTOS iniciadas.");
     
-    // Estado inicial
-    currentState = STATE_CONFIG;
+    // Asignamos el estado inicial de la pizarra
+    currentState = CONFIGURACION;
 }
 
 void SystemManager::changeState(SystemState newState) {

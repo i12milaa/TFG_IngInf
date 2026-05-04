@@ -7,10 +7,24 @@
 #define STACK_SIZE_COMMS  4096
 #define STACK_SIZE_RADAR  4096
 
-#define PIN_MOTOR_STEP    18 
+#define PIN_MOTOR_STEP    18
 #define PIN_MOTOR_DIR     19
-#define PIN_MOTOR_ENABLE  -1  
-#define PIN_REED_SWITCH   -1  
+#define PIN_MOTOR_ENABLE  -1
+#define MOTOR_DIR_INVERT  1  // Pon 1 si el motor se mueve al revés
+#define PIN_REED_SWITCH   26
+
+// HIGH = interruptor NC (abierto cuando el imán pasa — lo que describes).
+// LOW  = interruptor NO (cerrado cuando el imán pasa — el más común).
+// Ajústalo si el DEBUG muestra el estado al revés.
+#define REED_TRIGGER_LEVEL HIGH
+
+// Ángulo (en grados) al que el reed se activa respecto al 0° lógico.
+// Déjalo en 0.0 para el primer flash; el DEBUG te dirá el valor real.
+#define HOMING_TRIGGER_OFFSET 0.0f
+
+// Velocidad del motor durante el homing (µs por flanco).
+// Más lento que en operación normal para no saltarse el trigger.
+#define HOMING_STEP_US    700
 
 #define PIN_TRIG          14
 #define PIN_ECHO          27

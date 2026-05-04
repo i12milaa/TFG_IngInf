@@ -6,11 +6,12 @@
 #include <freertos/queue.h>
 #include "task_radar.h" 
 
+// FSM calcada de la pizarra del profesor
 enum SystemState {
-    STATE_CONFIG,
-    STATE_WAIT_WIFI,
-    STATE_SYNC,
-    STATE_RADAR
+    CONFIGURACION,
+    WAITING_FOR_CONNECTION,
+    SYNC_CONTROL,
+    RADAR
 };
 
 class SystemManager {
@@ -28,13 +29,17 @@ public:
     QueueHandle_t queueResults;
     uint8_t radarId;
 
-    uint32_t t0_last_superframe;  
-    float current_angle_logic;    
-    bool sweep_direction_up;      
+    uint32_t t0_last_superframe;
+    float current_angle_logic;
+    bool sweep_direction_up;
+
+    bool motorActive;  // true desde HELLO_ACK hasta homing completado
+    bool justHomed;    // true justo después de homing; indica que el motor está en 0°
 
 private:
-    SystemManager() : currentState(STATE_CONFIG), radarId(0), 
-                      t0_last_superframe(0), current_angle_logic(0.0), sweep_direction_up(true) {}
+    SystemManager() : currentState(CONFIGURACION), radarId(0),
+                      t0_last_superframe(0), current_angle_logic(0.0), sweep_direction_up(true),
+                      motorActive(false), justHomed(false) {}
 };
 
 #endif
