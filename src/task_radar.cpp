@@ -1,3 +1,4 @@
+// task_radar.cpp
 #include "task_radar.h"
 #include "config.h"
 #include "system.h"
@@ -111,11 +112,9 @@ void RadarHardware::moveToAngle(float targetAngle) {
 
     for (long i = 0; i < steps; i++) {
         digitalWrite(PIN_MOTOR_STEP, HIGH);
-        delayMicroseconds(400); // VOLVEMOS A 400us PARA EVITAR PÉRDIDA DE PASOS
+        delayMicroseconds(1000);
         digitalWrite(PIN_MOTOR_STEP, LOW);
-        delayMicroseconds(400); // VOLVEMOS A 400us PARA EVITAR PÉRDIDA DE PASOS
-        
-        if (i % 20 == 0) vTaskDelay(pdMS_TO_TICKS(1));
+        delayMicroseconds(1000);
     }
 
     currentStepPos = target;
@@ -127,8 +126,6 @@ void RadarHardware::goHome() {
 
     moveToAngle(0.0f);
 
-    // Verificacion con reed switch: si esta instalado y calibrado debe estar activo en 0°.
-    // No bloquea el homing — es solo un indicador de salud del sistema.
     delay(50);
     bool reed_ok = (digitalRead(PIN_REED_SWITCH) == SystemManager::instance().reedTriggerLevel);
     if (reed_ok) {
@@ -164,10 +161,8 @@ float RadarHardware::getDistance() {
         vTaskDelay(pdMS_TO_TICKS(2));
     }
 
-    // NUEVO: Si el timeout salta (duration 0), significa que no hay obstáculos a < 2.5m
     if (duration == 0) return 0.0; 
     
-    // Si la lectura es absurdamente pequeña (< 2cm), sí es un error del sensor
     if (duration <= 116) return -1.0; 
     
     return duration / 58.0;

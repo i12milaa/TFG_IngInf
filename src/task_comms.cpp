@@ -1,5 +1,6 @@
 #include <WiFi.h>
 #include <ESPmDNS.h>
+#include <esp_wifi.h>
 #include "task_comms.h"
 #include "config.h"
 #include "system.h"
@@ -20,7 +21,6 @@ void TaskComms(void *pvParameters) {
         if (!client.connected()) {
             client.stop();
 
-            // Al desconectarse del servidor, volver a 0° para dejar el hardware en estado conocido
             if (SystemManager::instance().motorActive) {
                 Serial.println("[COMMS] Servidor caido. Iniciando homing...");
 
@@ -33,7 +33,6 @@ void TaskComms(void *pvParameters) {
                 cmdHome.type = HW_CMD_HOME;
                 xQueueSend(SystemManager::instance().queueCommands, &cmdHome, portMAX_DELAY);
 
-                // Esperar HOME_DONE específicamente; descartar resultados de slot pendientes
                 HwResult homeRes;
                 uint32_t t_home = millis();
                 while (millis() - t_home < 15000) {
@@ -62,7 +61,6 @@ void TaskComms(void *pvParameters) {
             continue;
         }
 
-        // Si el servidor no dice nada en 5s, cortamos (los SFs pueden durar ~1-2s)
         if (millis() - last_msg_time > 5000) {
             Serial.println("[ERR] Servidor zombie (timeout). Reiniciando red...");
             client.stop(); 
@@ -83,10 +81,11 @@ void TaskComms(void *pvParameters) {
             if (header.length > 0) {
                 uint32_t t_wait = millis();
                 while (client.available() < header.length) {
-                    if (millis() - t_wait > 100) break;
+                    if (millis() - t_wait > 1500) break;
                     vTaskDelay(1);
                 }
                 if (client.available() < header.length) {
+                    Serial.println("[COMMS] Timeout recibiendo payload. TCP corrupto. Reiniciando...");
                     client.stop(); 
                     continue; 
                 }
@@ -102,18 +101,15 @@ void TaskComms(void *pvParameters) {
 
                     HwCommand cmdInit;
                     if (SystemManager::instance().justHomed) {
-                        // Motor está en 0° (homing previo). Moverlo físicamente a la posición guardada.
                         cmdInit.type  = HW_CMD_MOVE;
                         Serial.printf("[COMMS] Post-homing: moviendo a posicion guardada %.1f°\n", p->saved_angle);
                     } else {
-                        // Arranque normal: el motor no se ha movido. Solo sincronizar variables.
                         cmdInit.type  = HW_CMD_SYNC_POS;
                     }
                     cmdInit.param = p->saved_angle;
                     xQueueSend(SystemManager::instance().queueCommands, &cmdInit, portMAX_DELAY);
                     SystemManager::instance().justHomed = false;
 
-                    // Esperar confirmación (hasta 1s; el movimiento máximo de ±45° tarda ~320ms)
                     HwResult res;
                     xQueueReceive(SystemManager::instance().queueResults, &res, pdMS_TO_TICKS(1000));
                     HwResult flush;
@@ -122,14 +118,16 @@ void TaskComms(void *pvParameters) {
                     SystemManager::instance().changeState(RADAR);
                     SystemManager::instance().motorActive = true;
 
-                    // Vaciar buffer TCP: durante el HELLO_ACK se acumulan SF_STARTs obsoletos.
-                    // Si se procesan tarde, el ANGLE_REQ llega fuera de ventana → strikes fantasma.
                     while (client.available()) client.read();
                     last_msg_time = millis();
                     break;
                 }
 
                 case MSG_SUPERFRAME_START: {
+                    // Anclamos t0 aquí: SF_START tiene jitter mínimo de red.
+                    // El servidor envía start_delay_ms relativo a este instante,
+                    // así execution_time_ms no depende del jitter de SLOT_ASSIGN.
+                    SystemManager::instance().t0_last_superframe = millis();
                     float nextAngle = calcularSiguienteAngulo();
                     Payload_AngleReq req;
                     req.radar_id = SystemManager::instance().radarId;
@@ -142,8 +140,8 @@ void TaskComms(void *pvParameters) {
                 case MSG_SLOT_ASSIGN: {
                     Payload_SlotAssign* p = (Payload_SlotAssign*)buffer;
                     if (p->radar_id == SystemManager::instance().radarId) {
-                        SystemManager::instance().t0_last_superframe = millis();
-                        
+                        // t0_last_superframe ya fue fijado en MSG_SUPERFRAME_START.
+                        // execution_time_ms = t0_sf_start + start_delay_ms (relativo al SF).
                         HwCommand cmd;
                         cmd.type = HW_CMD_EXECUTE_SLOT;
                         cmd.param = p->confirmed_angle;
@@ -160,7 +158,9 @@ void TaskComms(void *pvParameters) {
 
                 case MSG_REPORT_REQ: {
                     HwResult res;
-                    if (xQueueReceive(SystemManager::instance().queueResults, &res, pdMS_TO_TICKS(700)) == pdPASS) {
+                    // 300ms: en operación normal el resultado ya está listo cuando llega REPORT_REQ.
+                    // Fallo rápido evita bloquear el siguiente SF_START si el timing fue a la deriva.
+                    if (xQueueReceive(SystemManager::instance().queueResults, &res, pdMS_TO_TICKS(300)) == pdPASS) {
                         if (res.type == HW_RES_SLOT_DONE) {
                             Payload_DataReport rep;
                             rep.radar_id = SystemManager::instance().radarId;
@@ -170,16 +170,15 @@ void TaskComms(void *pvParameters) {
                             sendPacket(MSG_DATA_REPORT, &rep, sizeof(Payload_DataReport));
                         }
                     } else {
-                        // Timeout: durante la espera se acumularon SF_STARTs en el buffer.
-                        // Si los procesamos tarde el ANGLE_REQ llega fuera de ventana → cascade de strikes.
-                        while (client.available()) client.read();
                         last_msg_time = millis();
                     }
                     break;
                 }
             }
+        } else {
+             // Retardo solo si no hay nada en el buffer TCP
+             vTaskDelay(1);
         }
-        vTaskDelay(1);
     }
 }
 
@@ -203,16 +202,29 @@ float calcularSiguienteAngulo() {
 
 bool connectToServer() {
     WiFi.setSleep(false);
+    esp_wifi_set_ps(WIFI_PS_NONE);
+
+    static IPAddress cachedServerIP(0, 0, 0, 0);
+
+    if (cachedServerIP != IPAddress(0, 0, 0, 0)) {
+        Serial.printf("[COMMS] Reconectando a IP cacheada %s...\n", cachedServerIP.toString().c_str());
+        if (client.connect(cachedServerIP, SERVER_PORT)) {
+            client.setNoDelay(true);
+            client.setTimeout(1500);
+            return true;
+        }
+        Serial.println("[COMMS] IP cacheada no responde. Redescubriendo...");
+        cachedServerIP = IPAddress(0, 0, 0, 0);
+    }
 
     IPAddress serverIP;
     for (int i = 0; i < 2; i++) {
         serverIP = MDNS.queryHost(SERVER_HOSTNAME);
         if (serverIP != IPAddress(0, 0, 0, 0)) break;
         Serial.printf("[COMMS] mDNS: buscando %s.local... (%d/2)\n", SERVER_HOSTNAME, i + 1);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        vTaskDelay(pdMS_TO_TICKS(500));
     }
 
-    // Fallback: si mDNS no resuelve, probar el gateway (= el servidor en hotspot)
     if (serverIP == IPAddress(0, 0, 0, 0)) {
         serverIP = WiFi.gatewayIP();
         Serial.printf("[COMMS] mDNS sin respuesta. Probando gateway: %s\n", serverIP.toString().c_str());
@@ -226,16 +238,18 @@ bool connectToServer() {
     Serial.printf("[COMMS] Conectando a %s...\n", serverIP.toString().c_str());
     if (client.connect(serverIP, SERVER_PORT)) {
         client.setNoDelay(true);
+        client.setTimeout(1500);
+        cachedServerIP = serverIP;
         return true;
     }
 
-    // mDNS devolvió una IP pero la conexión falló (ej. IP de otra interfaz).
-    // Probar el gateway: en hotspot siempre es el servidor.
     IPAddress gw = WiFi.gatewayIP();
     if (gw != serverIP && gw != IPAddress(0, 0, 0, 0)) {
         Serial.printf("[COMMS] Reintentando con gateway: %s\n", gw.toString().c_str());
         if (client.connect(gw, SERVER_PORT)) {
             client.setNoDelay(true);
+            client.setTimeout(1500);
+            cachedServerIP = gw;
             return true;
         }
     }

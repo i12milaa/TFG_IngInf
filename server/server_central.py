@@ -58,12 +58,12 @@ TRACK_LIMIT_DIST = 10.0
 MAX_MISSES = 3
 STEP_ANGLE = 5.0
 STEAL_MARGIN = 2.0
-TRACK_LOCK_DURATION = 6  # SFs que un nodo mantiene el TRACK exclusivo tras ganar un conflicto
+TRACK_LOCK_DURATION = 6
 
 MOTOR_STEPS_REV = 200
 MICROSTEPPING = 16
 GEAR_RATIO = 1.0
-STEP_DELAY_MS = 0.9 
+STEP_DELAY_MS = 2.0  # 1000µs por flanco × 2 = 2ms por micropaso
 
 class ArbitroServer:
     def __init__(self):
@@ -74,8 +74,8 @@ class ArbitroServer:
         self.latest_reports = {}
         self.track_states = {}
         self.strikes = {}
-        self.grace_until_sf = {}   # SF hasta el que ignoramos strikes por nodo recién conectado
-        self.track_lock = {}       # {r_id: sf_hasta_el_que_está_bloqueado}
+        self.grace_until_sf = {}
+        self.track_lock = {}
         self.lock = threading.Lock()
         self.seq = 0
         self.current_phase = 0 
@@ -85,6 +85,7 @@ class ArbitroServer:
         self._last_save_time = 0
         self._save_debounce_interval = 2 
         self.udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.client_buffers = {} # Buffer por cliente
 
     def load_grid(self):
         if os.path.exists(CONFIG_FILE):
@@ -175,104 +176,119 @@ class ArbitroServer:
                 'track_max': 0.0
             }
         state = self.track_states[r_id]
-        # Migración para estados guardados sin estos campos
         state.setdefault('track_min', 0.0)
         state.setdefault('track_max', 0.0)
         return state
 
+    def remove_client(self, conn, r_id):
+        if conn in self.clients: del self.clients[conn]
+        if conn in self.client_buffers: del self.client_buffers[conn]
+        if r_id in self.client_sockets: del self.client_sockets[r_id]
+        if r_id in self.requests: del self.requests[r_id]
+        if r_id in self.reports_received: self.reports_received.discard(r_id)
+        if r_id in self.grace_until_sf: del self.grace_until_sf[r_id]
+        if r_id in self.track_lock: del self.track_lock[r_id]
+        try: conn.close()
+        except: pass
+
     def handle_client(self, conn, addr):
+        conn.settimeout(0.5) 
         radar_id = None
-        conn.settimeout(15.0) 
+        self.client_buffers[conn] = b''
+        last_activity = time.time()
+        
         try:
             while self.running:
-                header_data = conn.recv(3)
-                if not header_data: break
-                
-                msg_type, msg_length = struct.unpack('<BH', header_data)
-                
-                payload = b''
-                if msg_length > 0:
-                    payload = conn.recv(msg_length)
-                    while len(payload) < msg_length:
-                        payload += conn.recv(msg_length - len(payload))
-
-                if msg_type == MSG_HELLO_REQ:
-                    if len(payload) < 6: continue
-                    mac_bytes = struct.unpack('<6B', payload[:6])
-                    mac_str = ":".join([f"{b:02X}" for b in mac_bytes])
-                    
-                    saved_angle = 0.0 
-                    
+                try:
+                    data = conn.recv(1024)
+                    if not data:
+                        break
+                    last_activity = time.time()
                     with self.lock:
-                        if mac_str in self.grid:
-                            radar_id = self.grid[mac_str]["id"]
-                        else:
-                            radar_id = len(self.grid) + 1
-                            self.grid[mac_str] = {"id": radar_id, "x": 0.0, "y": 0.0, "theta": 90.0}
-                            now = time.time()
-                            if now - self._last_save_time > self._save_debounce_interval:
-                                self.save_grid()
-                                self._last_save_time = now
-                                
-                        if radar_id in self.track_states:
-                            saved_angle = self.track_states[radar_id]['current_angle']
+                        self.client_buffers[conn] += data
+                except socket.timeout:
+                    if time.time() - last_activity > 15.0:
+                        break
+                    continue
+                except Exception:
+                    break
+
+                with self.lock:
+                    buffer = self.client_buffers[conn]
+                    while len(buffer) >= 3:
+                        msg_type, msg_length = struct.unpack('<BH', buffer[:3])
+                        
+                        if len(buffer) < 3 + msg_length:
+                            break 
                             
-                        self.clients[conn] = radar_id
-                        self.client_sockets[radar_id] = conn
-                        self.strikes[radar_id] = 0
-                        # 4 SFs de gracia (~1200ms) para que el nodo complete su arranque
-                        self.grace_until_sf[radar_id] = self.seq + 4
-                    
-                    print(f"[SYS] Conectado MAC {mac_str} -> ID {radar_id} (Reanudando en {saved_angle}º)")
-                    conn.sendall(struct.pack('<BHBf', MSG_HELLO_ACK, 5, radar_id, saved_angle))
-
-                elif msg_type == MSG_ANGLE_REQ:
-                    with self.lock:
-                        if self.current_phase == 1: 
-                            if len(payload) >= 9:
-                                r_id, curr_angle, req_angle = struct.unpack('<Bff', payload)
-                                self.requests[r_id] = True
+                        payload = buffer[3:3+msg_length]
+                        buffer = buffer[3+msg_length:]
+                        
+                        if msg_type == MSG_HELLO_REQ:
+                            if len(payload) < 6: continue
+                            mac_bytes = struct.unpack('<6B', payload[:6])
+                            mac_str = ":".join([f"{b:02X}" for b in mac_bytes])
+                            
+                            saved_angle = 0.0 
+                            
+                            if mac_str in self.grid:
+                                radar_id = self.grid[mac_str]["id"]
                             else:
-                                r_id, curr_angle, req_angle = struct.unpack('<Bff', payload)
+                                radar_id = len(self.grid) + 1
+                                self.grid[mac_str] = {"id": radar_id, "x": 0.0, "y": 0.0, "theta": 90.0}
+                                now = time.time()
+                                if now - self._last_save_time > self._save_debounce_interval:
+                                    self.save_grid()
+                                    self._last_save_time = now
+                                    
+                            if radar_id in self.track_states:
+                                saved_angle = self.track_states[radar_id]['current_angle']
+                                
+                            self.clients[conn] = radar_id
+                            self.client_sockets[radar_id] = conn
+                            self.strikes[radar_id] = 0
+                            self.grace_until_sf[radar_id] = self.seq + 8
+                            
+                            print(f"[SYS] Conectado MAC {mac_str} -> ID {radar_id} (Reanudando en {saved_angle}º)")
+                            try:
+                                conn.sendall(struct.pack('<BHBf', MSG_HELLO_ACK, 5, radar_id, saved_angle))
+                            except: pass
+
+                        elif msg_type == MSG_ANGLE_REQ:
+                            if self.current_phase == 1: 
+                                r_id, curr_angle, req_angle = struct.unpack('<Bff', payload[:9])
                                 self.requests[r_id] = True
 
-                elif msg_type == MSG_DATA_REPORT:
-                    if len(payload) < 13: continue
-                    r_id, angle, dist, ts = struct.unpack('<BffI', payload)
-                    
-                    with self.lock:
-                        if self.current_phase == 4 and r_id in self.requests:
-                            self.reports_received.add(r_id)
-                            self.latest_reports[r_id] = {'angle': angle, 'dist': dist}
-                            self.strikes[r_id] = 0
+                        elif msg_type == MSG_DATA_REPORT:
+                            if len(payload) < 13: continue
+                            r_id, angle, dist, ts = struct.unpack('<BffI', payload[:13])
+                            
+                            if self.current_phase == 4 and r_id in self.requests:
+                                self.reports_received.add(r_id)
+                                self.latest_reports[r_id] = {'angle': angle, 'dist': dist}
+                                self.strikes[r_id] = 0
 
-                    if dist <= 0 or dist > 50.0:
-                        if dist < 0: print(f"  -> [N{r_id}] ⚫ MEDICIÓN INVÁLIDA")
-                        elif dist == 0: print(f"  -> [N{r_id}] ⚪ SIN OBSTÁCULO")
-                        else: print(f"  -> [N{r_id}] ⚪ SIN OBSTÁCULO (>50cm): {dist:.1f}cm")
-                        continue
+                            if dist <= 0 or dist > 50.0:
+                                if dist < 0: print(f"  -> [N{r_id}] ⚫ MEDICIÓN INVÁLIDA")
+                                elif dist == 0: print(f"  -> [N{r_id}] ⚪ SIN OBSTÁCULO")
+                                else: print(f"  -> [N{r_id}] ⚪ SIN OBSTÁCULO (>50cm): {dist:.1f}cm")
+                                continue
 
-                    coords = self.calculate_global_coords(r_id, angle, dist)
-                    if coords:
-                        if dist <= 10.0: estado = "🔴 DEFCON 1"
-                        elif dist <= 20.0: estado = "🟡 DEFCON 2"
-                        elif dist <= 30.0: estado = "🟢 DEFCON 3"
-                        else: estado = "🔵 VALLA VIRTUAL"
-                        print(f"  -> [N{r_id}] {estado} | Ángulo: {angle:5.1f}° | Dist: {dist:5.1f}cm | Coord: ({coords[0]:.1f}, {coords[1]:.1f})")
+                            coords = self.calculate_global_coords(r_id, angle, dist)
+                            if coords:
+                                if dist <= 10.0: estado = "🔴 DEFCON 1"
+                                elif dist <= 20.0: estado = "🟡 DEFCON 2"
+                                elif dist <= 30.0: estado = "🟢 DEFCON 3"
+                                else: estado = "🔵 VALLA VIRTUAL"
+                                print(f"  -> [N{r_id}] {estado} | Ángulo: {angle:5.1f}° | Dist: {dist:5.1f}cm | Coord: ({coords[0]:.1f}, {coords[1]:.1f})")
+                                
+                    self.client_buffers[conn] = buffer
 
-        except socket.timeout:
-            pass
         except Exception:
             pass
         finally:
             with self.lock:
-                if conn in self.clients: del self.clients[conn]
-                if radar_id in self.client_sockets: del self.client_sockets[radar_id]
-                if radar_id is not None and radar_id in self.requests: del self.requests[radar_id]
-                if radar_id is not None and radar_id in self.reports_received: self.reports_received.discard(radar_id)
-                if radar_id is not None and radar_id in self.grace_until_sf: del self.grace_until_sf[radar_id]
-                if radar_id is not None and radar_id in self.track_lock: del self.track_lock[radar_id]
-            conn.close()
+                self.remove_client(conn, radar_id)
 
     def orchestration_loop(self):
         while self.running:
@@ -294,42 +310,45 @@ class ArbitroServer:
                 self.requests.clear()
                 self.reports_received.clear()
                 self.latest_reports.clear()
-                expected_nodes = list(self.client_sockets.keys()) # Guardamos quién debería responder
-                for r_id, sock in list(self.client_sockets.items()):
-                    try: sock.sendall(struct.pack('<BH', MSG_SUPERFRAME_START, 8) + payload_sf)
-                    except: pass
+                expected_nodes = list(self.client_sockets.keys()) 
+                socks_to_send = list(self.client_sockets.items())
+
+            for r_id, sock in socks_to_send:
+                try: sock.sendall(struct.pack('<BH', MSG_SUPERFRAME_START, 8) + payload_sf)
+                except: pass
             
-            timeout = 0
+            with self.lock:
+                # Solo esperamos a nodos sanos: pasada la grace Y sin strikes activos.
+                non_grace_count = sum(
+                    1 for r in self.client_sockets
+                    if self.seq > self.grace_until_sf.get(r, 0)
+                    and self.strikes.get(r, 0) == 0
+                )
+
+            t_wait_req = time.time()
             while self.running:
                 with self.lock:
-                    if len(self.requests) >= len(self.client_sockets): break
+                    if non_grace_count == 0 or len(self.requests) >= non_grace_count: break
+                if time.time() - t_wait_req > 0.5: break
                 time.sleep(0.01)
-                timeout += 1
-                if timeout > 50: break 
 
             with self.lock:
                 active_reqs = list(self.requests.keys())
                 self.current_phase = 2 
 
-            # Nodos fantasma: conectados pero no pidieron ángulo
             for r_id in expected_nodes:
                 if r_id not in active_reqs:
-                    # Si ya no está en client_sockets es que se cayó solo — no castigar
                     if r_id not in self.client_sockets:
                         continue
-                    # Nodo recién conectado, todavía inicializando — no castigar
                     if self.seq <= self.grace_until_sf.get(r_id, 0):
                         continue
                     self.strikes[r_id] = self.strikes.get(r_id, 0) + 1
-                    print(f"  [WARN] Nodo {r_id} fantasma (sin petición). Strike {self.strikes[r_id]}/5")
-                    if self.strikes[r_id] >= 5:
+                    print(f"  [WARN] Nodo {r_id} fantasma (sin petición). Strike {self.strikes[r_id]}/7")
+                    if self.strikes[r_id] >= 7:
                         print(f"  [KICK] Nodo {r_id} atascado en inicio. Forzando cierre...")
-                        sock = self.client_sockets.pop(r_id, None)
-                        if sock:
-                            try: sock.close()
-                            except: pass
-                        self.requests.pop(r_id, None)
-                        self.strikes[r_id] = 0
+                        with self.lock:
+                            sock = self.client_sockets.get(r_id)
+                            if sock: self.remove_client(sock, r_id)
 
             if not active_reqs:
                 time.sleep(0.2)
@@ -353,8 +372,6 @@ class ArbitroServer:
                         target_angle = A_MIN
                         state['search_dir'] = 1.0
                 else:
-                    # Barrido acotado: oscila entre los extremos angulares detectados ±5°
-                    # Techo/suelo en los límites físicos del motor (±60°, TRACK_MARGIN extra)
                     obj_left  = max(A_MIN - TRACK_MARGIN, state['track_min'] - 5.0)
                     obj_right = min(A_MAX + TRACK_MARGIN, state['track_max'] + 5.0)
                     target_angle = state['current_angle'] + (state['track_dir'] * STEP_ANGLE)
@@ -391,20 +408,27 @@ class ArbitroServer:
             BASE_MOVEMENT_TIME = max_movement_time_ms + 100
             max_delay_ms = 0
 
+            # Tiempo transcurrido desde SF_START para que el firmware pueda anclar execution_time al inicio del SF
+            elapsed_before_assign_loop = int((time.time() - t_start_sf) * 1000)
+
             for r_id in active_reqs:
                 state = self.get_state(r_id)
                 assigned_slot = slots_assigned[r_id]
                 target_angle = state['current_angle']
-                
+
                 delay_ms = BASE_MOVEMENT_TIME + (assigned_slot * SLOT_DURATION) + int(SLOT_DURATION / 2)
                 if delay_ms > max_delay_ms: max_delay_ms = delay_ms
-                
+
+                # Encodificamos el retardo relativo al inicio del SF para que el firmware
+                # pueda anclarse al instante de recepción de SF_START (sin jitter de SLOT_ASSIGN)
+                delay_from_sf_ms = elapsed_before_assign_loop + delay_ms
+
                 sock = self.client_sockets.get(r_id)
-                payload_assign = struct.pack('<BBIf', r_id, assigned_slot, delay_ms, target_angle)
+                payload_assign = struct.pack('<BBIf', r_id, assigned_slot, delay_from_sf_ms, target_angle)
                 if sock:
                     try:
                         sock.sendall(struct.pack('<BH', MSG_SLOT_ASSIGN, 10) + payload_assign)
-                        print(f"  -> N{r_id} Asignado: {target_angle:5.1f}° (Slot {assigned_slot}, Centro en {delay_ms}ms) | Modo: {state['mode']}")
+                        print(f"  -> N{r_id} Asignado: {target_angle:5.1f}° (Slot {assigned_slot}, Centro en {delay_ms}ms desde asignación) | Modo: {state['mode']}")
                     except: pass
             
             time.sleep((max_delay_ms + 50) / 1000.0)
@@ -414,52 +438,39 @@ class ArbitroServer:
                 self.current_phase = 4
                 self.reports_received.clear()
                 self.latest_reports.clear()
-                for r_id in active_reqs: 
-                    sock = self.client_sockets.get(r_id)
-                    if sock:
-                        try: sock.sendall(packet_req)
-                        except: pass
+                socks_to_send = [(r, self.client_sockets[r]) for r in active_reqs if r in self.client_sockets]
+                
+            for r_id, sock in socks_to_send:
+                try: sock.sendall(packet_req)
+                except: pass
 
-            # Esperar proporcional al tiempo real del SF, no un fijo hardcodeado.
-            # El nodo tiene max_delay_ms para moverse + medir. Esperamos hasta que
-            # todos los nodos conectados hayan reportado, con margen extra.
-            report_timeout_ms = max_delay_ms + 400
-            report_timeout_iters = int(report_timeout_ms / 10)
-            timeout = 0
+            report_timeout_sec = (max_delay_ms + 400) / 1000.0
+            t_wait_rep = time.time()
             while self.running:
                 with self.lock:
                     connected_reqs = [r for r in active_reqs if r in self.client_sockets]
                     if len(self.reports_received) >= len(connected_reqs): break
+                if time.time() - t_wait_rep > report_timeout_sec: break
                 time.sleep(0.01)
-                timeout += 1
-                if timeout > report_timeout_iters: break
 
-            # 50ms de gracia para reportes que llegan justo al límite
             time.sleep(0.05)
 
             for r_id in active_reqs:
-                # Si el nodo ya no está conectado, no tiene sentido penalizarlo
                 if r_id not in self.client_sockets:
                     continue
                 if r_id not in self.reports_received:
-                    # Nodo recién conectado, todavía inicializando — no castigar
                     if self.seq <= self.grace_until_sf.get(r_id, 0):
                         continue
                     self.strikes[r_id] = self.strikes.get(r_id, 0) + 1
-                    print(f"  [WARN] Nodo {r_id} no responde. Strike {self.strikes[r_id]}/5")
-                    if self.strikes[r_id] >= 5:
+                    print(f"  [WARN] Nodo {r_id} no responde. Strike {self.strikes[r_id]}/7")
+                    if self.strikes[r_id] >= 7:
                         print(f"  [KICK] Nodo {r_id} atascado en medición. Forzando cierre...")
-                        # Limpiar inmediatamente para que el siguiente SF no lo incluya
-                        sock = self.client_sockets.pop(r_id, None)
-                        if sock:
-                            try: sock.close()
-                            except: pass
-                        self.requests.pop(r_id, None)
-                        self.strikes[r_id] = 0
+                        with self.lock:
+                            sock = self.client_sockets.get(r_id)
+                            if sock: self.remove_client(sock, r_id)
                 else:
                     self.strikes[r_id] = 0
 
-            # Solo detecciones DEFCON 1 (≤10cm) califican para decisiones de tracking
             hits = {r_id: data for r_id, data in self.latest_reports.items() if 0 < data['dist'] <= TRACK_LIMIT_DIST}
 
             trilat_results = {}
@@ -474,15 +485,8 @@ class ArbitroServer:
                     trilat_results['N2-N3'] = {'x': round(pos_tri[0], 1), 'y': round(pos_tri[1], 1)}
                     print(f"  [TRILAT] N2-N3: ({pos_tri[0]:.1f}, {pos_tri[1]:.1f})")
 
-            # Zonas por ángulo LOCAL de cada nodo:
-            #   clean:    abs ≤ 30°  → sin riesgo de cross-talk, TRACKs simultáneos ilimitados
-            #   sucia:    30° < abs ≤ 45°  → solapa con el barrido del nodo adyacente
-            #   tracking: abs > 45°  → margen extra solo accesible en modo TRACK
-            # Pares de conflicto:
-            #   N1 ángulos positivos  ↔  N2 ángulos negativos  (N1 apunta hacia N2 en positivo)
-            #   N2 ángulos positivos  ↔  N3 ángulos negativos
-            CLEAN_LIMIT = A_MAX - DIRTY_MARGIN  # 45 - 15 = 30°
-            CONFLICT_PAIRS = [(1, 2), (2, 3)]   # (nodo_izq, nodo_der)
+            CLEAN_LIMIT = A_MAX - DIRTY_MARGIN 
+            CONFLICT_PAIRS = [(1, 2), (2, 3)]  
 
             winners = set()
             losers = set()
@@ -502,7 +506,6 @@ class ArbitroServer:
                         winner, loser = nb, na
                         print(f"  [CONFLICTO] N{na}/N{nb}: N{nb} mantiene bloqueo (hasta SF {self.track_lock[nb]}) | {hits[na]['dist']:.1f} vs {hits[nb]['dist']:.1f} cm")
                     else:
-                        # Sin bloqueo activo: gana el más cercano (con margen anti-robo)
                         state_a = self.get_state(na)
                         state_b = self.get_state(nb)
                         eff_da = hits[na]['dist'] - (STEAL_MARGIN if state_a['mode'] == 'TRACK' else 0)
@@ -517,8 +520,6 @@ class ArbitroServer:
                     losers.add(loser)
                     self.track_lock[winner] = self.seq + TRACK_LOCK_DURATION
 
-            # Cualquier hit no involucrado en un conflicto → ganador automático
-            # (zona limpia, zona sucia sin par opuesto, zona tracking sin par opuesto)
             for r_id in hits:
                 if r_id not in winners and r_id not in losers:
                     winners.add(r_id)
@@ -528,21 +529,15 @@ class ArbitroServer:
                 if r_id in winners:
                     a = hits[r_id]['angle']
                     if state['mode'] == 'SEARCH' or state['misses'] > 0:
-                        # Primera detección o re-detección tras miss(es): reiniciar ventana
-                        # para no arrastrar los bordes del trackeo anterior
                         if state['mode'] == 'SEARCH':
                             state['track_dir'] = state['search_dir']
                         state['track_min'] = a
                         state['track_max'] = a
                     else:
-                        # Trackeo continuo sin interrupciones: expandir ventana
                         prev_min = state['track_min']
                         prev_max = state['track_max']
                         state['track_min'] = min(state['track_min'], a)
                         state['track_max'] = max(state['track_max'], a)
-                        # Si el objeto fue detectado EN el borde de la ventana, el nodo
-                        # ya había reversado (en el paso de asignación). Deshacer esa
-                        # inversión para que siga explorando hacia afuera en el siguiente SF.
                         if a > prev_max and state['track_dir'] == -1.0:
                             state['track_dir'] = 1.0
                         elif a < prev_min and state['track_dir'] == 1.0:

@@ -1,3 +1,4 @@
+// main.cpp
 #include <Arduino.h>
 #include <WiFi.h>
 #include <ESPmDNS.h>
@@ -8,19 +9,16 @@
 #include "soc/soc.h"
 #include "soc/rtc_cntl_reg.h"
 
-// ── Perfiles de nodo ─────────────────────────────────────────────────────────
-// Un solo firmware para los 3 nodos. Cada uno detecta su MAC y aplica su perfil.
 struct NodeProfile {
     const char* mac;
     uint8_t     nodeId;
     bool        motorDirInvert;
-    int         reedTriggerLevel;  // HIGH = reed NC, LOW = reed NO
+    int         reedTriggerLevel;  
 };
 
 static const NodeProfile PROFILES[] = {
-    // MAC                   ID  motorInv  reed
-    {"88:13:BF:C8:40:30",   1,  false,     HIGH},  // motor con bobinas invertidas
-    {"F0:24:F9:44:0A:20",   2,  true,    LOW},  // configuración estándar
+    {"88:13:BF:C8:40:30",   1,  false,     HIGH},  
+    {"F0:24:F9:44:0A:20",   2,  true,    LOW},  
     {"CC:DB:A7:98:CC:E4",   3,  true,    HIGH}, 
 };
 
@@ -45,7 +43,6 @@ void applyNodeProfile() {
     Serial.println("========================================\n");
 }
 
-// ── Multi-red sin WiFiMulti ──────────────────────────────────────────────────
 static const struct { const char* ssid; const char* pass; } KNOWN_NETWORKS[] = {
     {WIFI_SSID_1, WIFI_PASS_1},
     {WIFI_SSID_2, WIFI_PASS_2},
@@ -76,7 +73,6 @@ void tryConnectWiFi() {
     Serial.println("[WIFI] Ninguna red conocida en rango.");
 }
 
-// ── Tareas FreeRTOS ──────────────────────────────────────────────────────────
 TaskHandle_t hTaskComms = NULL;
 TaskHandle_t hTaskRadar = NULL;
 
@@ -104,7 +100,6 @@ void setup() {
     Serial.begin(115200);
     pinMode(PIN_LED, OUTPUT);
 
-    // Detectar perfil del nodo por MAC (requiere modo STA)
     WiFi.mode(WIFI_STA);
     applyNodeProfile();
 
@@ -223,13 +218,11 @@ void loop() {
             break;
 
         case WAITING_FOR_CONNECTION: {
-            // Parpadeo rápido: sin WiFi
             static unsigned long lastBlink = 0;
             if (millis() - lastBlink > 250) {
                 digitalWrite(PIN_LED, !digitalRead(PIN_LED));
                 lastBlink = millis();
             }
-            // Reintentar conexión cada 15s o cuando se solicite
             static unsigned long lastTry = 0;
             if (_wifi_reconnect_needed || millis() - lastTry > 15000) {
                 _wifi_reconnect_needed = false;
