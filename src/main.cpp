@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <WiFi.h>
+#include <ESPmDNS.h>
 #include "config.h"
 #include "system.h"
 #include "task_comms.h"
@@ -7,6 +8,75 @@
 #include "soc/soc.h"
 #include "soc/rtc_cntl_reg.h"
 
+// ── Perfiles de nodo ─────────────────────────────────────────────────────────
+// Un solo firmware para los 3 nodos. Cada uno detecta su MAC y aplica su perfil.
+struct NodeProfile {
+    const char* mac;
+    uint8_t     nodeId;
+    bool        motorDirInvert;
+    int         reedTriggerLevel;  // HIGH = reed NC, LOW = reed NO
+};
+
+static const NodeProfile PROFILES[] = {
+    // MAC                   ID  motorInv  reed
+    {"88:13:BF:C8:40:30",   1,  false,     HIGH},  // motor con bobinas invertidas
+    {"F0:24:F9:44:0A:20",   2,  true,    LOW},  // configuración estándar
+    {"CC:DB:A7:98:CC:E4",   3,  true,    HIGH}, 
+};
+
+void applyNodeProfile() {
+    String mac = WiFi.macAddress();
+    Serial.println("\n========================================");
+    for (const auto& p : PROFILES) {
+        if (mac.equalsIgnoreCase(p.mac)) {
+            SystemManager::instance().motorDirInvert   = p.motorDirInvert;
+            SystemManager::instance().reedTriggerLevel = p.reedTriggerLevel;
+            Serial.printf("  NODO  : N%d\n", p.nodeId);
+            Serial.printf("  MAC   : %s\n", mac.c_str());
+            Serial.printf("  Motor : %s\n", p.motorDirInvert ? "INVERTIDO" : "normal");
+            Serial.printf("  Reed  : %s\n", p.reedTriggerLevel == HIGH ? "HIGH (NC)" : "LOW (NO)");
+            Serial.println("========================================\n");
+            return;
+        }
+    }
+    Serial.printf("  NODO  : DESCONOCIDO\n");
+    Serial.printf("  MAC   : %s\n", mac.c_str());
+    Serial.println("  Añade esta MAC a PROFILES[] en main.cpp");
+    Serial.println("========================================\n");
+}
+
+// ── Multi-red sin WiFiMulti ──────────────────────────────────────────────────
+static const struct { const char* ssid; const char* pass; } KNOWN_NETWORKS[] = {
+    {WIFI_SSID_1, WIFI_PASS_1},
+    {WIFI_SSID_2, WIFI_PASS_2},
+};
+static volatile bool _wifi_reconnect_needed = false;
+
+void tryConnectWiFi() {
+    WiFi.disconnect(true);
+    delay(200);
+    Serial.println("[WIFI] Escaneando redes...");
+    int found = WiFi.scanNetworks();
+    if (found <= 0) {
+        Serial.printf("[WIFI] Sin redes (scan=%d). Reintentando más tarde.\n", found);
+        return;
+    }
+    for (const auto& net : KNOWN_NETWORKS) {
+        if (strlen(net.ssid) == 0) continue;
+        for (int i = 0; i < found; i++) {
+            if (WiFi.SSID(i).equals(net.ssid)) {
+                Serial.printf("[WIFI] Red encontrada: %s. Conectando...\n", net.ssid);
+                WiFi.scanDelete();
+                WiFi.begin(net.ssid, net.pass);
+                return;
+            }
+        }
+    }
+    WiFi.scanDelete();
+    Serial.println("[WIFI] Ninguna red conocida en rango.");
+}
+
+// ── Tareas FreeRTOS ──────────────────────────────────────────────────────────
 TaskHandle_t hTaskComms = NULL;
 TaskHandle_t hTaskRadar = NULL;
 
@@ -15,46 +85,39 @@ void WiFiEvent(WiFiEvent_t event) {
         case ARDUINO_EVENT_WIFI_STA_GOT_IP:
             Serial.print("[WIFI] Conectado! IP: ");
             Serial.println(WiFi.localIP());
-            digitalWrite(PIN_LED, HIGH); 
-            
-            // FLECHA DE LA PIZARRA: <IP> -> Pasa a SYNC_CONTROL
+            MDNS.begin("esp-radar");
             if (SystemManager::instance().currentState == WAITING_FOR_CONNECTION) {
                 SystemManager::instance().changeState(SYNC_CONTROL);
             }
             break;
-            
+
         case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
-            Serial.println("[WIFI] Desconectado. Reconectando...");
-            digitalWrite(PIN_LED, LOW); 
-            
-            // FLECHA DE LA PIZARRA: error IP -> Vuelve a WAITING_FOR_CONNECTION
+            Serial.println("[WIFI] Desconectado.");
             SystemManager::instance().changeState(WAITING_FOR_CONNECTION);
-            WiFi.reconnect();
+            _wifi_reconnect_needed = true;
             break;
     }
 }
 
 void setup() {
-    // Desactiva protección de brownout para evitar reinicios por picos del motor
     WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);
-
     Serial.begin(115200);
     pinMode(PIN_LED, OUTPUT);
-    
+
+    // Detectar perfil del nodo por MAC (requiere modo STA)
+    WiFi.mode(WIFI_STA);
+    applyNodeProfile();
+
 #if DEBUG_HARDWARE_TEST == 1
     Serial.println("\n========================================");
     Serial.println("       MODO DEBUG HARDWARE");
     Serial.println("========================================");
 
-    // Leer MAC (requiere modo STA aunque no haya conexión)
-    WiFi.mode(WIFI_STA);
     String myMac = WiFi.macAddress();
-
-    // Tabla que replica grid_config.json — actualiza si cambias posiciones
     struct NodeInfo { const char* mac; int id; float x; float y; float theta; };
     static const NodeInfo NODES[] = {
-        {"F0:24:F9:44:0A:20", 1,  34.64f, 20.0f,  30.0f},
-        {"88:13:BF:C8:40:30", 2,   0.0f,  40.0f,  90.0f},
+        {"F0:24:F9:44:0A:20", 2,  34.64f, 20.0f,  30.0f},
+        {"88:13:BF:C8:40:30", 1,   0.0f,  40.0f,  90.0f},
         {"CC:DB:A7:98:CC:E4", 3, -34.64f, 20.0f, 150.0f},
     };
     const NodeInfo* myNode = nullptr;
@@ -67,8 +130,6 @@ void setup() {
     delay(500);
 
     while (true) {
-
-        // ── Cabecera de identificación ────────────────────────────────────────
         Serial.println("\n========================================");
         if (myNode) {
             Serial.printf("  MAC   : %s\n", myMac.c_str());
@@ -77,50 +138,43 @@ void setup() {
                 myNode->x, myNode->y, myNode->theta);
         } else {
             Serial.printf("  MAC   : %s\n", myMac.c_str());
-            Serial.println("  Nodo  : DESCONOCIDO (no esta en la tabla)");
+            Serial.println("  Nodo  : DESCONOCIDO");
         }
+        Serial.printf("  Perfil: motorInv=%d  reed=%s\n",
+            SystemManager::instance().motorDirInvert,
+            SystemManager::instance().reedTriggerLevel == HIGH ? "HIGH(NC)" : "LOW(NO)");
         Serial.println("========================================");
 
-        // ── FASE 0a: diagnóstico raw del sensor ultrasónico ──────────────────
         Serial.println("\n[FASE 0a] Sensor ultrasonico - duracion bruta (10 disparos)");
         Serial.println("  Disparo | ECHO antes | Duracion (us) | Dist(cm) | Diagnostico");
         Serial.println("  --------|------------|---------------|----------|------------");
         for (int i = 0; i < 10; i++) {
             int echo_before = digitalRead(PIN_ECHO);
-
             digitalWrite(PIN_TRIG, LOW);  delayMicroseconds(5);
             digitalWrite(PIN_TRIG, HIGH); delayMicroseconds(12);
             digitalWrite(PIN_TRIG, LOW);
-            long dur = pulseIn(PIN_ECHO, HIGH, 30000); // 30ms = ~5m
-
+            long dur = pulseIn(PIN_ECHO, HIGH, 30000);
             const char* diag;
             float dist = 0.0f;
             if (dur == 0)       { diag = "TIMEOUT - sin eco (vacio o cable ECHO suelto)"; }
             else if (dur < 116) { diag = "DEMASIADO CORTO - objeto <2cm o TRIG/ECHO cruzados"; }
             else                { dist = dur / 58.0f; diag = "OK"; }
-
             Serial.printf("  %7d | %10d | %13ld | %8.2f | %s\n",
                 i+1, echo_before, dur, dist, diag);
             delay(60);
         }
-        Serial.println("  -> Si todos son TIMEOUT: comprueba VCC(5V), GND y pin ECHO(27).");
-        Serial.println("  -> Si ECHO antes != 0: el pin 27 no esta a LOW en reposo (cortocircuito o pull-up).");
 
-        // ── FASE 0b: reed switch en reposo (5s, mueve el iman para ver cambios) ──
         Serial.println("\n[FASE 0b] Estado reed switch (5 segundos)");
         for (int t = 0; t < 50; t++) {
             int raw = digitalRead(PIN_REED_SWITCH);
             Serial.printf("  raw=%d  %s\n", raw,
-                (raw == REED_TRIGGER_LEVEL) ? "<-- ACTIVO (iman detectado)" : "inactivo");
+                (raw == SystemManager::instance().reedTriggerLevel) ? "<-- ACTIVO" : "inactivo");
             delay(100);
         }
 
-        // ── FASE 1: barrido 0 -> +45 -> -45 -> 0 con sensor y reed ────────────
-        // Pausa de 600ms en cada ángulo: motor quieto + consola sincronizada
-        Serial.println("\n[FASE 1] Barrido con sensor de distancia y reed switch");
+        Serial.println("\n[FASE 1] Barrido con sensor y reed");
         Serial.println("  Angulo  | Dist(cm) | Reed");
         Serial.println("  --------|----------|------");
-
         {
             float barrido[] = {
                 0,5,10,15,20,25,30,35,40,45,
@@ -128,49 +182,37 @@ void setup() {
                 -40,-35,-30,-25,-20,-15,-10,-5,0
             };
             for (float a : barrido) {
-                Serial.printf("  -> %+.1f\n", a); Serial.flush();
                 hw_test.moveToAngle(a);
                 delay(50);
                 float d = hw_test.getDistance();
-                bool r = (digitalRead(PIN_REED_SWITCH) == REED_TRIGGER_LEVEL);
+                bool r = (digitalRead(PIN_REED_SWITCH) == SystemManager::instance().reedTriggerLevel);
                 Serial.printf("  %+6.1f  | %8.2f | %s\n", a, d, r ? "ACTIVO <--" : "---");
                 Serial.flush();
             }
         }
 
-        // ── FASE 2: homing desde +30° ──────────────────────────────────────────
         Serial.println("\n[FASE 2] Test homing desde +30°");
-        Serial.printf("  HOMING_TRIGGER_OFFSET actual: %.2f grados\n", HOMING_TRIGGER_OFFSET);
-        hw_test.moveToAngle(30.0f);
-        delay(300);
+        hw_test.moveToAngle(30.0f); delay(300);
         hw_test.goHome();
-        Serial.println("  -> El sensor debe apuntar exactamente a 0°.");
-        Serial.println("     Si no: pon en config.h el valor 'raw' que aparece en [HOME].");
         delay(1000);
 
-        // ── FASE 3: homing desde -30° (verifica simetría) ─────────────────────
         Serial.println("\n[FASE 3] Test homing desde -30°");
-        hw_test.moveToAngle(-30.0f);
-        delay(300);
+        hw_test.moveToAngle(-30.0f); delay(300);
         hw_test.goHome();
-        Serial.println("  -> Mismo criterio.");
 
-        Serial.println("\n========================================");
-        Serial.println("Repeticion en 5 segundos...");
+        Serial.println("\nRepeticion en 5 segundos...");
         delay(5000);
     }
 #endif
 
     SystemManager::instance().init();
-    
-    WiFi.onEvent(WiFiEvent);
-    WiFi.mode(WIFI_STA);
-    Serial.print("[ID] MAC de este nodo: ");
+
+    Serial.print("[ID] MAC: ");
     Serial.println(WiFi.macAddress());
-    WiFi.begin(WIFI_SSID, WIFI_PASS);
-    
-    // Terminada la configuración de periféricos, pasamos a esperar red
+
+    WiFi.onEvent(WiFiEvent);
     SystemManager::instance().changeState(WAITING_FOR_CONNECTION);
+    tryConnectWiFi();
 }
 
 void loop() {
@@ -178,36 +220,42 @@ void loop() {
 
     switch (current) {
         case CONFIGURACION:
-            // Todo se inicializa en el setup()
             break;
 
         case WAITING_FOR_CONNECTION: {
-            // Parpadea: Buscando Wi-Fi
+            // Parpadeo rápido: sin WiFi
             static unsigned long lastBlink = 0;
-            if (millis() - lastBlink > 500) {
+            if (millis() - lastBlink > 250) {
                 digitalWrite(PIN_LED, !digitalRead(PIN_LED));
                 lastBlink = millis();
+            }
+            // Reintentar conexión cada 15s o cuando se solicite
+            static unsigned long lastTry = 0;
+            if (_wifi_reconnect_needed || millis() - lastTry > 15000) {
+                _wifi_reconnect_needed = false;
+                lastTry = millis();
+                tryConnectWiFi();
             }
             break;
         }
 
-        case SYNC_CONTROL:
-            digitalWrite(PIN_LED, HIGH); // Fijo: Wi-Fi OK, buscando servidor TCP
+        case SYNC_CONTROL: {
+            digitalWrite(PIN_LED, HIGH);
             if (hTaskComms == NULL) {
-                Serial.println("[FSM] Entrando en SYNC_CONTROL: Arrancando TaskComms");
+                Serial.println("[FSM] Arrancando TaskComms");
                 xTaskCreatePinnedToCore(TaskComms, "TaskComms", STACK_SIZE_COMMS, NULL, 2, &hTaskComms, CORE_NET);
             }
             break;
+        }
 
         case RADAR:
-            digitalWrite(PIN_LED, HIGH); // Fijo: Conectado a Python y escaneando
+            digitalWrite(PIN_LED, HIGH);
             if (hTaskRadar == NULL) {
-                Serial.println("[FSM] Entrando en RADAR: Arrancando TaskRadar");
+                Serial.println("[FSM] Arrancando TaskRadar");
                 xTaskCreatePinnedToCore(TaskRadar, "TaskRadar", STACK_SIZE_RADAR, NULL, 3, &hTaskRadar, CORE_PHYS);
             }
             break;
     }
 
-    // Relajar el Watchdog del Core 1
-    vTaskDelay(pdMS_TO_TICKS(100)); 
+    vTaskDelay(pdMS_TO_TICKS(100));
 }

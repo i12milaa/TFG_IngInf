@@ -105,7 +105,7 @@ void RadarHardware::moveToAngle(float targetAngle) {
     bool dir = (steps > 0);
     steps = abs(steps);
 
-    bool phys_dir = dir ^ (bool)MOTOR_DIR_INVERT;
+    bool phys_dir = dir ^ SystemManager::instance().motorDirInvert;
     digitalWrite(PIN_MOTOR_DIR, phys_dir ? HIGH : LOW);
     delay(2);
 
@@ -130,7 +130,7 @@ void RadarHardware::goHome() {
     // Verificacion con reed switch: si esta instalado y calibrado debe estar activo en 0°.
     // No bloquea el homing — es solo un indicador de salud del sistema.
     delay(50);
-    bool reed_ok = (digitalRead(PIN_REED_SWITCH) == REED_TRIGGER_LEVEL);
+    bool reed_ok = (digitalRead(PIN_REED_SWITCH) == SystemManager::instance().reedTriggerLevel);
     if (reed_ok) {
         Serial.println("[HOME] Reed activo en 0° — posicion verificada por reed.");
     } else {

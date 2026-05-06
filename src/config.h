@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define DEBUG_HARDWARE_TEST 0
+#define DEBUG_HARDWARE_TEST 0  // 1 para activar, 0 para modo normal
 
 #define PIN_LED           2 
 #define STACK_SIZE_COMMS  4096
@@ -10,13 +10,10 @@
 #define PIN_MOTOR_STEP    18
 #define PIN_MOTOR_DIR     19
 #define PIN_MOTOR_ENABLE  -1
-#define MOTOR_DIR_INVERT  1  // Pon 1 si el motor se mueve al revés
+#define MOTOR_DIR_INVERT  0  // Ya no se usa — ver perfiles en main.cpp
 #define PIN_REED_SWITCH   26
 
-// HIGH = interruptor NC (abierto cuando el imán pasa — lo que describes).
-// LOW  = interruptor NO (cerrado cuando el imán pasa — el más común).
-// Ajústalo si el DEBUG muestra el estado al revés.
-#define REED_TRIGGER_LEVEL HIGH
+// REED_TRIGGER_LEVEL ya no se usa aquí — ver perfiles en main.cpp
 
 // Ángulo (en grados) al que el reed se activa respecto al 0° lógico.
 // Déjalo en 0.0 para el primer flash; el DEBUG te dirá el valor real.
@@ -40,9 +37,13 @@
 #define RADAR_MAX_ANGLE    45.0    
 #define RADAR_STEP_ANGLE   5.0
 
-#define WIFI_SSID         "ALEJANDROMILLAN2169"
-#define WIFI_PASS         "TFG20252026"
-#define SERVER_IP         "192.168.137.1" 
+// Lista de redes WiFi — el nodo se conecta a la primera que encuentre disponible
+#define WIFI_SSID_1       "iPhone de Alejandro"
+#define WIFI_PASS_1       "TFG20252026"
+#define WIFI_SSID_2       "ALEJANDROMILLAN2169"   // Red de casa: pon aquí el SSID
+#define WIFI_PASS_2       "TFG20252026"   // Red de casa: pon aquí la contraseña
+
+#define SERVER_HOSTNAME   "radar-server"
 #define SERVER_PORT       8080
 
 #endif

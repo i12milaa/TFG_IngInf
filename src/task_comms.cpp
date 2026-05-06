@@ -1,4 +1,5 @@
 #include <WiFi.h>
+#include <ESPmDNS.h>
 #include "task_comms.h"
 #include "config.h"
 #include "system.h"
@@ -13,7 +14,7 @@ float calcularSiguienteAngulo();
 
 void TaskComms(void *pvParameters) {
     uint8_t buffer[128];
-    uint32_t last_msg_time = millis(); 
+    uint32_t last_msg_time = millis();
 
     for (;;) {
         if (!client.connected()) {
@@ -49,7 +50,7 @@ void TaskComms(void *pvParameters) {
             SystemManager::instance().changeState(SYNC_CONTROL);
 
             if (!connectToServer()) {
-                vTaskDelay(pdMS_TO_TICKS(50));
+                vTaskDelay(pdMS_TO_TICKS(2000));
                 continue;
             }
 
@@ -62,7 +63,7 @@ void TaskComms(void *pvParameters) {
         }
 
         // Si el servidor no dice nada en 5s, cortamos (los SFs pueden durar ~1-2s)
-        if (SystemManager::instance().currentState == RADAR && (millis() - last_msg_time > 5000)) {
+        if (millis() - last_msg_time > 5000) {
             Serial.println("[ERR] Servidor zombie (timeout). Reiniciando red...");
             client.stop(); 
             continue;
@@ -120,6 +121,11 @@ void TaskComms(void *pvParameters) {
 
                     SystemManager::instance().changeState(RADAR);
                     SystemManager::instance().motorActive = true;
+
+                    // Vaciar buffer TCP: durante el HELLO_ACK se acumulan SF_STARTs obsoletos.
+                    // Si se procesan tarde, el ANGLE_REQ llega fuera de ventana → strikes fantasma.
+                    while (client.available()) client.read();
+                    last_msg_time = millis();
                     break;
                 }
 
@@ -154,15 +160,20 @@ void TaskComms(void *pvParameters) {
 
                 case MSG_REPORT_REQ: {
                     HwResult res;
-                    if (xQueueReceive(SystemManager::instance().queueResults, &res, pdMS_TO_TICKS(2500)) == pdPASS) {
+                    if (xQueueReceive(SystemManager::instance().queueResults, &res, pdMS_TO_TICKS(700)) == pdPASS) {
                         if (res.type == HW_RES_SLOT_DONE) {
                             Payload_DataReport rep;
                             rep.radar_id = SystemManager::instance().radarId;
                             rep.angle = res.angle;
                             rep.distance_cm = res.value;
-                            rep.measure_timestamp = millis(); 
+                            rep.measure_timestamp = millis();
                             sendPacket(MSG_DATA_REPORT, &rep, sizeof(Payload_DataReport));
                         }
+                    } else {
+                        // Timeout: durante la espera se acumularon SF_STARTs en el buffer.
+                        // Si los procesamos tarde el ANGLE_REQ llega fuera de ventana → cascade de strikes.
+                        while (client.available()) client.read();
+                        last_msg_time = millis();
                     }
                     break;
                 }
@@ -192,9 +203,41 @@ float calcularSiguienteAngulo() {
 
 bool connectToServer() {
     WiFi.setSleep(false);
-    if (client.connect(SERVER_IP, SERVER_PORT)) {
-        client.setNoDelay(true); 
+
+    IPAddress serverIP;
+    for (int i = 0; i < 2; i++) {
+        serverIP = MDNS.queryHost(SERVER_HOSTNAME);
+        if (serverIP != IPAddress(0, 0, 0, 0)) break;
+        Serial.printf("[COMMS] mDNS: buscando %s.local... (%d/2)\n", SERVER_HOSTNAME, i + 1);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+
+    // Fallback: si mDNS no resuelve, probar el gateway (= el servidor en hotspot)
+    if (serverIP == IPAddress(0, 0, 0, 0)) {
+        serverIP = WiFi.gatewayIP();
+        Serial.printf("[COMMS] mDNS sin respuesta. Probando gateway: %s\n", serverIP.toString().c_str());
+    }
+
+    if (serverIP == IPAddress(0, 0, 0, 0)) {
+        Serial.println("[COMMS] Sin ruta al servidor.");
+        return false;
+    }
+
+    Serial.printf("[COMMS] Conectando a %s...\n", serverIP.toString().c_str());
+    if (client.connect(serverIP, SERVER_PORT)) {
+        client.setNoDelay(true);
         return true;
+    }
+
+    // mDNS devolvió una IP pero la conexión falló (ej. IP de otra interfaz).
+    // Probar el gateway: en hotspot siempre es el servidor.
+    IPAddress gw = WiFi.gatewayIP();
+    if (gw != serverIP && gw != IPAddress(0, 0, 0, 0)) {
+        Serial.printf("[COMMS] Reintentando con gateway: %s\n", gw.toString().c_str());
+        if (client.connect(gw, SERVER_PORT)) {
+            client.setNoDelay(true);
+            return true;
+        }
     }
     return false;
 }

@@ -36,10 +36,14 @@ public:
     bool motorActive;  // true desde HELLO_ACK hasta homing completado
     bool justHomed;    // true justo después de homing; indica que el motor está en 0°
 
+    bool motorDirInvert;   // perfil del nodo: true si las bobinas del motor están invertidas
+    int  reedTriggerLevel; // perfil del nodo: HIGH (NC) o LOW (NO)
+
 private:
     SystemManager() : currentState(CONFIGURACION), radarId(0),
                       t0_last_superframe(0), current_angle_logic(0.0), sweep_direction_up(true),
-                      motorActive(false), justHomed(false) {}
+                      motorActive(false), justHomed(false),
+                      motorDirInvert(false), reedTriggerLevel(HIGH) {}
 };
 
 #endif

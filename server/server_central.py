@@ -6,6 +6,34 @@ import math
 import json
 import os
 
+try:
+    from zeroconf import Zeroconf, ServiceInfo
+    _ZEROCONF_OK = True
+except ImportError:
+    _ZEROCONF_OK = False
+    print("[WARN] Instala zeroconf para mDNS:  pip install zeroconf")
+
+def _get_all_local_ips():
+    ips = []
+    try:
+        import ifaddr
+        for adapter in ifaddr.get_adapters():
+            for ip in adapter.ips:
+                if isinstance(ip.ip, str) and not ip.ip.startswith('127.') and not ip.ip.startswith('169.254.'):
+                    ips.append(ip.ip)
+    except Exception:
+        pass
+    if not ips:
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.settimeout(0)
+            s.connect(('10.254.254.254', 1))
+            ips = [s.getsockname()[0]]
+            s.close()
+        except Exception:
+            ips = ['127.0.0.1']
+    return ips
+
 HOST = '0.0.0.0'
 PORT = 8080
 
@@ -29,7 +57,8 @@ TRACK_MARGIN = 15.0
 TRACK_LIMIT_DIST = 10.0
 MAX_MISSES = 3
 STEP_ANGLE = 5.0
-STEAL_MARGIN = 2.0 
+STEAL_MARGIN = 2.0
+TRACK_LOCK_DURATION = 6  # SFs que un nodo mantiene el TRACK exclusivo tras ganar un conflicto
 
 MOTOR_STEPS_REV = 200
 MICROSTEPPING = 16
@@ -46,6 +75,7 @@ class ArbitroServer:
         self.track_states = {}
         self.strikes = {}
         self.grace_until_sf = {}   # SF hasta el que ignoramos strikes por nodo recién conectado
+        self.track_lock = {}       # {r_id: sf_hasta_el_que_está_bloqueado}
         self.lock = threading.Lock()
         self.seq = 0
         self.current_phase = 0 
@@ -214,6 +244,7 @@ class ArbitroServer:
                         if self.current_phase == 4 and r_id in self.requests:
                             self.reports_received.add(r_id)
                             self.latest_reports[r_id] = {'angle': angle, 'dist': dist}
+                            self.strikes[r_id] = 0
 
                     if dist <= 0 or dist > 50.0:
                         if dist < 0: print(f"  -> [N{r_id}] ⚫ MEDICIÓN INVÁLIDA")
@@ -240,6 +271,7 @@ class ArbitroServer:
                 if radar_id is not None and radar_id in self.requests: del self.requests[radar_id]
                 if radar_id is not None and radar_id in self.reports_received: self.reports_received.discard(radar_id)
                 if radar_id is not None and radar_id in self.grace_until_sf: del self.grace_until_sf[radar_id]
+                if radar_id is not None and radar_id in self.track_lock: del self.track_lock[radar_id]
             conn.close()
 
     def orchestration_loop(self):
@@ -322,7 +354,7 @@ class ArbitroServer:
                         state['search_dir'] = 1.0
                 else:
                     # Barrido acotado: oscila entre los extremos angulares detectados ±5°
-                    # Techo/suelo en los límites físicos del motor (±60°)
+                    # Techo/suelo en los límites físicos del motor (±60°, TRACK_MARGIN extra)
                     obj_left  = max(A_MIN - TRACK_MARGIN, state['track_min'] - 5.0)
                     obj_right = min(A_MAX + TRACK_MARGIN, state['track_max'] + 5.0)
                     target_angle = state['current_angle'] + (state['track_dir'] * STEP_ANGLE)
@@ -430,12 +462,17 @@ class ArbitroServer:
             # Solo detecciones DEFCON 1 (≤10cm) califican para decisiones de tracking
             hits = {r_id: data for r_id, data in self.latest_reports.items() if 0 < data['dist'] <= TRACK_LIMIT_DIST}
 
+            trilat_results = {}
             if 1 in hits and 2 in hits:
                 pos_tri = self.calcular_trilateracion(1, hits[1]['dist'], 2, hits[2]['dist'])
-                if pos_tri: print(f"  [VALIDACIÓN] Trilateración N1-N2: ({pos_tri[0]:.1f}, {pos_tri[1]:.1f})")
+                if pos_tri:
+                    trilat_results['N1-N2'] = {'x': round(pos_tri[0], 1), 'y': round(pos_tri[1], 1)}
+                    print(f"  [TRILAT] N1-N2: ({pos_tri[0]:.1f}, {pos_tri[1]:.1f})")
             if 2 in hits and 3 in hits:
                 pos_tri = self.calcular_trilateracion(2, hits[2]['dist'], 3, hits[3]['dist'])
-                if pos_tri: print(f"  [VALIDACIÓN] Trilateración N2-N3: ({pos_tri[0]:.1f}, {pos_tri[1]:.1f})")
+                if pos_tri:
+                    trilat_results['N2-N3'] = {'x': round(pos_tri[0], 1), 'y': round(pos_tri[1], 1)}
+                    print(f"  [TRILAT] N2-N3: ({pos_tri[0]:.1f}, {pos_tri[1]:.1f})")
 
             # Zonas por ángulo LOCAL de cada nodo:
             #   clean:    abs ≤ 30°  → sin riesgo de cross-talk, TRACKs simultáneos ilimitados
@@ -455,17 +492,30 @@ class ArbitroServer:
                 nb_conflict = (nb in hits and hits[nb]['angle'] < 0 and abs(hits[nb]['angle']) > CLEAN_LIMIT)
 
                 if na_conflict and nb_conflict:
-                    # Ambos detectan en la zona solapada → trilateración decide
-                    state_a = self.get_state(na)
-                    state_b = self.get_state(nb)
-                    eff_da = hits[na]['dist'] - (STEAL_MARGIN if state_a['mode'] == 'TRACK' else 0)
-                    eff_db = hits[nb]['dist'] - (STEAL_MARGIN if state_b['mode'] == 'TRACK' else 0)
-                    if eff_da <= eff_db:
-                        winners.add(na); losers.add(nb)
-                        print(f"  [CONFLICTO] N{na}/N{nb}: N{na} gana ({hits[na]['dist']:.1f} vs {hits[nb]['dist']:.1f} cm)")
+                    na_locked = self.seq <= self.track_lock.get(na, 0)
+                    nb_locked = self.seq <= self.track_lock.get(nb, 0)
+
+                    if na_locked and not nb_locked:
+                        winner, loser = na, nb
+                        print(f"  [CONFLICTO] N{na}/N{nb}: N{na} mantiene bloqueo (hasta SF {self.track_lock[na]}) | {hits[na]['dist']:.1f} vs {hits[nb]['dist']:.1f} cm")
+                    elif nb_locked and not na_locked:
+                        winner, loser = nb, na
+                        print(f"  [CONFLICTO] N{na}/N{nb}: N{nb} mantiene bloqueo (hasta SF {self.track_lock[nb]}) | {hits[na]['dist']:.1f} vs {hits[nb]['dist']:.1f} cm")
                     else:
-                        winners.add(nb); losers.add(na)
-                        print(f"  [CONFLICTO] N{na}/N{nb}: N{nb} gana ({hits[nb]['dist']:.1f} vs {hits[na]['dist']:.1f} cm)")
+                        # Sin bloqueo activo: gana el más cercano (con margen anti-robo)
+                        state_a = self.get_state(na)
+                        state_b = self.get_state(nb)
+                        eff_da = hits[na]['dist'] - (STEAL_MARGIN if state_a['mode'] == 'TRACK' else 0)
+                        eff_db = hits[nb]['dist'] - (STEAL_MARGIN if state_b['mode'] == 'TRACK' else 0)
+                        if eff_da <= eff_db:
+                            winner, loser = na, nb
+                        else:
+                            winner, loser = nb, na
+                        print(f"  [CONFLICTO] N{na}/N{nb}: N{winner} gana ({hits[na]['dist']:.1f} vs {hits[nb]['dist']:.1f} cm)")
+
+                    winners.add(winner)
+                    losers.add(loser)
+                    self.track_lock[winner] = self.seq + TRACK_LOCK_DURATION
 
             # Cualquier hit no involucrado en un conflicto → ganador automático
             # (zona limpia, zona sucia sin par opuesto, zona tracking sin par opuesto)
@@ -502,17 +552,20 @@ class ArbitroServer:
                 elif r_id in losers:
                     state['mode'] = 'SEARCH'
                     state['misses'] = 0
+                    self.track_lock.pop(r_id, None)
                 else:
                     if state['mode'] == 'TRACK':
                         state['misses'] += 1
                         if state['misses'] >= MAX_MISSES:
                             state['mode'] = 'SEARCH'
                             state['misses'] = 0
+                            self.track_lock.pop(r_id, None)
 
             ui_state = {
                 "seq": self.seq,
                 "radars": {r: self.get_state(r) for r in self.client_sockets.keys()},
-                "hits": hits
+                "hits": hits,
+                "trilat": trilat_results
             }
             try:
                 self.udp_sock.sendto(json.dumps(ui_state).encode(), ('127.0.0.1', 8081))
@@ -523,10 +576,25 @@ class ArbitroServer:
             self.seq += 1
 
     def start(self):
+        zc = None
+        zc_info = None
+        if _ZEROCONF_OK:
+            local_ips = _get_all_local_ips()
+            zc = Zeroconf()
+            zc_info = ServiceInfo(
+                "_radar._tcp.local.",
+                "radar-server._radar._tcp.local.",
+                addresses=[socket.inet_aton(ip) for ip in local_ips],
+                port=PORT,
+                server="radar-server.local."
+            )
+            zc.register_service(zc_info)
+            print(f"[mDNS] radar-server.local -> {', '.join(local_ips)}")
+
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server.bind((HOST, PORT))
-        server.settimeout(1.0) 
+        server.settimeout(1.0)
         server.listen(5)
         print(f"[SYS] Árbitro Iniciado - Puerto {PORT}")
         threading.Thread(target=self.orchestration_loop, daemon=True).start()
@@ -542,8 +610,11 @@ class ArbitroServer:
             print("\n[SYS] Servidor detenido por el usuario (Ctrl+C).")
         finally:
             self.running = False
-            self.save_state() 
+            self.save_state()
             server.close()
+            if zc and zc_info:
+                zc.unregister_service(zc_info)
+                zc.close()
 
 if __name__ == "__main__":
     ArbitroServer().start()
