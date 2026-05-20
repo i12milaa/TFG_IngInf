@@ -38,8 +38,19 @@ HOST = '0.0.0.0'
 PORT = 8080
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-CONFIG_FILE = os.path.join(_HERE, 'config', 'grid_config.json')
-STATE_FILE  = os.path.join(_HERE, 'config', 'radar_state.json')
+CONFIG_FILE   = os.path.join(_HERE, 'config', 'grid_config.json')
+STATE_FILE    = os.path.join(_HERE, 'config', 'radar_state.json')
+VIZ_SETTINGS  = os.path.join(_HERE, '..', 'tools', 'visualizer_settings.json')
+
+def _load_thresholds():
+    """Lee todos los umbrales DEFCON del visualizador. Devuelve (d1, d2, d3, valla)."""
+    try:
+        with open(VIZ_SETTINGS, 'r', encoding='utf-8') as f:
+            d = json.load(f)
+            return (float(d.get('defcon1', 20.0)), float(d.get('defcon2', 35.0)),
+                    float(d.get('defcon3', 50.0)), float(d.get('valla',   65.0)))
+    except Exception:
+        return (20.0, 35.0, 50.0, 65.0)
 
 MSG_HELLO_REQ        = 0xA0
 MSG_HELLO_ACK        = 0xA1
@@ -53,12 +64,10 @@ SWEEP_ANGLE_TOTAL = 90.0
 A_MAX = SWEEP_ANGLE_TOTAL / 2.0
 A_MIN = -A_MAX
 DIRTY_MARGIN = 15.0
-TRACK_MARGIN = 15.0
-TRACK_LIMIT_DIST = 10.0
 MAX_MISSES = 3
-STEP_ANGLE = 5.0
-STEAL_MARGIN = 2.0
+STEP_ANGLE = 2.5
 TRACK_LOCK_DURATION = 6
+TRACK_ENTRY_UNSET = 10**9  # Centinela: nodo no ha detectado nada en esta sesión
 
 MOTOR_STEPS_REV = 200
 MICROSTEPPING = 16
@@ -86,6 +95,7 @@ class ArbitroServer:
         self._save_debounce_interval = 2 
         self.udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.client_buffers = {} # Buffer por cliente
+        self.defcon1_limit, self.defcon2_limit, self.defcon3_limit, self.valla_limit = _load_thresholds()
 
     def load_grid(self):
         if os.path.exists(CONFIG_FILE):
@@ -129,6 +139,14 @@ class ArbitroServer:
         except Exception as e:
             print(f"[ERR] Error al guardar el estado: {e}")
 
+    def _save_state_silent(self):
+        """Guardado silencioso periódico — sin salida por consola."""
+        try:
+            with open(STATE_FILE, 'w') as f:
+                json.dump(self.track_states, f)
+        except Exception:
+            pass
+
     def calculate_global_coords(self, radar_id, local_angle, distance):
         cfg = next((r for r in self.grid.values() if r["id"] == radar_id), None)
         if not cfg or distance <= 0: return None
@@ -171,13 +189,15 @@ class ArbitroServer:
                 'search_dir': 1.0,
                 'track_dir': 1.0,
                 'misses': 0,
+                'edge_flips': 0,
+                'track_entry_sf': TRACK_ENTRY_UNSET,
                 'current_angle': 0.0,
-                'track_min': 0.0,
-                'track_max': 0.0
             }
         state = self.track_states[r_id]
-        state.setdefault('track_min', 0.0)
-        state.setdefault('track_max', 0.0)
+        if 'edge_flips' not in state:
+            state['edge_flips'] = 0
+        if 'track_entry_sf' not in state or state['track_entry_sf'] == 0:
+            state['track_entry_sf'] = TRACK_ENTRY_UNSET
         return state
 
     def remove_client(self, conn, r_id):
@@ -265,21 +285,27 @@ class ArbitroServer:
                             
                             if self.current_phase == 4 and r_id in self.requests:
                                 self.reports_received.add(r_id)
-                                self.latest_reports[r_id] = {'angle': angle, 'dist': dist}
+                                if 0 < dist <= self.valla_limit:
+                                    coords = self.calculate_global_coords(r_id, angle, dist)
+                                    entry = {'angle': angle, 'dist': dist}
+                                    if coords:
+                                        entry['gx'] = round(coords[0], 1)
+                                        entry['gy'] = round(coords[1], 1)
+                                    self.latest_reports[r_id] = entry
                                 self.strikes[r_id] = 0
 
-                            if dist <= 0 or dist > 50.0:
+                            if dist <= 0 or dist > self.valla_limit:
                                 if dist < 0: print(f"  -> [N{r_id}] ⚫ MEDICIÓN INVÁLIDA")
                                 elif dist == 0: print(f"  -> [N{r_id}] ⚪ SIN OBSTÁCULO")
-                                else: print(f"  -> [N{r_id}] ⚪ SIN OBSTÁCULO (>50cm): {dist:.1f}cm")
+                                else: print(f"  -> [N{r_id}] ⚪ FUERA DE VALLA ({dist:.1f}cm > {self.valla_limit:.0f}cm)")
                                 continue
 
                             coords = self.calculate_global_coords(r_id, angle, dist)
                             if coords:
-                                if dist <= 10.0: estado = "🔴 DEFCON 1"
-                                elif dist <= 20.0: estado = "🟡 DEFCON 2"
-                                elif dist <= 30.0: estado = "🟢 DEFCON 3"
-                                else: estado = "🔵 VALLA VIRTUAL"
+                                if dist <= self.defcon1_limit:   estado = "🔴 DEFCON 1"
+                                elif dist <= self.defcon2_limit: estado = "🟡 DEFCON 2"
+                                elif dist <= self.defcon3_limit: estado = "🟢 DEFCON 3"
+                                else:                            estado = "🔵 VALLA VIRTUAL"
                                 print(f"  -> [N{r_id}] {estado} | Ángulo: {angle:5.1f}° | Dist: {dist:5.1f}cm | Coord: ({coords[0]:.1f}, {coords[1]:.1f})")
                                 
                     self.client_buffers[conn] = buffer
@@ -355,8 +381,10 @@ class ArbitroServer:
                 self.seq += 1
                 continue
 
+            CLEAN_LIMIT = A_MAX - DIRTY_MARGIN
             slots_assigned = {}
             used_angles = {}
+            used_local_angles = {}
             max_movement_time_ms = 0
             SLOT_DURATION = 50
 
@@ -372,14 +400,12 @@ class ArbitroServer:
                         target_angle = A_MIN
                         state['search_dir'] = 1.0
                 else:
-                    obj_left  = max(A_MIN - TRACK_MARGIN, state['track_min'] - 5.0)
-                    obj_right = min(A_MAX + TRACK_MARGIN, state['track_max'] + 5.0)
                     target_angle = state['current_angle'] + (state['track_dir'] * STEP_ANGLE)
-                    if target_angle >= obj_right:
-                        target_angle = obj_right
+                    if target_angle >= A_MAX:
+                        target_angle = A_MAX
                         state['track_dir'] = -1.0
-                    elif target_angle <= obj_left:
-                        target_angle = obj_left
+                    elif target_angle <= A_MIN:
+                        target_angle = A_MIN
                         state['track_dir'] = 1.0
 
                 mov_time = self.calculate_movement_time(state['current_angle'], target_angle)
@@ -394,16 +420,25 @@ class ArbitroServer:
                 assigned_slot = 0
                 for assigned_id, slot in slots_assigned.items():
                     if slot == assigned_slot:
+                        # Par adyacente con ambos en zona sucia → slots forzosamente distintos
+                        is_conflict_pair = (
+                            (r_id == 1 and assigned_id == 2) or (r_id == 2 and assigned_id == 1) or
+                            (r_id == 2 and assigned_id == 3) or (r_id == 3 and assigned_id == 2)
+                        )
+                        local_assigned = used_local_angles.get(assigned_id, 0.0)
+                        if is_conflict_pair and abs(target_angle) > CLEAN_LIMIT and abs(local_assigned) > CLEAN_LIMIT:
+                            assigned_slot = (assigned_slot + 1) % 2
+                            break
                         global_assigned = used_angles[assigned_id]
                         diff = abs((global_angle - global_assigned + 180) % 360 - 180)
                         son_extremos = (r_id == 1 and assigned_id == 3) or (r_id == 3 and assigned_id == 1)
                         if diff < 30.0 and not son_extremos:
-                            assigned_slot += 1
-                            if assigned_slot > 1: assigned_slot = 1
+                            assigned_slot = (assigned_slot + 1) % 2
                             break
-                
+
                 slots_assigned[r_id] = assigned_slot
                 used_angles[r_id] = global_angle
+                used_local_angles[r_id] = target_angle
 
             BASE_MOVEMENT_TIME = max_movement_time_ms + 100
             max_delay_ms = 0
@@ -471,31 +506,35 @@ class ArbitroServer:
                 else:
                     self.strikes[r_id] = 0
 
-            hits = {r_id: data for r_id, data in self.latest_reports.items() if 0 < data['dist'] <= TRACK_LIMIT_DIST}
+            self.defcon1_limit, self.defcon2_limit, self.defcon3_limit, self.valla_limit = _load_thresholds()
+            track_threshold = self.defcon1_limit
+            hits = {r_id: data for r_id, data in self.latest_reports.items() if 0 < data['dist'] <= track_threshold}
 
             trilat_results = {}
-            if 1 in hits and 2 in hits:
-                pos_tri = self.calcular_trilateracion(1, hits[1]['dist'], 2, hits[2]['dist'])
-                if pos_tri:
-                    trilat_results['N1-N2'] = {'x': round(pos_tri[0], 1), 'y': round(pos_tri[1], 1)}
-                    print(f"  [TRILAT] N1-N2: ({pos_tri[0]:.1f}, {pos_tri[1]:.1f})")
-            if 2 in hits and 3 in hits:
-                pos_tri = self.calcular_trilateracion(2, hits[2]['dist'], 3, hits[3]['dist'])
-                if pos_tri:
-                    trilat_results['N2-N3'] = {'x': round(pos_tri[0], 1), 'y': round(pos_tri[1], 1)}
-                    print(f"  [TRILAT] N2-N3: ({pos_tri[0]:.1f}, {pos_tri[1]:.1f})")
+            # Posición combinada: AMBOS en zona sucia (cualquier DEFCON)
+            for pair_key, na, nb in [('N1-N2', 1, 2), ('N2-N3', 2, 3)]:
+                da = self.latest_reports.get(na)
+                db = self.latest_reports.get(nb)
+                if (da and db
+                        and 'gx' in da and 'gx' in db
+                        and da['angle'] > CLEAN_LIMIT      # na apunta a zona sucia positiva
+                        and db['angle'] < -CLEAN_LIMIT):   # nb apunta a zona sucia negativa
+                    mx = (da['gx'] + db['gx']) / 2.0
+                    my = (da['gy'] + db['gy']) / 2.0
+                    trilat_results[pair_key] = {'x': round(mx, 1), 'y': round(my, 1)}
+                    print(f"  [COMBINED] {pair_key}: ({mx:.1f}, {my:.1f})")
 
-            CLEAN_LIMIT = A_MAX - DIRTY_MARGIN 
-            CONFLICT_PAIRS = [(1, 2), (2, 3)]  
+            CONFLICT_PAIRS = [(1, 2), (2, 3)]
 
             winners = set()
             losers = set()
 
             for (na, nb) in CONFLICT_PAIRS:
-                na_conflict = (na in hits and hits[na]['angle'] > 0 and abs(hits[na]['angle']) > CLEAN_LIMIT)
-                nb_conflict = (nb in hits and hits[nb]['angle'] < 0 and abs(hits[nb]['angle']) > CLEAN_LIMIT)
-
-                if na_conflict and nb_conflict:
+                na_dirty = na in hits and hits[na]['angle'] > CLEAN_LIMIT
+                nb_dirty = nb in hits and hits[nb]['angle'] < -CLEAN_LIMIT
+                if na_dirty and nb_dirty:
+                    state_a = self.get_state(na)
+                    state_b = self.get_state(nb)
                     na_locked = self.seq <= self.track_lock.get(na, 0)
                     nb_locked = self.seq <= self.track_lock.get(nb, 0)
 
@@ -506,15 +545,15 @@ class ArbitroServer:
                         winner, loser = nb, na
                         print(f"  [CONFLICTO] N{na}/N{nb}: N{nb} mantiene bloqueo (hasta SF {self.track_lock[nb]}) | {hits[na]['dist']:.1f} vs {hits[nb]['dist']:.1f} cm")
                     else:
-                        state_a = self.get_state(na)
-                        state_b = self.get_state(nb)
-                        eff_da = hits[na]['dist'] - (STEAL_MARGIN if state_a['mode'] == 'TRACK' else 0)
-                        eff_db = hits[nb]['dist'] - (STEAL_MARGIN if state_b['mode'] == 'TRACK' else 0)
-                        if eff_da <= eff_db:
+                        # Sin bloqueo activo: gana el que primero detectó el objeto en esta sesión
+                        entry_a = state_a.get('track_entry_sf', TRACK_ENTRY_UNSET)
+                        entry_b = state_b.get('track_entry_sf', TRACK_ENTRY_UNSET)
+                        if entry_a <= entry_b:
                             winner, loser = na, nb
                         else:
                             winner, loser = nb, na
-                        print(f"  [CONFLICTO] N{na}/N{nb}: N{winner} gana ({hits[na]['dist']:.1f} vs {hits[nb]['dist']:.1f} cm)")
+                        sf_str = str(min(entry_a, entry_b)) if min(entry_a, entry_b) < TRACK_ENTRY_UNSET else '?'
+                        print(f"  [CONFLICTO] N{na}/N{nb}: N{winner} gana (primer TRACK SF {sf_str}) | {hits[na]['dist']:.1f} vs {hits[nb]['dist']:.1f} cm")
 
                     winners.add(winner)
                     losers.add(loser)
@@ -524,42 +563,58 @@ class ArbitroServer:
                 if r_id not in winners and r_id not in losers:
                     winners.add(r_id)
 
+            MAX_EDGE_FLIPS = 5
+
             for r_id in active_reqs:
                 state = self.get_state(r_id)
                 if r_id in winners:
-                    a = hits[r_id]['angle']
-                    if state['mode'] == 'SEARCH' or state['misses'] > 0:
-                        if state['mode'] == 'SEARCH':
-                            state['track_dir'] = state['search_dir']
-                        state['track_min'] = a
-                        state['track_max'] = a
-                    else:
-                        prev_min = state['track_min']
-                        prev_max = state['track_max']
-                        state['track_min'] = min(state['track_min'], a)
-                        state['track_max'] = max(state['track_max'], a)
-                        if a > prev_max and state['track_dir'] == -1.0:
-                            state['track_dir'] = 1.0
-                        elif a < prev_min and state['track_dir'] == 1.0:
-                            state['track_dir'] = -1.0
+                    if state['mode'] == 'SEARCH':
+                        state['track_dir'] = state['search_dir']
+                        # Solo registrar la primera detección del objeto en esta sesión
+                        if state['track_entry_sf'] >= TRACK_ENTRY_UNSET:
+                            state['track_entry_sf'] = self.seq
                     state['mode'] = 'TRACK'
                     state['misses'] = 0
+                    state['edge_flips'] = 0
                 elif r_id in losers:
+                    # Perdedor: vuelve a SEARCH; track_entry_sf se conserva (mismo objeto)
                     state['mode'] = 'SEARCH'
                     state['misses'] = 0
+                    state['edge_flips'] = 0
                     self.track_lock.pop(r_id, None)
                 else:
                     if state['mode'] == 'TRACK':
-                        state['misses'] += 1
-                        if state['misses'] >= MAX_MISSES:
-                            state['mode'] = 'SEARCH'
+                        if r_id in self.latest_reports:
+                            # Medida válida pero fuera de DEFCON1 → borde del objeto
+                            state['track_dir'] *= -1.0
                             state['misses'] = 0
-                            self.track_lock.pop(r_id, None)
+                            state['edge_flips'] += 1
+                            if state['edge_flips'] >= MAX_EDGE_FLIPS:
+                                # Demasiados rebotes → objeto de fondo, objeto perdido
+                                state['mode'] = 'SEARCH'
+                                state['misses'] = 0
+                                state['edge_flips'] = 0
+                                state['track_entry_sf'] = TRACK_ENTRY_UNSET
+                                self.track_lock.pop(r_id, None)
+                        else:
+                            # Sin medida (> valla o timeout) → miss real
+                            if state['misses'] == 0:
+                                state['track_dir'] *= -1.0
+                            state['misses'] += 1
+                            state['edge_flips'] = 0
+                            if state['misses'] >= MAX_MISSES:
+                                state['mode'] = 'SEARCH'
+                                state['misses'] = 0
+                                state['track_entry_sf'] = TRACK_ENTRY_UNSET
+                                self.track_lock.pop(r_id, None)
 
+            detections = {r_id: data for r_id, data in self.latest_reports.items()
+                          if 0 < data['dist']}
             ui_state = {
                 "seq": self.seq,
                 "radars": {r: self.get_state(r) for r in self.client_sockets.keys()},
                 "hits": hits,
+                "detections": detections,
                 "trilat": trilat_results
             }
             try:
@@ -569,6 +624,11 @@ class ArbitroServer:
             t_end_sf = time.time()
             print(f"  [DURACIÓN SF {self.seq}] {int((t_end_sf - t_start_sf)*1000)} ms")
             self.seq += 1
+
+            # Guardado periódico: asegura que el estado es reciente incluso si el
+            # proceso es terminado abruptamente (terminate() no ejecuta finally).
+            if self.seq % 15 == 0:
+                self._save_state_silent()
 
     def start(self):
         zc = None

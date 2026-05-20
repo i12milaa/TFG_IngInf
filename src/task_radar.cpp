@@ -51,7 +51,8 @@ void TaskRadar(void *pvParameters) {
             }
 
             else if (cmd.type == HW_CMD_EXECUTE_SLOT) {
-                hw.moveToAngle(cmd.param);
+                float safe_angle = fmaxf(RADAR_MIN_ANGLE, fminf(RADAR_MAX_ANGLE, cmd.param));
+                hw.moveToAngle(safe_angle);
 
                 long time_to_wait = (long)cmd.execution_time_ms - (long)millis();
                 if (time_to_wait > 0) {
@@ -63,7 +64,7 @@ void TaskRadar(void *pvParameters) {
                 HwResult res;
                 res.type = HW_RES_SLOT_DONE;
                 res.value = dist;
-                res.angle = cmd.param;
+                res.angle = safe_angle;
 
                 HwResult flush;
                 while (xQueueReceive(SystemManager::instance().queueResults, &flush, 0));
