@@ -2,7 +2,16 @@
   "permissions": {
     "allow": [
       "Bash(git mv *)",
-      "Bash(pip install *)"
+      "Bash(pip install *)",
+      "PowerShell(Get-ChildItem -Path \"d:\\\\Universidad\\\\TFG\\\\TFG_Part6\" | Select-Object Name, @{Name=\"Type\"; Expression={if\\($_.PSIsContainer\\){\"DIR\"}else{\"FILE\"}}} | Format-Table -AutoSize)",
+      "PowerShell(Get-ChildItem -Recurse -Path \"d:\\\\Universidad\\\\TFG\\\\TFG_Part6\" -File | Where-Object {$_.Extension -in @\\('.py', '.cpp', '.h', '.html', '.js', '.css', '.json'\\)} | Select-Object FullName | ForEach-Object {$_.FullName.Replace\\('d:\\\\Universidad\\\\TFG\\\\TFG_Part6', '.'\\)} | Sort-Object)",
+      "Bash(python d:\\\\Universidad\\\\TFG\\\\TFG_Part6\\\\tools\\\\radar_visualizer.py --help)",
+      "Bash(python d:\\\\Universidad\\\\TFG\\\\TFG_Part6\\\\tools\\\\radar_visualizer.py -c \"import ast; ast.parse\\(open\\('d:/Universidad/TFG/TFG_Part6/tools/radar_visualizer.py'\\).read\\(\\)\\); print\\('Syntax OK'\\)\")",
+      "PowerShell(python -c \"import ast; ast.parse\\(open\\('d:/Universidad/TFG/TFG_Part6/tools/radar_visualizer.py'\\).read\\(\\)\\); print\\('Syntax OK'\\)\")",
+      "PowerShell(& \"C:\\\\Users\\\\Alexm\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\python.exe\" --version)",
+      "PowerShell(& \"C:\\\\Users\\\\Alexm\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\python.exe\" -c \"import matplotlib; print\\(matplotlib.__version__\\)\")",
+      "WebFetch(domain:docs.google.com)",
+      "WebFetch(domain:doc-04-5s-docstext.googleusercontent.com)"
     ]
   }
 }

@@ -1,0 +1,1828 @@
+
+==================================================
+���� ATENCI��N: Se ha detectado una sesi��n anterior.
+==================================================
+��Deseas reanudar las posiciones de los radares? (s/n): [SYS] Memoria descartada. Asumiendo que has centrado los radares a mano (0��).
+[mDNS] radar-server.local -> 192.168.1.16, 192.168.137.1
+[SYS] ��rbitro Iniciado - Puerto 8080
+[SYS] Conectado MAC CC:DB:A7:98:CC:E4 -> ID 3 (Reanudando en 0.0��)
+[SYS] Conectado MAC 88:13:BF:C8:40:30 -> ID 1 (Reanudando en 0.0��)
+
+[=== SF 0 ===]
+
+[=== SF 1 ===]
+
+[=== SF 2 ===]
+
+[=== SF 3 ===]
+
+[=== SF 4 ===]
+
+[=== SF 5 ===]
+
+[=== SF 6 ===]
+[SYS] Conectado MAC F0:24:F9:44:0A:20 -> ID 2 (Reanudando en 0.0��)
+
+[=== SF 7 ===]
+
+[=== SF 8 ===]
+
+[=== SF 9 ===]
+  -> N3 Asignado:   2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:   2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 3 | ��ngulo:   2.5�� | Dist:  45.0cm | Coord: (-62.5, 39.8)
+  [DURACI��N SF 9] 322 ms
+
+[=== SF 10 ===]
+  -> N1 Asignado:   5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:   5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo:   5.0�� | Dist:  45.3cm | Coord: (-63.9, 38.3)
+  -> [N3] ��� SIN OBST��CULO
+  [DURACI��N SF 10] 363 ms
+
+[=== SF 11 ===]
+  -> N3 Asignado:   7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:   7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:   2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (67.7cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:   7.5�� | Dist:  44.9cm | Coord: (-64.5, 36.4)
+  [DURACI��N SF 11] 300 ms
+
+[=== SF 12 ===]
+  -> N2 Asignado:   5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:  10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 3 | ��ngulo:  10.0�� | Dist:  45.3cm | Coord: (-65.7, 34.9)
+  -> [N2] ��� FUERA DE VALLA (67.7cm > 65cm)
+  [DURACI��N SF 12] 301 ms
+
+[=== SF 13 ===]
+  -> N3 Asignado:  12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:   7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ��� FUERA DE VALLA (69.4cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  12.5�� | Dist:  44.9cm | Coord: (-66.2, 32.9)
+  -> [N3] ��� SIN OBST��CULO
+  [DURACI��N SF 13] 312 ms
+
+[=== SF 14 ===]
+  -> N1 Asignado:  15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:  15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo:  15.0�� | Dist:  44.9cm | Coord: (-66.9, 31.1)
+  -> [N2] ��� FUERA DE VALLA (68.5cm > 65cm)
+  -> [N3] ��� SIN OBST��CULO
+  [DURACI��N SF 14] 312 ms
+
+[=== SF 15 ===]
+  -> N3 Asignado:  17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (67.9cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  17.5�� | Dist:  45.8cm | Coord: (-68.4, 29.5)
+  [DURACI��N SF 15] 332 ms
+
+[=== SF 16 ===]
+  -> N3 Asignado:  20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ��� FUERA DE VALLA (69.2cm > 65cm)
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 3 | ��ngulo:  20.0�� | Dist:  45.4cm | Coord: (-68.6, 27.5)
+  [DURACI��N SF 16] 332 ms
+
+[=== SF 17 ===]
+  -> N3 Asignado:  22.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  22.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  17.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (66.7cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  22.5�� | Dist:  46.7cm | Coord: (-70.4, 25.9)
+  [DURACI��N SF 17] 351 ms
+
+[=== SF 18 ===]
+  -> N3 Asignado:  25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  20.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ��� FUERA DE VALLA (66.6cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  25.0�� | Dist:  47.2cm | Coord: (-71.4, 24.0)
+  -> [N3] ��� SIN OBST��CULO
+  [DURACI��N SF 18] 351 ms
+
+[=== SF 19 ===]
+  -> N3 Asignado:  27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  22.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (67.4cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  27.5�� | Dist:  47.2cm | Coord: (-71.7, 22.0)
+  [DURACI��N SF 19] 340 ms
+
+[=== SF 20 ===]
+  -> N2 Asignado:  25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  30.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:  30.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  25.0�� | Dist:  60.8cm | Coord: (-25.7, 83.1)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  30.0�� | Dist:  49.0cm | Coord: (-73.7, 20.1)
+  [DURACI��N SF 20] 362 ms
+
+[=== SF 21 ===]
+  -> N1 Asignado:  32.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  27.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:  32.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ��� FUERA DE VALLA (66.4cm > 65cm)
+  -> [N1] ���� VALLA VIRTUAL | ��ngulo:  32.5�� | Dist:  50.3cm | Coord: (-75.2, 18.1)
+  -> [N3] ��� SIN OBST��CULO
+  [DURACI��N SF 21] 361 ms
+
+[=== SF 22 ===]
+  -> N3 Asignado:  35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  30.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (70.5cm > 65cm)
+  -> [N1] ���� VALLA VIRTUAL | ��ngulo:  35.0�� | Dist:  62.8cm | Coord: (-87.8, 16.1)
+  [DURACI��N SF 22] 362 ms
+
+[=== SF 23 ===]
+  -> N1 Asignado:  37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:  37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  32.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� VALLA VIRTUAL | ��ngulo:  37.5�� | Dist:  63.2cm | Coord: (-88.2, 13.3)
+  -> [N2] ��� FUERA DE VALLA (93.8cm > 65cm)
+  -> [N3] ��� SIN OBST��CULO
+  [DURACI��N SF 23] 404 ms
+
+[=== SF 24 ===]
+  -> N3 Asignado:  40.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  35.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  40.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (69.9cm > 65cm)
+  -> [N1] ��� FUERA DE VALLA (67.9cm > 65cm)
+  [DURACI��N SF 24] 392 ms
+
+[=== SF 25 ===]
+  -> N3 Asignado:  42.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  42.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  37.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ��� FUERA DE VALLA (80.2cm > 65cm)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  37.5�� | Dist:  62.6cm | Coord: (-38.1, 77.7)
+  -> [N3] ��� FUERA DE VALLA (229.9cm > 65cm)
+  [DURACI��N SF 25] 382 ms
+
+[=== SF 26 ===]
+  -> N2 Asignado:  40.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  45.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:  45.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ��� FUERA DE VALLA (79.8cm > 65cm)
+  -> [N2] ��� FUERA DE VALLA (68.4cm > 65cm)
+  -> [N3] ��� FUERA DE VALLA (243.4cm > 65cm)
+  [DURACI��N SF 26] 383 ms
+
+[=== SF 27 ===]
+  -> N3 Asignado:  42.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  42.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  42.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ��� FUERA DE VALLA (81.0cm > 65cm)
+  -> [N2] ��� FUERA DE VALLA (67.7cm > 65cm)
+  [DURACI��N SF 27] 340 ms
+
+[=== SF 28 ===]
+  -> N3 Asignado:  40.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  45.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  40.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (70.3cm > 65cm)
+  -> [N1] ��� FUERA DE VALLA (71.8cm > 65cm)
+  [DURACI��N SF 28] 361 ms
+
+[=== SF 29 ===]
+  -> N3 Asignado:  37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  42.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (250.1cm > 65cm)
+  -> [N2] ��� FUERA DE VALLA (66.2cm > 65cm)
+  -> [N1] ��� FUERA DE VALLA (65.3cm > 65cm)
+  [DURACI��N SF 29] 372 ms
+
+[=== SF 30 ===]
+  -> N3 Asignado:  35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  40.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (76.3cm > 65cm)
+  -> [N1] ���� VALLA VIRTUAL | ��ngulo:  35.0�� | Dist:  62.3cm | Coord: (-87.3, 16.1)
+  [DURACI��N SF 30] 370 ms
+
+[=== SF 31 ===]
+  -> N2 Asignado:  37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:  32.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  32.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  37.5�� | Dist:  55.3cm | Coord: (-33.7, 71.9)
+  -> [N1] ���� VALLA VIRTUAL | ��ngulo:  32.5�� | Dist:  51.6cm | Coord: (-76.5, 18.1)
+  -> [N3] ��� SIN OBST��CULO
+  [DURACI��N SF 31] 424 ms
+
+[=== SF 32 ===]
+  -> N3 Asignado:  30.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  30.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  35.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo:  30.0�� | Dist:  48.1cm | Coord: (-72.8, 20.0)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  35.0�� | Dist:  62.7cm | Coord: (-36.0, 79.4)
+  -> [N3] ��� SIN OBST��CULO
+  [DURACI��N SF 32] 361 ms
+
+[=== SF 33 ===]
+  -> N3 Asignado:  27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  32.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (79.6cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  27.5�� | Dist:  48.0cm | Coord: (-72.5, 22.1)
+  [DURACI��N SF 33] 340 ms
+
+[=== SF 34 ===]
+  -> N3 Asignado:  25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  30.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (72.1cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  25.0�� | Dist:  47.6cm | Coord: (-71.7, 24.1)
+  [DURACI��N SF 34] 372 ms
+
+[=== SF 35 ===]
+  -> N3 Asignado:  22.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  27.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  22.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (68.6cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  22.5�� | Dist:  46.7cm | Coord: (-70.4, 25.9)
+  [DURACI��N SF 35] 372 ms
+
+[=== SF 36 ===]
+  -> N3 Asignado:  20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  25.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo:  20.0�� | Dist:  46.3cm | Coord: (-69.5, 27.8)
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  25.0�� | Dist:  62.9cm | Coord: (-26.6, 85.0)
+  [DURACI��N SF 36] 362 ms
+
+[=== SF 37 ===]
+  -> N3 Asignado:  17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  22.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (67.2cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  17.5�� | Dist:  45.4cm | Coord: (-68.0, 29.4)
+  [DURACI��N SF 37] 372 ms
+
+[=== SF 38 ===]
+  -> N2 Asignado:  20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:  15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (69.4cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  15.0�� | Dist:  44.9cm | Coord: (-66.9, 31.1)
+  [DURACI��N SF 38] 290 ms
+
+[=== SF 39 ===]
+  -> N1 Asignado:  12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:  12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (67.3cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  12.5�� | Dist:  44.9cm | Coord: (-66.2, 32.9)
+  [DURACI��N SF 39] 353 ms
+
+[=== SF 40 ===]
+  -> N3 Asignado:  10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (68.6cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  10.0�� | Dist:  45.3cm | Coord: (-65.7, 34.9)
+  [DURACI��N SF 40] 363 ms
+
+[=== SF 41 ===]
+  -> N2 Asignado:  12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:   7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:   7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ��� FUERA DE VALLA (67.3cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:   7.5�� | Dist:  44.4cm | Coord: (-64.0, 36.2)
+  -> [N3] ��� SIN OBST��CULO
+  [DURACI��N SF 41] 301 ms
+
+[=== SF 42 ===]
+  -> N3 Asignado:   5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:   5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  10.0�� | Dist:  64.6cm | Coord: (-11.2, 91.6)
+  -> [N1] ���� DEFCON 3 | ��ngulo:   5.0�� | Dist:  45.3cm | Coord: (-63.9, 38.3)
+  [DURACI��N SF 42] 508 ms
+
+[=== SF 43 ===]
+  -> N2 Asignado:   7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:   2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:   2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:   7.5�� | Dist:  62.5cm | Coord: (-8.2, 90.0)
+  -> [N1] ���� DEFCON 3 | ��ngulo:   2.5�� | Dist:  45.3cm | Coord: (-62.8, 40.0)
+  [DURACI��N SF 43] 405 ms
+
+[=== SF 44 ===]
+  -> N3 Asignado:   0.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:   0.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:   5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:   5.0�� | Dist:  61.1cm | Coord: (-5.3, 88.9)
+  -> [N1] ���� DEFCON 3 | ��ngulo:   0.0�� | Dist:  45.4cm | Coord: (-61.7, 41.7)
+  -> [N3] ��� SIN OBST��CULO
+  [DURACI��N SF 44] 362 ms
+
+[=== SF 45 ===]
+  -> N3 Asignado:  -2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  -2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:   2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (98.2cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  -2.5�� | Dist:  39.4cm | Coord: (-55.8, 39.5)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:   2.5�� | Dist:  64.8cm | Coord: (-2.8, 92.7)
+  [DURACI��N SF 45] 312 ms
+
+[=== SF 46 ===]
+  -> N3 Asignado:  -5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:   0.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  -5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ��� FUERA DE VALLA (68.1cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  -5.0�� | Dist:  38.1cm | Coord: (-53.7, 40.0)
+  -> [N3] ��� SIN OBST��CULO
+  [DURACI��N SF 46] 490 ms
+
+[=== SF 47 ===]
+  -> N3 Asignado:  -7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  -2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  -7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (84.8cm > 65cm)
+  -> [N2] ��� FUERA DE VALLA (67.6cm > 65cm)
+  -> [N1] ���� DEFCON 2 | ��ngulo:  -7.5�� | Dist:  32.4cm | Coord: (-48.5, 37.3)
+  [DURACI��N SF 47] 312 ms
+
+[=== SF 48 ===]
+  -> N3 Asignado: -10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  -5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ��� FUERA DE VALLA (78.3cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -10.0�� | Dist:  36.7cm | Coord: (-50.5, 41.4)
+  -> [N3] ��� FUERA DE VALLA (98.7cm > 65cm)
+  [DURACI��N SF 48] 311 ms
+
+[=== SF 49 ===]
+  -> N3 Asignado: -12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  -7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (104.2cm > 65cm)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  -7.5�� | Dist:  58.6cm | Coord: (7.6, 86.1)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -12.5�� | Dist:  39.7cm | Coord: (-51.3, 44.7)
+  [DURACI��N SF 49] 311 ms
+
+[=== SF 50 ===]
+  -> N1 Asignado: -15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado: -15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (100.3cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -15.0�� | Dist:  41.8cm | Coord: (-51.3, 47.5)
+  -> [N2] ��� FUERA DE VALLA (65.0cm > 65cm)
+  [DURACI��N SF 50] 364 ms
+
+[=== SF 51 ===]
+  -> N1 Asignado: -17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado: -17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (200.5cm > 65cm)
+  -> [N2] ��� FUERA DE VALLA (67.2cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -17.5�� | Dist:  40.4cm | Coord: (-49.0, 47.5)
+  [DURACI��N SF 51] 312 ms
+
+[=== SF 52 ===]
+  -> N3 Asignado: -20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ��� FUERA DE VALLA (69.0cm > 65cm)
+  -> [N3] ��� FUERA DE VALLA (198.4cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -20.0�� | Dist:  38.1cm | Coord: (-46.3, 46.6)
+  [DURACI��N SF 52] 300 ms
+
+[=== SF 53 ===]
+  -> N2 Asignado: -17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -22.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado: -22.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ��� FUERA DE VALLA (74.2cm > 65cm)
+  -> [N3] ��� FUERA DE VALLA (101.7cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -22.5�� | Dist:  39.0cm | Coord: (-45.4, 48.2)
+  [DURACI��N SF 53] 351 ms
+
+[=== SF 54 ===]
+  -> N3 Asignado: -25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -20.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 2 | ��ngulo: -25.0�� | Dist:  30.9cm | Coord: (-40.0, 42.0)
+  -> [N3] ��� FUERA DE VALLA (89.5cm > 65cm)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo: -20.0�� | Dist:  64.7cm | Coord: (22.1, 88.8)
+  [DURACI��N SF 54] 350 ms
+
+[=== SF 55 ===]
+  -> N3 Asignado: -27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -22.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (76.0cm > 65cm)
+  -> [N2] ��� FUERA DE VALLA (74.0cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -27.5�� | Dist:  37.6cm | Coord: (-41.8, 48.6)
+  [DURACI��N SF 55] 372 ms
+
+[=== SF 56 ===]
+  -> N1 Asignado: -30.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado: -30.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -25.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (73.1cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -30.0�� | Dist:  37.2cm | Coord: (-40.1, 49.0)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo: -25.0�� | Dist:  64.6cm | Coord: (27.3, 86.5)
+  [DURACI��N SF 56] 445 ms
+
+[=== SF 57 ===]
+  -> N3 Asignado: -32.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -32.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -27.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (72.1cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -32.5�� | Dist:  36.7cm | Coord: (-38.4, 49.1)
+  -> [N2] ��� FUERA DE VALLA (69.7cm > 65cm)
+  [DURACI��N SF 57] 372 ms
+
+[=== SF 58 ===]
+  -> N3 Asignado: -35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -30.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (73.4cm > 65cm)
+  -> [N2] ��� FUERA DE VALLA (67.7cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -35.0�� | Dist:  37.2cm | Coord: (-37.1, 50.1)
+  [DURACI��N SF 58] 394 ms
+
+[=== SF 59 ===]
+  -> N3 Asignado: -37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -32.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (73.8cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -37.5�� | Dist:  37.7cm | Coord: (-35.7, 51.1)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo: -32.5�� | Dist:  55.0cm | Coord: (29.5, 74.4)
+  [DURACI��N SF 59] 413 ms
+
+[=== SF 60 ===]
+  -> N3 Asignado: -40.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -35.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -40.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (71.3cm > 65cm)
+  -> [N2] ��� FUERA DE VALLA (67.6cm > 65cm)
+  -> [N1] ���� DEFCON 2 | ��ngulo: -40.0�� | Dist:  25.7cm | Coord: (-31.2, 39.9)
+  [DURACI��N SF 60] 372 ms
+
+[=== SF 61 ===]
+  -> N3 Asignado: -42.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -42.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -37.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (72.2cm > 65cm)
+  -> [N2] ��� FUERA DE VALLA (73.3cm > 65cm)
+  -> [N1] ���� DEFCON 2 | ��ngulo: -42.5�� | Dist:  25.7cm | Coord: (-30.1, 40.2)
+  [DURACI��N SF 61] 351 ms
+
+[=== SF 62 ===]
+  -> N3 Asignado: -45.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -45.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -40.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (74.3cm > 65cm)
+  -> [N2] ��� FUERA DE VALLA (81.9cm > 65cm)
+  -> [N1] ���� DEFCON 2 | ��ngulo: -45.0�� | Dist:  25.2cm | Coord: (-28.9, 39.9)
+  [DURACI��N SF 62] 361 ms
+
+[=== SF 63 ===]
+  -> N3 Asignado: -42.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -42.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -42.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (73.1cm > 65cm)
+  -> [N2] ��� FUERA DE VALLA (68.1cm > 65cm)
+  -> [N1] ���� DEFCON 2 | ��ngulo: -42.5�� | Dist:  25.2cm | Coord: (-30.0, 39.7)
+  [DURACI��N SF 63] 382 ms
+
+[=== SF 64 ===]
+  -> N1 Asignado: -40.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado: -40.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -45.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (76.4cm > 65cm)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo: -45.0�� | Dist:  61.4cm | Coord: (43.4, 71.4)
+  -> [N1] ���� DEFCON 2 | ��ngulo: -40.0�� | Dist:  25.7cm | Coord: (-31.2, 39.9)
+  [DURACI��N SF 64] 362 ms
+
+[=== SF 65 ===]
+  -> N1 Asignado: -37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado: -37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -42.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo: -37.5�� | Dist:  36.8cm | Coord: (-35.5, 50.3)
+  -> [N2] ��� FUERA DE VALLA (75.2cm > 65cm)
+  -> [N3] ��� FUERA DE VALLA (73.8cm > 65cm)
+  [DURACI��N SF 65] 371 ms
+
+[=== SF 66 ===]
+  -> N3 Asignado: -35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -40.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ��� FUERA DE VALLA (67.7cm > 65cm)
+  -> [N3] ��� FUERA DE VALLA (73.0cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -35.0�� | Dist:  37.2cm | Coord: (-37.1, 50.2)
+  [DURACI��N SF 66] 372 ms
+
+[=== SF 67 ===]
+  -> N3 Asignado: -32.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -32.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -37.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (73.0cm > 65cm)
+  -> [N2] ��� FUERA DE VALLA (72.7cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -32.5�� | Dist:  37.2cm | Coord: (-38.6, 49.7)
+  [DURACI��N SF 67] 382 ms
+
+[=== SF 68 ===]
+  -> N3 Asignado: -30.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -30.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -35.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo: -30.0�� | Dist:  37.7cm | Coord: (-40.3, 49.4)
+  -> [N2] ��� FUERA DE VALLA (69.3cm > 65cm)
+  -> [N3] ��� FUERA DE VALLA (73.0cm > 65cm)
+  [DURACI��N SF 68] 371 ms
+
+[=== SF 69 ===]
+  -> N1 Asignado: -27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -32.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado: -27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo: -27.5�� | Dist:  38.1cm | Coord: (-42.0, 49.1)
+  -> [N3] ��� FUERA DE VALLA (71.3cm > 65cm)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo: -32.5�� | Dist:  55.6cm | Coord: (29.9, 74.9)
+  [DURACI��N SF 69] 351 ms
+
+[=== SF 70 ===]
+  -> N1 Asignado: -25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado: -25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -30.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (72.6cm > 65cm)
+  -> [N2] ��� FUERA DE VALLA (69.4cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -25.0�� | Dist:  38.6cm | Coord: (-43.7, 48.8)
+  [DURACI��N SF 70] 392 ms
+
+[=== SF 71 ===]
+  -> N1 Asignado: -22.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -27.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado: -22.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ��� FUERA DE VALLA (86.5cm > 65cm)
+  -> [N1] ���� DEFCON 2 | ��ngulo: -22.5�� | Dist:  30.9cm | Coord: (-41.1, 41.3)
+  -> [N3] ��� FUERA DE VALLA (73.5cm > 65cm)
+  [DURACI��N SF 71] 362 ms
+
+[=== SF 72 ===]
+  -> N3 Asignado: -20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -25.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (100.4cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -20.0�� | Dist:  39.0cm | Coord: (-46.8, 47.4)
+  -> [N2] ��� FUERA DE VALLA (71.1cm > 65cm)
+  [DURACI��N SF 72] 351 ms
+
+[=== SF 73 ===]
+  -> N3 Asignado: -17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -22.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (98.4cm > 65cm)
+  -> [N2] ��� FUERA DE VALLA (71.1cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -17.5�� | Dist:  39.5cm | Coord: (-48.5, 46.8)
+  [DURACI��N SF 73] 381 ms
+
+[=== SF 74 ===]
+  -> N3 Asignado: -15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ��� FUERA DE VALLA (66.5cm > 65cm)
+  -> [N3] ��� FUERA DE VALLA (202.3cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -15.0�� | Dist:  42.2cm | Coord: (-51.6, 47.8)
+  [DURACI��N SF 74] 301 ms
+
+[=== SF 75 ===]
+  -> N3 Asignado: -12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (98.1cm > 65cm)
+  -> [N2] ��� FUERA DE VALLA (70.7cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -12.5�� | Dist:  41.8cm | Coord: (-52.7, 46.3)
+  [DURACI��N SF 75] 343 ms
+
+[=== SF 76 ===]
+  -> N1 Asignado: -10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado: -10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (81.8cm > 65cm)
+  -> [N1] ���� DEFCON 2 | ��ngulo: -10.0�� | Dist:  33.2cm | Coord: (-48.1, 38.9)
+  [DURACI��N SF 76] 323 ms
+
+[=== SF 77 ===]
+  -> N3 Asignado:  -7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  -7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (154.3cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  -7.5�� | Dist:  35.9cm | Coord: (-51.0, 39.7)
+  -> [N2] ��� FUERA DE VALLA (76.1cm > 65cm)
+  [DURACI��N SF 77] 300 ms
+
+[=== SF 78 ===]
+  -> N3 Asignado:  -5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  -5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (156.3cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  -5.0�� | Dist:  38.1cm | Coord: (-53.7, 40.0)
+  -> [N2] ��� FUERA DE VALLA (67.2cm > 65cm)
+  [DURACI��N SF 78] 353 ms
+
+[=== SF 79 ===]
+  -> N3 Asignado:  -2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  -2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  -7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (96.5cm > 65cm)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  -7.5�� | Dist:  57.2cm | Coord: (7.5, 84.7)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  -2.5�� | Dist:  40.7cm | Coord: (-56.9, 40.3)
+  [DURACI��N SF 79] 311 ms
+
+[=== SF 80 ===]
+  -> N3 Asignado:   0.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:   0.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  -5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo:   0.0�� | Dist:  45.4cm | Coord: (-61.7, 41.7)
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (69.8cm > 65cm)
+  [DURACI��N SF 80] 395 ms
+
+[=== SF 81 ===]
+  -> N3 Asignado:   2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  -2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:   2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  -2.5�� | Dist:  64.7cm | Coord: (2.8, 92.7)
+  -> [N1] ���� DEFCON 3 | ��ngulo:   2.5�� | Dist:  46.2cm | Coord: (-63.5, 40.5)
+  [DURACI��N SF 81] 387 ms
+
+[=== SF 82 ===]
+  -> N1 Asignado:   5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:   5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:   0.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo:   5.0�� | Dist:  45.7cm | Coord: (-64.2, 38.6)
+  -> [N2] ��� FUERA DE VALLA (68.4cm > 65cm)
+  -> [N3] ��� SIN OBST��CULO
+  [DURACI��N SF 82] 438 ms
+
+[=== SF 83 ===]
+  -> N1 Asignado:   7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:   7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:   2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (66.1cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:   7.5�� | Dist:  44.9cm | Coord: (-64.4, 36.4)
+  [DURACI��N SF 83] 384 ms
+
+[=== SF 84 ===]
+  -> N3 Asignado:  10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:   5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:   5.0�� | Dist:  62.9cm | Coord: (-5.5, 90.7)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  10.0�� | Dist:  44.8cm | Coord: (-65.3, 34.7)
+  [DURACI��N SF 84] 311 ms
+
+[=== SF 85 ===]
+  -> N3 Asignado:  12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:   7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo:  12.5�� | Dist:  45.3cm | Coord: (-66.6, 33.1)
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (70.1cm > 65cm)
+  [DURACI��N SF 85] 301 ms
+
+[=== SF 86 ===]
+  -> N3 Asignado:  15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (66.7cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  15.0�� | Dist:  45.3cm | Coord: (-67.3, 31.2)
+  [DURACI��N SF 86] 301 ms
+
+[=== SF 87 ===]
+  -> N3 Asignado:  17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  12.5�� | Dist:  63.4cm | Coord: (-13.7, 89.9)
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 3 | ��ngulo:  17.5�� | Dist:  45.4cm | Coord: (-68.0, 29.4)
+  [DURACI��N SF 87] 333 ms
+
+[=== SF 88 ===]
+  -> N3 Asignado:  20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo:  20.0�� | Dist:  45.4cm | Coord: (-68.6, 27.5)
+  -> [N2] ��� FUERA DE VALLA (69.0cm > 65cm)
+  -> [N3] ��� SIN OBST��CULO
+  [DURACI��N SF 88] 394 ms
+
+[=== SF 89 ===]
+  -> N3 Asignado:  22.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  22.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  17.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo:  22.5�� | Dist:  46.3cm | Coord: (-70.0, 25.8)
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (69.1cm > 65cm)
+  [DURACI��N SF 89] 382 ms
+
+[=== SF 90 ===]
+  -> N3 Asignado:  25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  20.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 3 | ��ngulo:  25.0�� | Dist:  47.2cm | Coord: (-71.4, 24.0)
+  -> [N2] ��� FUERA DE VALLA (69.6cm > 65cm)
+  [DURACI��N SF 90] 361 ms
+
+[=== SF 91 ===]
+  -> N3 Asignado:  27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  22.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo:  27.5�� | Dist:  48.1cm | Coord: (-72.6, 22.1)
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (67.0cm > 65cm)
+  [DURACI��N SF 91] 362 ms
+
+[=== SF 92 ===]
+  -> N3 Asignado:  30.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  25.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  30.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  25.0�� | Dist:  57.3cm | Coord: (-24.2, 80.0)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  30.0�� | Dist:  49.4cm | Coord: (-74.2, 20.2)
+  [DURACI��N SF 92] 403 ms
+
+[=== SF 93 ===]
+  -> N3 Asignado:  32.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  32.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  27.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  27.5�� | Dist:  64.1cm | Coord: (-29.6, 84.9)
+  -> [N1] ���� VALLA VIRTUAL | ��ngulo:  32.5�� | Dist:  50.8cm | Coord: (-75.7, 18.1)
+  [DURACI��N SF 93] 382 ms
+
+[=== SF 94 ===]
+  -> N3 Asignado:  35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  30.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� VALLA VIRTUAL | ��ngulo:  35.0�� | Dist:  62.4cm | Coord: (-87.4, 16.1)
+  -> [N2] ��� FUERA DE VALLA (69.6cm > 65cm)
+  -> [N3] ��� FUERA DE VALLA (249.4cm > 65cm)
+  [DURACI��N SF 94] 352 ms
+
+[=== SF 95 ===]
+  -> N1 Asignado:  37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:  37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  32.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� VALLA VIRTUAL | ��ngulo:  37.5�� | Dist:  63.7cm | Coord: (-88.7, 13.3)
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (84.6cm > 65cm)
+  [DURACI��N SF 95] 488 ms
+
+[=== SF 96 ===]
+  -> N3 Asignado:  40.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  40.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  35.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ��� FUERA DE VALLA (66.9cm > 65cm)
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ��� FUERA DE VALLA (72.2cm > 65cm)
+  [DURACI��N SF 96] 341 ms
+
+[=== SF 97 ===]
+  -> N3 Asignado:  42.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  37.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  42.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (231.0cm > 65cm)
+  -> [N1] ��� FUERA DE VALLA (78.8cm > 65cm)
+  -> [N2] ���� DEFCON 3 | ��ngulo:  37.5�� | Dist:  49.1cm | Coord: (-29.9, 67.0)
+  [DURACI��N SF 97] 401 ms
+
+[=== SF 98 ===]
+  -> N1 Asignado:  45.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  40.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:  45.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ��� FUERA DE VALLA (69.0cm > 65cm)
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ��� FUERA DE VALLA (79.4cm > 65cm)
+  [DURACI��N SF 98] 350 ms
+
+[=== SF 99 ===]
+  -> N1 Asignado:  42.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:  42.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  42.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ��� FUERA DE VALLA (69.0cm > 65cm)
+  -> [N3] ��� FUERA DE VALLA (244.5cm > 65cm)
+  -> [N1] ��� FUERA DE VALLA (78.8cm > 65cm)
+  [DURACI��N SF 99] 372 ms
+
+[=== SF 100 ===]
+  -> N1 Asignado:  40.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:  40.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  45.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (65.8cm > 65cm)
+  -> [N1] ��� FUERA DE VALLA (69.2cm > 65cm)
+  [DURACI��N SF 100] 361 ms
+
+[=== SF 101 ===]
+  -> N3 Asignado:  37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  42.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  42.5�� | Dist:  63.1cm | Coord: (-42.6, 74.5)
+  -> [N1] ��� FUERA DE VALLA (67.1cm > 65cm)
+  [DURACI��N SF 101] 372 ms
+
+[=== SF 102 ===]
+  -> N3 Asignado:  35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  40.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� VALLA VIRTUAL | ��ngulo:  35.0�� | Dist:  62.4cm | Coord: (-87.4, 16.1)
+  -> [N2] ��� FUERA DE VALLA (71.7cm > 65cm)
+  [DURACI��N SF 102] 372 ms
+
+[=== SF 103 ===]
+  -> N3 Asignado:  32.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  32.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  37.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  37.5�� | Dist:  56.6cm | Coord: (-34.4, 72.9)
+  -> [N1] ���� VALLA VIRTUAL | ��ngulo:  32.5�� | Dist:  54.2cm | Coord: (-79.1, 18.3)
+  [DURACI��N SF 103] 403 ms
+
+[=== SF 104 ===]
+  -> N3 Asignado:  30.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  30.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  35.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo:  30.0�� | Dist:  49.0cm | Coord: (-73.7, 20.1)
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  35.0�� | Dist:  64.2cm | Coord: (-36.8, 80.6)
+  [DURACI��N SF 104] 696 ms
+
+[=== SF 105 ===]
+  -> N1 Asignado:  27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:  27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  32.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (76.7cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  27.5�� | Dist:  47.7cm | Coord: (-72.1, 22.0)
+  [DURACI��N SF 105] 340 ms
+
+[=== SF 106 ===]
+  -> N3 Asignado:  25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  30.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ��� FUERA DE VALLA (69.6cm > 65cm)
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 3 | ��ngulo:  25.0�� | Dist:  46.8cm | Coord: (-70.9, 23.9)
+  [DURACI��N SF 106] 351 ms
+
+[=== SF 107 ===]
+  -> N3 Asignado:  22.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  22.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  27.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  27.5�� | Dist:  64.2cm | Coord: (-29.7, 85.0)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  22.5�� | Dist:  44.6cm | Coord: (-68.4, 25.4)
+  [DURACI��N SF 107] 371 ms
+
+[=== SF 108 ===]
+  -> N3 Asignado:  20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  25.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo:  20.0�� | Dist:  36.4cm | Coord: (-60.0, 25.0)
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  25.0�� | Dist:  58.6cm | Coord: (-24.8, 81.1)
+  [DURACI��N SF 108] 435 ms
+
+[=== SF 109 ===]
+  -> N1 Asignado:  17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:  17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  22.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 2 | ��ngulo:  17.5�� | Dist:  26.9cm | Coord: (-50.5, 23.5)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  22.5�� | Dist:  63.7cm | Coord: (-24.4, 86.9)
+  [DURACI��N SF 109] 404 ms
+
+[=== SF 110 ===]
+  -> N3 Asignado:  15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  20.0�� | Dist:  64.6cm | Coord: (-22.1, 88.7)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  15.0�� | Dist:  42.5cm | Coord: (-64.7, 30.2)
+  [DURACI��N SF 110] 374 ms
+
+[=== SF 111 ===]
+  -> N3 Asignado:  12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (143.5cm > 65cm)
+  -> [N1] ���� DEFCON 2 | ��ngulo:  12.5�� | Dist:  31.1cm | Coord: (-53.5, 27.4)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  17.5�� | Dist:  64.5cm | Coord: (-19.4, 89.5)
+  [DURACI��N SF 111] 354 ms
+
+[=== SF 112 ===]
+  -> N3 Asignado:  10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 1 | ��ngulo:  10.0�� | Dist:  18.4cm | Coord: (-41.5, 23.0)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  15.0�� | Dist:  62.7cm | Coord: (-16.2, 88.6)
+  [DURACI��N SF 112] 301 ms
+
+[=== SF 113 ===]
+  -> N1 Asignado:   7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> N3 Asignado:   7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  12.5�� | Dist:  58.8cm | Coord: (-12.7, 85.4)
+  -> [N1] ���� DEFCON 2 | ��ngulo:   7.5�� | Dist:  22.1cm | Coord: (-44.4, 25.5)
+  [DURACI��N SF 113] 311 ms
+
+[=== SF 114 ===]
+  -> N2 Asignado:  10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:   5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 2 | ��ngulo:  10.0�� | Dist:  21.2cm | Coord: (-44.1, 24.3)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  10.0�� | Dist:  61.8cm | Coord: (-10.7, 88.9)
+  [DURACI��N SF 114] 332 ms
+
+[=== SF 115 ===]
+  -> N3 Asignado:   2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:   7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:   7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 2 | ��ngulo:   7.5�� | Dist:  22.3cm | Coord: (-44.6, 25.6)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:   7.5�� | Dist:  62.4cm | Coord: (-8.1, 89.9)
+  [DURACI��N SF 115] 311 ms
+
+[=== SF 116 ===]
+  -> N1 Asignado:  10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> N2 Asignado:   5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:   0.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:   5.0�� | Dist:  60.5cm | Coord: (-5.3, 88.3)
+  -> [N1] ���� DEFCON 2 | ��ngulo:  10.0�� | Dist:  21.5cm | Coord: (-44.3, 24.4)
+  [DURACI��N SF 116] 301 ms
+
+[=== SF 117 ===]
+  -> N3 Asignado:  -2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:   7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> N2 Asignado:   2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 2 | ��ngulo:   7.5�� | Dist:  22.7cm | Coord: (-45.0, 25.8)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:   2.5�� | Dist:  60.0cm | Coord: (-2.6, 88.0)
+  [DURACI��N SF 117] 333 ms
+
+[=== SF 118 ===]
+  -> N3 Asignado:  -5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:   5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:   0.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:   0.0�� | Dist:  60.5cm | Coord: (0.0, 88.5)
+  -> [N1] ���� DEFCON 2 | ��ngulo:   5.0�� | Dist:  23.8cm | Coord: (-45.4, 27.2)
+  [DURACI��N SF 118] 301 ms
+
+[=== SF 119 ===]
+  -> N3 Asignado:  -7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  -2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:   2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (243.1cm > 65cm)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  -2.5�� | Dist:  59.7cm | Coord: (2.6, 87.6)
+  -> [N1] ���� DEFCON 3 | ��ngulo:   2.5�� | Dist:  45.3cm | Coord: (-62.7, 40.0)
+  [DURACI��N SF 119] 343 ms
+
+[=== SF 120 ===]
+  -> N3 Asignado: -10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:   0.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  -5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (69.1cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:   0.0�� | Dist:  47.2cm | Coord: (-63.2, 42.7)
+  [DURACI��N SF 120] 311 ms
+
+[=== SF 121 ===]
+  -> N3 Asignado: -12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  -2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  -7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:  -7.5�� | Dist:  50.5cm | Coord: (6.6, 78.1)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  -2.5�� | Dist:  44.6cm | Coord: (-59.9, 42.8)
+  [DURACI��N SF 121] 311 ms
+
+[=== SF 122 ===]
+  -> N3 Asignado: -15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  -5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 3 | ��ngulo:  -5.0�� | Dist:  44.2cm | Coord: (-58.4, 44.0)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo: -10.0�� | Dist:  59.9cm | Coord: (10.4, 87.0)
+  [DURACI��N SF 122] 342 ms
+
+[=== SF 123 ===]
+  -> N3 Asignado: -17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  -7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ���� DEFCON 2 | ��ngulo: -12.5�� | Dist:  24.1cm | Coord: (5.2, 51.5)
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 3 | ��ngulo:  -7.5�� | Dist:  41.9cm | Coord: (-55.4, 43.9)
+  [DURACI��N SF 123] 290 ms
+
+[=== SF 124 ===]
+  -> N3 Asignado: -20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ���� DEFCON 2 | ��ngulo: -15.0�� | Dist:  22.4cm | Coord: (5.8, 49.7)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -10.0�� | Dist:  39.7cm | Coord: (-52.6, 43.6)
+  -> [N3] ��� SIN OBST��CULO
+  [DURACI��N SF 124] 365 ms
+
+[=== SF 125 ===]
+  -> N1 Asignado: -12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado: -22.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -17.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 3 | ��ngulo: -12.5�� | Dist:  45.0cm | Coord: (-54.8, 48.7)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo: -17.5�� | Dist:  62.4cm | Coord: (18.8, 87.5)
+  [DURACI��N SF 125] 415 ms
+
+[=== SF 126 ===]
+  -> N1 Asignado: -15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado: -25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -20.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 3 | ��ngulo: -15.0�� | Dist:  37.8cm | Coord: (-48.8, 44.4)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo: -20.0�� | Dist:  62.4cm | Coord: (21.3, 86.6)
+  [DURACI��N SF 126] 371 ms
+
+[=== SF 127 ===]
+  -> N3 Asignado: -27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -22.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (68.8cm > 65cm)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -22.5�� | Dist:  18.2cm | Coord: (6.9, 44.8)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -17.5�� | Dist:  39.1cm | Coord: (-48.2, 46.4)
+  [DURACI��N SF 127] 423 ms
+
+[=== SF 128 ===]
+  -> N3 Asignado: -30.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -25.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> [N1] ���� DEFCON 3 | ��ngulo: -20.0�� | Dist:  38.7cm | Coord: (-46.6, 47.0)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -25.0�� | Dist:  12.9cm | Coord: (5.4, 39.7)
+  -> [N3] ��� FUERA DE VALLA (179.7cm > 65cm)
+  [DURACI��N SF 128] 393 ms
+
+[=== SF 129 ===]
+  -> N3 Asignado: -32.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -22.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -27.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� FUERA DE VALLA (75.0cm > 65cm)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -27.5�� | Dist:  12.9cm | Coord: (5.9, 39.4)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -22.5�� | Dist:  38.2cm | Coord: (-45.0, 47.6)
+  [DURACI��N SF 129] 350 ms
+
+[=== SF 130 ===]
+  -> N3 Asignado: -35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -30.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� FUERA DE VALLA (78.5cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -25.0�� | Dist:  38.2cm | Coord: (-43.5, 48.4)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -30.0�� | Dist:  13.4cm | Coord: (6.7, 39.6)
+  [DURACI��N SF 130] 340 ms
+
+[=== SF 131 ===]
+  -> N3 Asignado: -37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -32.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> N1 Asignado: -27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (180.0cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -27.5�� | Dist:  38.6cm | Coord: (-42.2, 49.5)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -32.5�� | Dist:  13.2cm | Coord: (7.1, 39.1)
+  [DURACI��N SF 131] 360 ms
+
+[=== SF 132 ===]
+  -> N3 Asignado: -40.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -35.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> N1 Asignado: -30.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ���� DEFCON 1 | ��ngulo: -35.0�� | Dist:  12.7cm | Coord: (7.3, 38.4)
+  -> [N3] ��� FUERA DE VALLA (123.4cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -30.0�� | Dist:  38.1cm | Coord: (-40.5, 49.8)
+  [DURACI��N SF 132] 361 ms
+
+[=== SF 133 ===]
+  -> N3 Asignado: -42.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -37.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> N1 Asignado: -32.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (178.7cm > 65cm)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -37.5�� | Dist:  13.1cm | Coord: (8.0, 38.4)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -32.5�� | Dist:  38.6cm | Coord: (-39.1, 50.9)
+  [DURACI��N SF 133] 382 ms
+
+[=== SF 134 ===]
+  -> N3 Asignado: -45.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -40.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� FUERA DE VALLA (177.4cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -35.0�� | Dist:  39.4cm | Coord: (-37.8, 52.3)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -40.0�� | Dist:  12.8cm | Coord: (8.3, 37.8)
+  [DURACI��N SF 134] 370 ms
+
+[=== SF 135 ===]
+  -> N1 Asignado: -37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -42.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> N3 Asignado: -42.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo: -37.5�� | Dist:  39.0cm | Coord: (-36.1, 52.4)
+  -> [N3] ��� FUERA DE VALLA (178.2cm > 65cm)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -42.5�� | Dist:  13.1cm | Coord: (8.9, 37.7)
+  [DURACI��N SF 135] 361 ms
+
+[=== SF 136 ===]
+  -> N3 Asignado: -40.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -45.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> N1 Asignado: -40.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (178.2cm > 65cm)
+  -> [N1] ���� DEFCON 2 | ��ngulo: -40.0�� | Dist:  26.6cm | Coord: (-31.4, 40.8)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -45.0�� | Dist:  13.4cm | Coord: (9.5, 37.5)
+  [DURACI��N SF 136] 382 ms
+
+[=== SF 137 ===]
+  -> N1 Asignado: -42.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -42.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> N3 Asignado: -37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 2 | ��ngulo: -42.5�� | Dist:  24.8cm | Coord: (-29.9, 39.3)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -42.5�� | Dist:  13.4cm | Coord: (9.1, 37.9)
+  -> [N3] ��� FUERA DE VALLA (78.0cm > 65cm)
+  [DURACI��N SF 137] 340 ms
+
+[=== SF 138 ===]
+  -> N3 Asignado: -35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -40.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> N1 Asignado: -45.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 2 | ��ngulo: -45.0�� | Dist:  26.6cm | Coord: (-29.2, 41.2)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -40.0�� | Dist:  12.8cm | Coord: (8.2, 37.8)
+  [DURACI��N SF 138] 372 ms
+
+[=== SF 139 ===]
+  -> N3 Asignado: -32.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -42.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -37.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� FUERA DE VALLA (82.1cm > 65cm)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -37.5�� | Dist:  12.7cm | Coord: (7.7, 38.1)
+  -> [N1] ���� DEFCON 2 | ��ngulo: -42.5�� | Dist:  24.4cm | Coord: (-29.9, 38.9)
+  [DURACI��N SF 139] 350 ms
+
+[=== SF 140 ===]
+  -> N3 Asignado: -30.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -35.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> N1 Asignado: -40.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� DEFCON 1 | ��ngulo: -35.0�� | Dist:  12.2cm | Coord: (7.0, 38.0)
+  -> [N1] ���� DEFCON 2 | ��ngulo: -40.0�� | Dist:  25.7cm | Coord: (-31.2, 40.0)
+  [DURACI��N SF 140] 372 ms
+
+[=== SF 141 ===]
+  -> N3 Asignado: -27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -32.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> [N2] ���� DEFCON 1 | ��ngulo: -32.5�� | Dist:  12.0cm | Coord: (6.5, 38.1)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -37.5�� | Dist:  38.6cm | Coord: (-36.0, 52.0)
+  -> [N3] ��� FUERA DE VALLA (194.3cm > 65cm)
+  [DURACI��N SF 141] 349 ms
+
+[=== SF 142 ===]
+  -> N3 Asignado: -25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -30.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� DEFCON 1 | ��ngulo: -30.0�� | Dist:  12.1cm | Coord: (6.0, 38.4)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -35.0�� | Dist:  38.6cm | Coord: (-37.6, 51.5)
+  [DURACI��N SF 142] 351 ms
+
+[=== SF 143 ===]
+  -> N2 Asignado: -27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> N3 Asignado: -22.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -32.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� DEFCON 1 | ��ngulo: -27.5�� | Dist:  12.6cm | Coord: (5.8, 39.2)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -32.5�� | Dist:  38.6cm | Coord: (-39.1, 50.9)
+  [DURACI��N SF 143] 352 ms
+
+[=== SF 144 ===]
+  -> N3 Asignado: -20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -25.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> N1 Asignado: -30.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� DEFCON 1 | ��ngulo: -25.0�� | Dist:  12.2cm | Coord: (5.1, 39.0)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -30.0�� | Dist:  39.0cm | Coord: (-40.9, 50.6)
+  [DURACI��N SF 144] 382 ms
+
+[=== SF 145 ===]
+  -> N2 Asignado: -22.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> N3 Asignado: -17.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -27.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo: -27.5�� | Dist:  38.2cm | Coord: (-42.0, 49.2)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -22.5�� | Dist:  12.1cm | Coord: (4.6, 39.2)
+  -> [N3] ��� SIN OBST��CULO
+  [DURACI��N SF 145] 372 ms
+
+[=== SF 146 ===]
+  -> N3 Asignado: -15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -20.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 3 | ��ngulo: -25.0�� | Dist:  37.8cm | Coord: (-43.3, 48.0)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -20.0�� | Dist:  12.6cm | Coord: (4.3, 39.8)
+  [DURACI��N SF 146] 382 ms
+
+[=== SF 147 ===]
+  -> N1 Asignado: -22.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -17.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> N3 Asignado: -12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo: -22.5�� | Dist:  38.6cm | Coord: (-45.2, 47.9)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -17.5�� | Dist:  12.1cm | Coord: (3.6, 39.5)
+  -> [N3] ��� SIN OBST��CULO
+  [DURACI��N SF 147] 362 ms
+
+[=== SF 148 ===]
+  -> N3 Asignado: -10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� DEFCON 1 | ��ngulo: -15.0�� | Dist:  12.1cm | Coord: (3.1, 39.6)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -20.0�� | Dist:  38.6cm | Coord: (-46.6, 47.0)
+  [DURACI��N SF 148] 311 ms
+
+[=== SF 149 ===]
+  -> N1 Asignado: -17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:  -7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� FUERA DE VALLA (174.0cm > 65cm)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -12.5�� | Dist:  12.5cm | Coord: (2.7, 40.2)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -17.5�� | Dist:  38.2cm | Coord: (-47.7, 45.7)
+  [DURACI��N SF 149] 301 ms
+
+[=== SF 150 ===]
+  -> N2 Asignado: -10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> N3 Asignado:  -5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ���� DEFCON 1 | ��ngulo: -10.0�� | Dist:  12.4cm | Coord: (2.2, 40.2)
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 3 | ��ngulo: -15.0�� | Dist:  39.1cm | Coord: (-49.6, 45.4)
+  [DURACI��N SF 150] 290 ms
+
+[=== SF 151 ===]
+  -> N3 Asignado:  -2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  -7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� DEFCON 1 | ��ngulo:  -7.5�� | Dist:  12.4cm | Coord: (1.6, 40.3)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -12.5�� | Dist:  39.2cm | Coord: (-50.9, 44.3)
+  [DURACI��N SF 151] 312 ms
+
+[=== SF 152 ===]
+  -> N2 Asignado:  -5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> N3 Asignado:   0.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ���� DEFCON 1 | ��ngulo:  -5.0�� | Dist:  12.9cm | Coord: (1.1, 40.9)
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 3 | ��ngulo: -10.0�� | Dist:  39.6cm | Coord: (-52.5, 43.5)
+  [DURACI��N SF 152] 300 ms
+
+[=== SF 153 ===]
+  -> N3 Asignado:   2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  -2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> N1 Asignado:  -7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� DEFCON 1 | ��ngulo:  -2.5�� | Dist:  12.9cm | Coord: (0.6, 40.9)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  -7.5�� | Dist:  40.2cm | Coord: (-54.1, 42.7)
+  [DURACI��N SF 153] 302 ms
+
+[=== SF 154 ===]
+  -> N3 Asignado:   5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  -5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:   0.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> [N1] ���� DEFCON 3 | ��ngulo:  -5.0�� | Dist:  41.5cm | Coord: (-56.3, 42.2)
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� DEFCON 1 | ��ngulo:   0.0�� | Dist:  13.4cm | Coord: (0.0, 41.4)
+  [DURACI��N SF 154] 291 ms
+
+[=== SF 155 ===]
+  -> N3 Asignado:   7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:   2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> N1 Asignado:  -2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� DEFCON 1 | ��ngulo:   2.5�� | Dist:  13.4cm | Coord: (-0.6, 41.4)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  -2.5�� | Dist:  46.2cm | Coord: (-61.2, 43.8)
+  [DURACI��N SF 155] 301 ms
+
+[=== SF 156 ===]
+  -> N3 Asignado:  10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:   0.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:   5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� FUERA DE VALLA (239.9cm > 65cm)
+  -> [N2] ���� DEFCON 1 | ��ngulo:   5.0�� | Dist:  14.7cm | Coord: (-1.3, 42.7)
+  -> [N1] ���� DEFCON 3 | ��ngulo:   0.0�� | Dist:  46.1cm | Coord: (-62.3, 42.1)
+  [DURACI��N SF 156] 312 ms
+
+[=== SF 157 ===]
+  -> N3 Asignado:  12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:   2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:   7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> [N1] ���� DEFCON 3 | ��ngulo:   2.5�� | Dist:  43.8cm | Coord: (-61.5, 39.2)
+  -> [N3] ��� FUERA DE VALLA (143.8cm > 65cm)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo:   7.5�� | Dist:  60.9cm | Coord: (-7.9, 88.4)
+  [DURACI��N SF 157] 322 ms
+
+[=== SF 158 ===]
+  -> N3 Asignado:  15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:   5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:   5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� FUERA DE VALLA (70.9cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:   5.0�� | Dist:  43.9cm | Coord: (-62.6, 37.6)
+  -> [N2] ���� DEFCON 1 | ��ngulo:   5.0�� | Dist:  15.1cm | Coord: (-1.3, 43.0)
+  [DURACI��N SF 158] 291 ms
+
+[=== SF 159 ===]
+  -> N3 Asignado:  17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:   7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:   2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� DEFCON 1 | ��ngulo:   2.5�� | Dist:  13.7cm | Coord: (-0.6, 41.7)
+  -> [N1] ���� DEFCON 3 | ��ngulo:   7.5�� | Dist:  44.4cm | Coord: (-64.0, 36.2)
+  [DURACI��N SF 159] 321 ms
+
+[=== SF 160 ===]
+  -> N2 Asignado:   0.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> N3 Asignado:  20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ���� DEFCON 1 | ��ngulo:   0.0�� | Dist:  13.3cm | Coord: (0.0, 41.3)
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 3 | ��ngulo:  10.0�� | Dist:  44.8cm | Coord: (-65.3, 34.6)
+  [DURACI��N SF 160] 332 ms
+
+[=== SF 161 ===]
+  -> N1 Asignado:  12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  -2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> N3 Asignado:  22.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ���� DEFCON 1 | ��ngulo:  -2.5�� | Dist:  12.7cm | Coord: (0.6, 40.7)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  12.5�� | Dist:  45.2cm | Coord: (-66.5, 33.0)
+  -> [N3] ��� SIN OBST��CULO
+  [DURACI��N SF 161] 341 ms
+
+[=== SF 162 ===]
+  -> N1 Asignado:  15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  -5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> N3 Asignado:  25.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo:  15.0�� | Dist:  45.2cm | Coord: (-67.2, 31.2)
+  -> [N2] ���� DEFCON 1 | ��ngulo:  -5.0�� | Dist:  12.3cm | Coord: (1.1, 40.3)
+  -> [N3] ��� SIN OBST��CULO
+  [DURACI��N SF 162] 362 ms
+
+[=== SF 163 ===]
+  -> N3 Asignado:  27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado:  -7.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 3 | ��ngulo:  17.5�� | Dist:  45.7cm | Coord: (-68.3, 29.5)
+  -> [N2] ���� DEFCON 1 | ��ngulo:  -7.5�� | Dist:  12.0cm | Coord: (1.6, 39.9)
+  [DURACI��N SF 163] 362 ms
+
+[=== SF 164 ===]
+  -> N2 Asignado: -10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> N1 Asignado:  20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:  30.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo:  20.0�� | Dist:  45.3cm | Coord: (-68.5, 27.5)
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� DEFCON 1 | ��ngulo: -10.0�� | Dist:  12.7cm | Coord: (2.2, 40.5)
+  [DURACI��N SF 164] 361 ms
+
+[=== SF 165 ===]
+  -> N2 Asignado: -12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> N3 Asignado:  32.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  22.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� DEFCON 1 | ��ngulo: -12.5�� | Dist:  12.5cm | Coord: (2.7, 40.2)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  22.5�� | Dist:  45.8cm | Coord: (-69.5, 25.7)
+  [DURACI��N SF 165] 361 ms
+
+[=== SF 166 ===]
+  -> N3 Asignado:  35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -15.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 3 | ��ngulo:  25.0�� | Dist:  45.8cm | Coord: (-70.0, 23.7)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -15.0�� | Dist:  12.6cm | Coord: (3.3, 40.1)
+  [DURACI��N SF 166] 360 ms
+
+[=== SF 167 ===]
+  -> N1 Asignado:  27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:  37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -17.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� FUERA DE VALLA (248.6cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  27.5�� | Dist:  47.2cm | Coord: (-71.7, 22.0)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -17.5�� | Dist:  12.0cm | Coord: (3.6, 39.4)
+  [COMBINED] N1-N2: (-34.1, 30.7)
+  [DURACI��N SF 167] 373 ms
+
+[=== SF 168 ===]
+  -> N2 Asignado: -20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> N3 Asignado:  40.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  30.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� VALLA VIRTUAL | ��ngulo:  30.0�� | Dist:  63.0cm | Coord: (-87.7, 21.6)
+  -> [N3] ��� FUERA DE VALLA (233.2cm > 65cm)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -20.0�� | Dist:  11.9cm | Coord: (4.1, 39.2)
+  [COMBINED] N1-N2: (-41.8, 30.4)
+  [DURACI��N SF 168] 373 ms
+
+[=== SF 169 ===]
+  -> N3 Asignado:  42.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -22.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> N1 Asignado:  32.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (104.5cm > 65cm)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -22.5�� | Dist:  12.3cm | Coord: (4.7, 39.3)
+  -> [N1] ���� VALLA VIRTUAL | ��ngulo:  32.5�� | Dist:  62.6cm | Coord: (-87.5, 18.8)
+  [COMBINED] N1-N2: (-41.4, 29.0)
+  [DURACI��N SF 169] 413 ms
+
+[=== SF 170 ===]
+  -> N3 Asignado:  45.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -25.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> N1 Asignado:  35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (226.8cm > 65cm)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -25.0�� | Dist:  11.6cm | Coord: (4.9, 38.5)
+  -> [N1] ���� DEFCON 1 | ��ngulo:  35.0�� | Dist:  19.1cm | Coord: (-44.1, 15.3)
+  [COMBINED] N1-N2: (-19.6, 26.9)
+  [CONFLICTO] N1/N2: N2 gana (primer TRACK SF 127) | 19.1 vs 11.6 cm
+  [DURACI��N SF 170] 372 ms
+
+[=== SF 171 ===]
+  -> N2 Asignado: -27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> N3 Asignado:  42.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  37.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 1 | ��ngulo:  37.5�� | Dist:  19.4cm | Coord: (-44.4, 14.5)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -27.5�� | Dist:  11.1cm | Coord: (5.1, 37.9)
+  -> [N3] ��� SIN OBST��CULO
+  [COMBINED] N1-N2: (-19.6, 26.2)
+  [CONFLICTO] N1/N2: N2 mantiene bloqueo (hasta SF 176) | 19.4 vs 11.1 cm
+  [DURACI��N SF 171] 340 ms
+
+[=== SF 172 ===]
+  -> N3 Asignado:  40.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -30.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> N1 Asignado:  40.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 1 | ��ngulo:  40.0�� | Dist:  18.9cm | Coord: (-43.9, 13.7)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -30.0�� | Dist:  11.6cm | Coord: (5.8, 38.0)
+  [COMBINED] N1-N2: (-19.1, 25.9)
+  [CONFLICTO] N1/N2: N2 mantiene bloqueo (hasta SF 177) | 18.9 vs 11.6 cm
+  [DURACI��N SF 172] 351 ms
+
+[=== SF 173 ===]
+  -> N3 Asignado:  37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  42.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -32.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� FUERA DE VALLA (154.9cm > 65cm)
+  -> [N1] ���� DEFCON 1 | ��ngulo:  42.5�� | Dist:  17.6cm | Coord: (-42.5, 13.0)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -32.5�� | Dist:  11.6cm | Coord: (6.2, 37.8)
+  [COMBINED] N1-N2: (-18.1, 25.4)
+  [CONFLICTO] N1/N2: N2 mantiene bloqueo (hasta SF 178) | 17.6 vs 11.6 cm
+  [DURACI��N SF 173] 361 ms
+
+[=== SF 174 ===]
+  -> N2 Asignado: -35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> N3 Asignado:  35.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  45.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� DEFCON 1 | ��ngulo: -35.0�� | Dist:  11.5cm | Coord: (6.6, 37.4)
+  -> [N1] ��� FUERA DE VALLA (65.6cm > 65cm)
+  [DURACI��N SF 174] 383 ms
+
+[=== SF 175 ===]
+  -> N1 Asignado:  42.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -37.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> N3 Asignado:  32.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� VALLA VIRTUAL | ��ngulo:  42.5�� | Dist:  57.8cm | Coord: (-82.4, 8.5)
+  -> [N3] ��� FUERA DE VALLA (233.1cm > 65cm)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -37.5�� | Dist:  11.9cm | Coord: (7.2, 37.4)
+  [COMBINED] N1-N2: (-37.6, 22.9)
+  [DURACI��N SF 175] 372 ms
+
+[=== SF 176 ===]
+  -> N1 Asignado:  40.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -40.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> N3 Asignado:  30.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� DEFCON 1 | ��ngulo: -40.0�� | Dist:  11.8cm | Coord: (7.6, 37.1)
+  -> [N1] ��� FUERA DE VALLA (87.9cm > 65cm)
+  [DURACI��N SF 176] 341 ms
+
+[=== SF 177 ===]
+  -> N3 Asignado:  27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -42.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� DEFCON 1 | ��ngulo: -42.5�� | Dist:  11.9cm | Coord: (8.1, 36.8)
+  -> [N1] ��� FUERA DE VALLA (89.2cm > 65cm)
+  [DURACI��N SF 177] 403 ms
+
+[=== SF 178 ===]
+  -> N1 Asignado:  35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -45.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> N3 Asignado:  25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� VALLA VIRTUAL | ��ngulo:  35.0�� | Dist:  50.7cm | Coord: (-75.6, 15.9)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -45.0�� | Dist:  12.3cm | Coord: (8.7, 36.7)
+  [COMBINED] N1-N2: (-33.4, 26.3)
+  [DURACI��N SF 178] 361 ms
+
+[=== SF 179 ===]
+  -> N3 Asignado:  22.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  32.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -42.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 3 | ��ngulo:  32.5�� | Dist:  49.3cm | Coord: (-74.3, 18.0)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -42.5�� | Dist:  12.2cm | Coord: (8.2, 37.0)
+  [COMBINED] N1-N2: (-33.0, 27.5)
+  [DURACI��N SF 179] 361 ms
+
+[=== SF 180 ===]
+  -> N1 Asignado:  30.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -40.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> N3 Asignado:  20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo:  30.0�� | Dist:  48.4cm | Coord: (-73.2, 20.1)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -40.0�� | Dist:  11.7cm | Coord: (7.5, 37.0)
+  -> [N3] ��� SIN OBST��CULO
+  [COMBINED] N1-N2: (-32.9, 28.6)
+  [DURACI��N SF 180] 403 ms
+
+[=== SF 181 ===]
+  -> N2 Asignado: -37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> N3 Asignado:  17.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  27.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 3 | ��ngulo:  27.5�� | Dist:  46.7cm | Coord: (-71.1, 21.9)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -37.5�� | Dist:  11.2cm | Coord: (6.8, 36.9)
+  [COMBINED] N1-N2: (-32.1, 29.4)
+  [DURACI��N SF 181] 414 ms
+
+[=== SF 182 ===]
+  -> N3 Asignado:  15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -35.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� DEFCON 1 | ��ngulo: -35.0�� | Dist:  11.3cm | Coord: (6.5, 37.3)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  25.0�� | Dist:  45.8cm | Coord: (-69.9, 23.7)
+  [COMBINED] N1-N2: (-31.7, 30.5)
+  [DURACI��N SF 182] 350 ms
+
+[=== SF 183 ===]
+  -> N3 Asignado:  12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  22.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -32.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 3 | ��ngulo:  22.5�� | Dist:  45.3cm | Coord: (-69.1, 25.6)
+  -> [N2] ���� DEFCON 1 | ��ngulo: -32.5�� | Dist:  11.4cm | Coord: (6.1, 37.6)
+  [COMBINED] N1-N2: (-31.5, 31.6)
+  [DURACI��N SF 183] 351 ms
+
+[=== SF 184 ===]
+  -> N1 Asignado:  20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -30.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> N3 Asignado:  10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� DEFCON 1 | ��ngulo: -30.0�� | Dist:  11.1cm | Coord: (5.5, 37.6)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  20.0�� | Dist:  45.7cm | Coord: (-69.0, 27.6)
+  [COMBINED] N1-N2: (-31.8, 32.6)
+  [DURACI��N SF 184] 351 ms
+
+[=== SF 185 ===]
+  -> N3 Asignado:   7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -27.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> N1 Asignado:  17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� DEFCON 1 | ��ngulo: -27.5�� | Dist:  11.1cm | Coord: (5.1, 37.9)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  17.5�� | Dist:  45.3cm | Coord: (-67.9, 29.4)
+  [COMBINED] N1-N2: (-31.4, 33.6)
+  [DURACI��N SF 185] 340 ms
+
+[=== SF 186 ===]
+  -> N3 Asignado:   5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -25.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> N1 Asignado:  15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� DEFCON 1 | ��ngulo: -25.0�� | Dist:  11.1cm | Coord: (4.7, 38.0)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  15.0�� | Dist:  45.7cm | Coord: (-67.7, 31.4)
+  [DURACI��N SF 186] 372 ms
+
+[=== SF 187 ===]
+  -> N3 Asignado:   2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -22.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: TRACK
+  -> N1 Asignado:  12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� DEFCON 1 | ��ngulo: -22.5�� | Dist:  11.0cm | Coord: (4.2, 38.2)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  12.5�� | Dist:  45.3cm | Coord: (-66.5, 33.0)
+  [DURACI��N SF 187] 351 ms
+
+[=== SF 188 ===]
+  -> N3 Asignado:   0.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> N1 Asignado:  10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ���� DEFCON 1 | ��ngulo: -20.0�� | Dist:  13.7cm | Coord: (4.7, 40.8)
+  -> [N3] ��� SIN OBST��CULO
+  -> [N1] ���� DEFCON 3 | ��ngulo:  10.0�� | Dist:  45.3cm | Coord: (-65.7, 34.8)
+  [DURACI��N SF 188] 311 ms
+
+[=== SF 189 ===]
+  -> N3 Asignado:  -2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:   7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ���� DEFCON 3 | ��ngulo: -17.5�� | Dist:  39.1cm | Coord: (11.8, 65.3)
+  -> [N1] ���� DEFCON 3 | ��ngulo:   7.5�� | Dist:  45.3cm | Coord: (-64.8, 36.6)
+  [DURACI��N SF 189] 342 ms
+
+[=== SF 190 ===]
+  -> N3 Asignado:  -5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> N1 Asignado:   5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo: -20.0�� | Dist:  53.5cm | Coord: (18.3, 78.3)
+  -> [N3] ��� FUERA DE VALLA (216.4cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:   5.0�� | Dist:  40.1cm | Coord: (-59.3, 35.6)
+  [DURACI��N SF 190] 353 ms
+
+[=== SF 191 ===]
+  -> N1 Asignado:   2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado:  -7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo: -17.5�� | Dist:  61.1cm | Coord: (18.4, 86.2)
+  -> [N3] ��� FUERA DE VALLA (90.9cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:   2.5�� | Dist:  43.5cm | Coord: (-61.2, 39.0)
+  [DURACI��N SF 191] 322 ms
+
+[=== SF 192 ===]
+  -> N1 Asignado:   0.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado: -10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� FUERA DE VALLA (109.8cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:   0.0�� | Dist:  44.3cm | Coord: (-60.8, 41.0)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo: -20.0�� | Dist:  61.1cm | Coord: (20.9, 85.4)
+  [DURACI��N SF 192] 312 ms
+
+[=== SF 193 ===]
+  -> N3 Asignado: -12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado:  -2.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: TRACK
+  -> [N3] ��� FUERA DE VALLA (88.2cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  -2.5�� | Dist:  42.9cm | Coord: (-58.6, 41.7)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo: -17.5�� | Dist:  64.8cm | Coord: (19.5, 89.8)
+  [DURACI��N SF 193] 311 ms
+
+[=== SF 194 ===]
+  -> N1 Asignado:  -5.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado: -15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (87.7cm > 65cm)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo: -20.0�� | Dist:  57.6cm | Coord: (19.7, 82.2)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  -5.0�� | Dist:  43.3cm | Coord: (-57.7, 43.4)
+  [DURACI��N SF 194] 312 ms
+
+[=== SF 195 ===]
+  -> N1 Asignado:  -7.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N3 Asignado: -17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -22.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� SIN OBST��CULO
+  -> [N2] ��� FUERA DE VALLA (70.0cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo:  -7.5�� | Dist:  42.4cm | Coord: (-55.7, 44.2)
+  [DURACI��N SF 195] 351 ms
+
+[=== SF 196 ===]
+  -> N3 Asignado: -20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -25.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -10.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (89.1cm > 65cm)
+  -> [N2] ��� FUERA DE VALLA (70.2cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -10.0�� | Dist:  41.0cm | Coord: (-53.5, 44.5)
+  [DURACI��N SF 196] 413 ms
+
+[=== SF 197 ===]
+  -> N3 Asignado: -22.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -27.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -12.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (99.0cm > 65cm)
+  -> [N2] ��� FUERA DE VALLA (70.7cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -12.5�� | Dist:  44.6cm | Coord: (-54.5, 48.4)
+  [DURACI��N SF 197] 351 ms
+
+[=== SF 198 ===]
+  -> N3 Asignado: -25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -30.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -15.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (87.2cm > 65cm)
+  -> [N2] ��� FUERA DE VALLA (75.7cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -15.0�� | Dist:  40.5cm | Coord: (-50.5, 46.5)
+  [DURACI��N SF 198] 362 ms
+
+[=== SF 199 ===]
+  -> N3 Asignado: -27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -17.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -32.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (86.7cm > 65cm)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo: -32.5�� | Dist:  57.4cm | Coord: (30.8, 76.4)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -17.5�� | Dist:  38.7cm | Coord: (-48.0, 46.1)
+  [DURACI��N SF 199] 372 ms
+
+[=== SF 200 ===]
+  -> N3 Asignado: -30.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -35.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -20.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N2] ��� FUERA DE VALLA (66.8cm > 65cm)
+  -> [N3] ��� FUERA DE VALLA (81.6cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -20.0�� | Dist:  39.1cm | Coord: (-46.9, 47.4)
+  [DURACI��N SF 200] 351 ms
+
+[=== SF 201 ===]
+  -> N3 Asignado: -32.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -37.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -22.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo: -22.5�� | Dist:  38.2cm | Coord: (-45.0, 47.6)
+  -> [N3] ��� FUERA DE VALLA (84.2cm > 65cm)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo: -37.5�� | Dist:  61.9cm | Coord: (37.7, 77.1)
+  [DURACI��N SF 201] 372 ms
+
+[=== SF 202 ===]
+  -> N3 Asignado: -35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -40.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -25.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (87.7cm > 65cm)
+  -> [N2] ��� FUERA DE VALLA (70.8cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -25.0�� | Dist:  38.6cm | Coord: (-43.7, 48.8)
+  [DURACI��N SF 202] 351 ms
+
+[=== SF 203 ===]
+  -> N3 Asignado: -37.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -42.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -27.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo: -27.5�� | Dist:  37.7cm | Coord: (-41.8, 48.7)
+  -> [N3] ��� FUERA DE VALLA (86.8cm > 65cm)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo: -42.5�� | Dist:  63.6cm | Coord: (43.0, 74.9)
+  [DURACI��N SF 203] 351 ms
+
+[=== SF 204 ===]
+  -> N3 Asignado: -40.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -30.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -45.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N1] ���� DEFCON 3 | ��ngulo: -30.0�� | Dist:  37.7cm | Coord: (-40.3, 49.4)
+  -> [N3] ��� FUERA DE VALLA (84.8cm > 65cm)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo: -45.0�� | Dist:  61.0cm | Coord: (43.1, 71.1)
+  [DURACI��N SF 204] 352 ms
+
+[=== SF 205 ===]
+  -> N3 Asignado: -42.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -32.5�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -42.5�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (178.2cm > 65cm)
+  -> [N2] ���� VALLA VIRTUAL | ��ngulo: -42.5�� | Dist:  62.8cm | Coord: (42.4, 74.3)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -32.5�� | Dist:  38.1cm | Coord: (-39.0, 50.5)
+  [DURACI��N SF 205] 372 ms
+
+[=== SF 206 ===]
+  -> N3 Asignado: -45.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> N2 Asignado: -40.0�� (Slot 1, Centro en 219ms desde asignaci��n) | Modo: SEARCH
+  -> N1 Asignado: -35.0�� (Slot 0, Centro en 169ms desde asignaci��n) | Modo: SEARCH
+  -> [N3] ��� FUERA DE VALLA (81.4cm > 65cm)
+  -> [N1] ���� DEFCON 3 | ��ngulo: -35.0�� | Dist:  39.0cm | Coord: (-37.7, 51.9)
+  -> [N2] ��� FUERA DE VALLA (68.9cm > 65cm)
+  [DURACI��N SF 206] 351 ms
+
+[=== SF 207 ===]

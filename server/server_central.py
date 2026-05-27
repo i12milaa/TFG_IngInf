@@ -63,11 +63,12 @@ MSG_DATA_REPORT      = 0xD0
 SWEEP_ANGLE_TOTAL = 90.0
 A_MAX = SWEEP_ANGLE_TOTAL / 2.0
 A_MIN = -A_MAX
-DIRTY_MARGIN = 15.0
+DIRTY_MARGIN = 30.0
 MAX_MISSES = 3
 STEP_ANGLE = 2.5
 TRACK_LOCK_DURATION = 6
 TRACK_ENTRY_UNSET = 10**9  # Centinela: nodo no ha detectado nada en esta sesión
+TRILAT_MAX_DIST_RATIO = 2.0  # Máx cociente entre distancias para considerar mismo objeto
 
 MOTOR_STEPS_REV = 200
 MICROSTEPPING = 16
@@ -517,8 +518,9 @@ class ArbitroServer:
                 db = self.latest_reports.get(nb)
                 if (da and db
                         and 'gx' in da and 'gx' in db
-                        and da['angle'] > CLEAN_LIMIT      # na apunta a zona sucia positiva
-                        and db['angle'] < -CLEAN_LIMIT):   # nb apunta a zona sucia negativa
+                        and da['angle'] > CLEAN_LIMIT
+                        and db['angle'] < -CLEAN_LIMIT
+                        and max(da['dist'], db['dist']) / min(da['dist'], db['dist']) <= TRILAT_MAX_DIST_RATIO):
                     mx = (da['gx'] + db['gx']) / 2.0
                     my = (da['gy'] + db['gy']) / 2.0
                     trilat_results[pair_key] = {'x': round(mx, 1), 'y': round(my, 1)}
@@ -585,8 +587,12 @@ class ArbitroServer:
                 else:
                     if state['mode'] == 'TRACK':
                         if r_id in self.latest_reports:
-                            # Medida válida pero fuera de DEFCON1 → borde del objeto
-                            state['track_dir'] *= -1.0
+                            # Medida válida pero fuera de DEFCON1 → borde del objeto.
+                            # No revertir si ya estamos en el límite: el límite ya invirtió
+                            # track_dir en el bucle de asignación; revertirlo aquí lo dejaría
+                            # igual que antes, congelando el motor en ±A_MAX.
+                            if abs(state['current_angle']) < A_MAX:
+                                state['track_dir'] *= -1.0
                             state['misses'] = 0
                             state['edge_flips'] += 1
                             if state['edge_flips'] >= MAX_EDGE_FLIPS:

@@ -126,16 +126,35 @@ void RadarHardware::goHome() {
     Serial.printf("[HOME] Volviendo a 0° desde %.2f° via tracking de pasos.\n", currentAngle);
 
     moveToAngle(0.0f);
-
     delay(50);
+
     bool reed_ok = (digitalRead(PIN_REED_SWITCH) == SystemManager::instance().reedTriggerLevel);
     if (reed_ok) {
-        Serial.println("[HOME] Reed activo en 0° — posicion verificada por reed.");
-    } else {
-        Serial.println("[HOME] Reed no activo en 0° — sin verificacion (reed no instalado o desplazamiento fisico acumulado).");
+        Serial.println("[HOME] Reed activo en 0° — posicion verificada.");
+        Serial.println("[HOME] Homing completado.");
+        return;
     }
 
-    Serial.println("[HOME] Homing completado.");
+    // El conteo de pasos se ha desviado: escaneo fino para encontrar el reed.
+    // Probamos offsets crecientes en ambas direcciones hasta ±20°.
+    Serial.println("[HOME] Reed no activo en 0°. Buscando posicion de referencia...");
+    const float offsets[] = {2.0f, -2.0f, 4.0f, -4.0f, 8.0f, -8.0f, 12.0f, -12.0f, 18.0f, -18.0f};
+    for (float offset : offsets) {
+        moveToAngle(offset);
+        delay(30);
+        if (digitalRead(PIN_REED_SWITCH) == SystemManager::instance().reedTriggerLevel) {
+            Serial.printf("[HOME] Reed encontrado en offset %.1f° — corrigiendo posicion a 0°.\n", offset);
+            // La posicion fisica actual ES el 0° real; reajustamos el conteo de pasos.
+            currentAngle   = 0.0f;
+            currentStepPos = 0;
+            Serial.println("[HOME] Homing completado con correccion de posicion.");
+            return;
+        }
+    }
+
+    // Reed no encontrado en ±20°: volver al 0° calculado por pasos.
+    moveToAngle(0.0f);
+    Serial.println("[HOME] Reed no encontrado. Homing por pasos completado sin verificacion.");
 }
 
 void RadarHardware::syncPosition(float angle) {
