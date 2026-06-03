@@ -75,6 +75,8 @@ MICROSTEPPING = 16
 GEAR_RATIO = 1.0
 STEP_DELAY_MS = 2.0  # 1000µs por flanco × 2 = 2ms por micropaso
 
+RECONNECT_WARN_SECS = 30  # aviso si un nodo kickeado no reconecta en este tiempo
+
 class ArbitroServer:
     def __init__(self):
         self.clients = {}
@@ -86,14 +88,16 @@ class ArbitroServer:
         self.strikes = {}
         self.grace_until_sf = {}
         self.track_lock = {}
+        self.kick_count = {}       # cuántas veces ha sido kickeado cada nodo en la sesión
+        self.kick_time = {}        # timestamp del último KICK por nodo (para aviso de no-reconexión)
         self.lock = threading.Lock()
         self.seq = 0
-        self.current_phase = 0 
+        self.current_phase = 0
         self.running = True
         self.grid = self.load_grid()
-        self.track_states = self.load_state() 
+        self.track_states = self.load_state()
         self._last_save_time = 0
-        self._save_debounce_interval = 2 
+        self._save_debounce_interval = 2
         self.udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.client_buffers = {} # Buffer por cliente
         self.defcon1_limit, self.defcon2_limit, self.defcon3_limit, self.valla_limit = _load_thresholds()
@@ -212,6 +216,16 @@ class ArbitroServer:
         try: conn.close()
         except: pass
 
+    def _do_kick(self, r_id, reason: str):
+        """Centraliza el KICK: registra contador, timestamp, y cierra el socket."""
+        self.kick_count[r_id] = self.kick_count.get(r_id, 0) + 1
+        self.kick_time[r_id] = time.time()
+        n = self.kick_count[r_id]
+        print(f"  [KICK #{n}] Nodo {r_id} {reason}. Forzando cierre...")
+        sock = self.client_sockets.get(r_id)
+        if sock:
+            self.remove_client(sock, r_id)
+
     def handle_client(self, conn, addr):
         conn.settimeout(0.5) 
         radar_id = None
@@ -269,8 +283,12 @@ class ArbitroServer:
                             self.client_sockets[radar_id] = conn
                             self.strikes[radar_id] = 0
                             self.grace_until_sf[radar_id] = self.seq + 8
-                            
-                            print(f"[SYS] Conectado MAC {mac_str} -> ID {radar_id} (Reanudando en {saved_angle}º)")
+
+                            kicks = self.kick_count.get(radar_id, 0)
+                            reconnect_info = f" [reconexión tras KICK #{kicks}]" if kicks > 0 else ""
+                            if radar_id in self.kick_time:
+                                del self.kick_time[radar_id]
+                            print(f"[SYS] Conectado MAC {mac_str} -> ID {radar_id} (Reanudando en {saved_angle}º){reconnect_info}")
                             try:
                                 conn.sendall(struct.pack('<BHBf', MSG_HELLO_ACK, 5, radar_id, saved_angle))
                             except: pass
@@ -296,18 +314,8 @@ class ArbitroServer:
                                 self.strikes[r_id] = 0
 
                             if dist <= 0 or dist > self.valla_limit:
-                                if dist < 0: print(f"  -> [N{r_id}] ⚫ MEDICIÓN INVÁLIDA")
-                                elif dist == 0: print(f"  -> [N{r_id}] ⚪ SIN OBSTÁCULO")
-                                else: print(f"  -> [N{r_id}] ⚪ FUERA DE VALLA ({dist:.1f}cm > {self.valla_limit:.0f}cm)")
+                                if dist < 0: print(f"  [N{r_id}] ⚫ MEDICIÓN INVÁLIDA")
                                 continue
-
-                            coords = self.calculate_global_coords(r_id, angle, dist)
-                            if coords:
-                                if dist <= self.defcon1_limit:   estado = "🔴 DEFCON 1"
-                                elif dist <= self.defcon2_limit: estado = "🟡 DEFCON 2"
-                                elif dist <= self.defcon3_limit: estado = "🟢 DEFCON 3"
-                                else:                            estado = "🔵 VALLA VIRTUAL"
-                                print(f"  -> [N{r_id}] {estado} | Ángulo: {angle:5.1f}° | Dist: {dist:5.1f}cm | Coord: ({coords[0]:.1f}, {coords[1]:.1f})")
                                 
                     self.client_buffers[conn] = buffer
 
@@ -329,9 +337,20 @@ class ArbitroServer:
             t_start_sf = time.time()
             server_time = int(t_start_sf * 1000) & 0xFFFFFFFF
             payload_sf = struct.pack('<II', self.seq, server_time)
-            
-            print(f"\n[=== SF {self.seq} ===]")
-            
+
+            print(f"\n── SF {self.seq} {'─'*44}")
+
+            # Aviso si un nodo kickeado lleva demasiado tiempo sin reconectar.
+            now = time.time()
+            with self.lock:
+                for r_id, t_kick in list(self.kick_time.items()):
+                    if r_id not in self.client_sockets and now - t_kick > RECONNECT_WARN_SECS:
+                        elapsed = int(now - t_kick)
+                        kicks = self.kick_count.get(r_id, 1)
+                        print(f"[CRIT] SF{self.seq} Nodo {r_id} sin reconectar {elapsed}s (KICK #{kicks}) — posible fallo hardware.")
+                        # Actualizar timestamp para no repetir el aviso cada SF
+                        self.kick_time[r_id] = now
+
             with self.lock:
                 self.current_phase = 1
                 self.requests.clear()
@@ -370,12 +389,10 @@ class ArbitroServer:
                     if self.seq <= self.grace_until_sf.get(r_id, 0):
                         continue
                     self.strikes[r_id] = self.strikes.get(r_id, 0) + 1
-                    print(f"  [WARN] Nodo {r_id} fantasma (sin petición). Strike {self.strikes[r_id]}/7")
+                    print(f"[WARN] SF{self.seq} Nodo {r_id} sin petición. Strike {self.strikes[r_id]}/7")
                     if self.strikes[r_id] >= 7:
-                        print(f"  [KICK] Nodo {r_id} atascado en inicio. Forzando cierre...")
                         with self.lock:
-                            sock = self.client_sockets.get(r_id)
-                            if sock: self.remove_client(sock, r_id)
+                            self._do_kick(r_id, "atascado en inicio")
 
             if not active_reqs:
                 time.sleep(0.2)
@@ -443,6 +460,7 @@ class ArbitroServer:
 
             BASE_MOVEMENT_TIME = max_movement_time_ms + 100
             max_delay_ms = 0
+            sf_summary = {}  # {r_id: {'mode': ..., 'angle': ..., 'slot': ...}}
 
             # Tiempo transcurrido desde SF_START para que el firmware pueda anclar execution_time al inicio del SF
             elapsed_before_assign_loop = int((time.time() - t_start_sf) * 1000)
@@ -464,8 +482,13 @@ class ArbitroServer:
                 if sock:
                     try:
                         sock.sendall(struct.pack('<BH', MSG_SLOT_ASSIGN, 10) + payload_assign)
-                        print(f"  -> N{r_id} Asignado: {target_angle:5.1f}° (Slot {assigned_slot}, Centro en {delay_ms}ms desde asignación) | Modo: {state['mode']}")
                     except: pass
+
+                sf_summary[r_id] = {
+                    'mode':  state['mode'],
+                    'angle': target_angle,
+                    'slot':  assigned_slot,
+                }
             
             time.sleep((max_delay_ms + 50) / 1000.0)
 
@@ -498,12 +521,10 @@ class ArbitroServer:
                     if self.seq <= self.grace_until_sf.get(r_id, 0):
                         continue
                     self.strikes[r_id] = self.strikes.get(r_id, 0) + 1
-                    print(f"  [WARN] Nodo {r_id} no responde. Strike {self.strikes[r_id]}/7")
+                    print(f"[WARN] SF{self.seq} Nodo {r_id} no responde. Strike {self.strikes[r_id]}/7")
                     if self.strikes[r_id] >= 7:
-                        print(f"  [KICK] Nodo {r_id} atascado en medición. Forzando cierre...")
                         with self.lock:
-                            sock = self.client_sockets.get(r_id)
-                            if sock: self.remove_client(sock, r_id)
+                            self._do_kick(r_id, "atascado en medición")
                 else:
                     self.strikes[r_id] = 0
 
@@ -524,7 +545,7 @@ class ArbitroServer:
                     mx = (da['gx'] + db['gx']) / 2.0
                     my = (da['gy'] + db['gy']) / 2.0
                     trilat_results[pair_key] = {'x': round(mx, 1), 'y': round(my, 1)}
-                    print(f"  [COMBINED] {pair_key}: ({mx:.1f}, {my:.1f})")
+                    print(f"[TRILAT] SF{self.seq} {pair_key}: ({mx:.1f}, {my:.1f})")
 
             CONFLICT_PAIRS = [(1, 2), (2, 3)]
 
@@ -542,10 +563,10 @@ class ArbitroServer:
 
                     if na_locked and not nb_locked:
                         winner, loser = na, nb
-                        print(f"  [CONFLICTO] N{na}/N{nb}: N{na} mantiene bloqueo (hasta SF {self.track_lock[na]}) | {hits[na]['dist']:.1f} vs {hits[nb]['dist']:.1f} cm")
+                        print(f"[CONF] SF{self.seq} N{na}/N{nb}: N{na} bloqueo hasta SF{self.track_lock[na]} | {hits[na]['dist']:.1f} vs {hits[nb]['dist']:.1f} cm")
                     elif nb_locked and not na_locked:
                         winner, loser = nb, na
-                        print(f"  [CONFLICTO] N{na}/N{nb}: N{nb} mantiene bloqueo (hasta SF {self.track_lock[nb]}) | {hits[na]['dist']:.1f} vs {hits[nb]['dist']:.1f} cm")
+                        print(f"[CONF] SF{self.seq} N{na}/N{nb}: N{nb} bloqueo hasta SF{self.track_lock[nb]} | {hits[na]['dist']:.1f} vs {hits[nb]['dist']:.1f} cm")
                     else:
                         # Sin bloqueo activo: gana el que primero detectó el objeto en esta sesión
                         entry_a = state_a.get('track_entry_sf', TRACK_ENTRY_UNSET)
@@ -555,7 +576,7 @@ class ArbitroServer:
                         else:
                             winner, loser = nb, na
                         sf_str = str(min(entry_a, entry_b)) if min(entry_a, entry_b) < TRACK_ENTRY_UNSET else '?'
-                        print(f"  [CONFLICTO] N{na}/N{nb}: N{winner} gana (primer TRACK SF {sf_str}) | {hits[na]['dist']:.1f} vs {hits[nb]['dist']:.1f} cm")
+                        print(f"[CONF] SF{self.seq} N{na}/N{nb}: N{winner} gana (1er TRACK SF{sf_str}) | {hits[na]['dist']:.1f} vs {hits[nb]['dist']:.1f} cm")
 
                     winners.add(winner)
                     losers.add(loser)
@@ -628,7 +649,36 @@ class ArbitroServer:
             except: pass
 
             t_end_sf = time.time()
-            print(f"  [DURACIÓN SF {self.seq}] {int((t_end_sf - t_start_sf)*1000)} ms")
+            sf_ms = int((t_end_sf - t_start_sf) * 1000)
+
+            # ── Tabla de estado por nodo ──────────────────────────────────────
+            D1, D2, D3 = self.defcon1_limit, self.defcon2_limit, self.defcon3_limit
+            for r_id in sorted(expected_nodes):
+                if r_id in sf_summary:
+                    info    = sf_summary[r_id]
+                    mode    = 'TRACK ' if info['mode'] == 'TRACK' else 'SEARCH'
+                    angle   = f"{info['angle']:+6.1f}°"
+                    slot    = f"Sl.{info['slot']}"
+                    rep     = self.latest_reports.get(r_id)
+                    if rep:
+                        d = rep['dist']
+                        xy = f"  ({rep['gx']:.1f}, {rep['gy']:.1f})" if 'gx' in rep else ''
+                        if   d <= D1: det = f"🔴 DEFCON 1  {d:5.1f}cm{xy}"
+                        elif d <= D2: det = f"🟡 DEFCON 2  {d:5.1f}cm{xy}"
+                        elif d <= D3: det = f"🟢 DEFCON 3  {d:5.1f}cm{xy}"
+                        else:         det = f"🔵 VALLA     {d:5.1f}cm"
+                    else:
+                        det = "·  —"
+                    print(f"  N{r_id} │ {mode}  {slot}  {angle} │ {det}")
+                else:
+                    # Nodo conectado pero sin petición este SF
+                    print(f"  N{r_id} │ ???  sin petición")
+
+            lento = f"  ⚠ LENTO" if sf_ms > 600 else ""
+            pendientes = [r for r in self.kick_time if r not in self.client_sockets]
+            ausentes   = f"  ⚠ sin reconectar: N{pendientes}" if pendientes else ""
+            print(f"  {sf_ms}ms{lento}{ausentes}")
+
             self.seq += 1
 
             # Guardado periódico: asegura que el estado es reciente incluso si el
@@ -664,6 +714,13 @@ class ArbitroServer:
                 try:
                     conn, addr = server.accept()
                     conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+                    # TCP keepalive: detecta conexiones medio-certas sin esperar 15s de
+                    # inactividad. Útil cuando el ESP32 se cuelga sin cerrar el socket.
+                    conn.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+                    if hasattr(socket, 'TCP_KEEPIDLE'):
+                        conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 5)   # inicio tras 5s sin actividad
+                        conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 3)  # sonda cada 3s
+                        conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPCNT, 3)    # 3 fallos → cierre
                     threading.Thread(target=self.handle_client, args=(conn, addr), daemon=True).start()
                 except socket.timeout:
                     continue

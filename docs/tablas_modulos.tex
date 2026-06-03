@@ -1,0 +1,491 @@
+% ============================================================
+% Tablas de descripción de módulos
+% Firmware ESP32 (Arduino-ESP32) y Servidor Central Python
+% ============================================================
+% Uso: \input{tablas_modulos} desde el documento principal.
+% Requiere: \usepackage{array} en el preámbulo.
+% ============================================================
+
+% ─── FIRMWARE ESP32 ──────────────────────────────────────────
+
+% ---- Tabla 1: config.h -----------------------------------------------
+\begin{table}[h!]
+\centering
+\small
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{2.8cm}|p{5.8cm}|p{4.5cm}|}
+\hline
+\multicolumn{3}{|c|}{\textbf{Módulo config.h}} \\
+\hline
+\multicolumn{3}{|p{13.1cm}|}{Este módulo centraliza todas las constantes de
+configuración del firmware: pines GPIO, parámetros del motor paso a paso,
+rangos del sector de barrido, configuración de las tareas FreeRTOS y datos
+de conexión al servidor de coordinación.} \\
+\hline
+\multicolumn{3}{|c|}{\textbf{Tabla de constantes}} \\
+\hline
+\textbf{Nombre} & \textbf{Descripción} & \textbf{Valor / Tipo} \\
+\hline
+PIN\_MOTOR\_STEP & Pin GPIO de pulso de paso del driver A4988. & 18 / \texttt{uint8\_t} \\
+\hline
+PIN\_MOTOR\_DIR & Pin GPIO de dirección del driver A4988. & 19 / \texttt{uint8\_t} \\
+\hline
+PIN\_REED\_SWITCH & Pin GPIO del reed switch para referencia angular. & 26 / \texttt{uint8\_t} \\
+\hline
+PIN\_TRIG / PIN\_ECHO & Pines de disparo y eco del sensor HC-SR04. & 14, 27 / \texttt{uint8\_t} \\
+\hline
+STEPS\_PER\_REV & Pasos por revolución completa del motor. & 200 / \texttt{uint16\_t} \\
+\hline
+MICROSTEPPING & Factor de microstepping configurado en el A4988. & 16 / \texttt{uint8\_t} \\
+\hline
+CORE\_NET / CORE\_PHYS & Núcleos del ESP32 asignados a red y hardware. & 0, 1 / \texttt{uint8\_t} \\
+\hline
+STACK\_SIZE\_COMMS & Tamaño de pila de la tarea de comunicaciones. & 4096 / \texttt{uint32\_t} \\
+\hline
+STACK\_SIZE\_RADAR & Tamaño de pila de la tarea de control hardware. & 4096 / \texttt{uint32\_t} \\
+\hline
+RADAR\_MIN\_ANGLE & Ángulo mínimo del sector de barrido. & $-45$° / \texttt{float} \\
+\hline
+RADAR\_MAX\_ANGLE & Ángulo máximo del sector de barrido. & $+45$° / \texttt{float} \\
+\hline
+RADAR\_STEP\_ANGLE & Paso angular incremental por posición en el firmware. & 5° / \texttt{float} \\
+\hline
+SERVER\_HOSTNAME & Nombre mDNS del servidor de coordinación. & \texttt{"radar-server"} \\
+\hline
+SERVER\_PORT & Puerto TCP del servidor de coordinación. & 8080 / \texttt{uint16\_t} \\
+\hline
+\end{tabular}
+\caption{Descripción del módulo \texttt{config.h}}
+\label{tab:module_config}
+\end{table}
+
+% ---- Tabla 2: comms_protocol.h ----------------------------------------
+\begin{table}[h!]
+\centering
+\small
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{3.2cm}|p{5.4cm}|p{4.5cm}|}
+\hline
+\multicolumn{3}{|c|}{\textbf{Módulo comms\_protocol.h}} \\
+\hline
+\multicolumn{3}{|p{13.1cm}|}{Este módulo define el protocolo binario TCP compartido
+entre los nodos ESP32 y el servidor de coordinación. Especifica los opcodes de
+los siete tipos de mensaje, la cabecera de paquete común y las estructuras de
+payload empaquetadas sin relleno (\texttt{\#pragma pack(1)}).} \\
+\hline
+\multicolumn{3}{|c|}{\textbf{Tabla de constantes y estructuras}} \\
+\hline
+\textbf{Nombre} & \textbf{Descripción} & \textbf{Valor / Tipo} \\
+\hline
+MSG\_HELLO\_REQ & Solicitud de registro del nodo al servidor. & 0xA0 / \texttt{uint8\_t} \\
+\hline
+MSG\_HELLO\_ACK & Confirmación con ID asignado y ángulo reanudado. & 0xA1 / \texttt{uint8\_t} \\
+\hline
+MSG\_SUPERFRAME\_START & Inicio de supertrama con número de secuencia. & 0xB0 / \texttt{uint8\_t} \\
+\hline
+MSG\_SLOT\_ASSIGN & Asignación de slot temporal, retardo y ángulo. & 0xB1 / \texttt{uint8\_t} \\
+\hline
+MSG\_REPORT\_REQ & Solicitud de envío de medición al nodo. & 0xB2 / \texttt{uint8\_t} \\
+\hline
+MSG\_ANGLE\_REQ & Petición del nodo del siguiente ángulo al servidor. & 0xC0 / \texttt{uint8\_t} \\
+\hline
+MSG\_DATA\_REPORT & Envío de distancia y ángulo medidos por el nodo. & 0xD0 / \texttt{uint8\_t} \\
+\hline
+PacketHeader & Cabecera: opcode (1\,B) + longitud payload (2\,B, LE). & \texttt{struct} \\
+\hline
+Payload\_HelloReq & Dirección MAC del nodo (6\,B). & \texttt{struct} \\
+\hline
+Payload\_HelloAck & ID asignado (1\,B) + ángulo reanudado (4\,B). & \texttt{struct} \\
+\hline
+Payload\_SuperFrame & Número de secuencia (4\,B) + timestamp servidor (4\,B). & \texttt{struct} \\
+\hline
+Payload\_SlotAssign & ID + slot + retardo relativo al SF + ángulo confirmado. & \texttt{struct} \\
+\hline
+Payload\_DataReport & ID + ángulo + distancia + timestamp local del nodo. & \texttt{struct} \\
+\hline
+\end{tabular}
+\caption{Descripción del módulo \texttt{comms\_protocol.h}}
+\label{tab:module_protocol}
+\end{table}
+
+% ---- Tabla 3: system.h / system.cpp -----------------------------------
+\begin{table}[h!]
+\centering
+\small
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{2.8cm}|p{5.5cm}|p{2.8cm}|p{1.7cm}|}
+\hline
+\multicolumn{4}{|c|}{\textbf{Módulo system.h / system.cpp — SystemManager}} \\
+\hline
+\multicolumn{4}{|p{12.8cm}|}{Este módulo implementa el gestor de estado global
+del nodo mediante el patrón \textit{Singleton}. Mantiene la máquina de estados
+principal del firmware, las colas FreeRTOS de comunicación entre tareas y los
+parámetros de perfil del nodo cargados en el arranque.} \\
+\hline
+\multicolumn{4}{|c|}{\textbf{Tabla de variables}} \\
+\hline
+\textbf{Nombre} & \textbf{Descripción} & \multicolumn{2}{l|}{\textbf{Tipo de dato}} \\
+\hline
+currentState & Estado actual de la máquina de estados global. & \multicolumn{2}{l|}{\texttt{SystemState}} \\
+\hline
+queueCommands & Cola FreeRTOS de comandos hacia la tarea radar. & \multicolumn{2}{l|}{\texttt{QueueHandle\_t}} \\
+\hline
+queueResults & Cola FreeRTOS de resultados desde la tarea radar. & \multicolumn{2}{l|}{\texttt{QueueHandle\_t}} \\
+\hline
+radarId & Identificador del nodo asignado por el servidor. & \multicolumn{2}{l|}{\texttt{uint8\_t}} \\
+\hline
+t0\_last\_superframe & Timestamp de recepción del MSG\_SUPERFRAME\_START. & \multicolumn{2}{l|}{\texttt{uint32\_t}} \\
+\hline
+current\_angle\_logic & Ángulo lógico actual en el sector de barrido. & \multicolumn{2}{l|}{\texttt{float}} \\
+\hline
+sweep\_direction\_up & Sentido de barrido actual (ascendente / descendente). & \multicolumn{2}{l|}{\texttt{bool}} \\
+\hline
+motorActive & Verdadero desde el MSG\_HELLO\_ACK hasta el homing. & \multicolumn{2}{l|}{\texttt{bool}} \\
+\hline
+justHomed & Indica que la secuencia de homing se ha completado. & \multicolumn{2}{l|}{\texttt{bool}} \\
+\hline
+motorDirInvert & Perfil de nodo: inversión del sentido del motor. & \multicolumn{2}{l|}{\texttt{bool}} \\
+\hline
+reedTriggerLevel & Perfil de nodo: nivel de activación del reed switch. & \multicolumn{2}{l|}{\texttt{int}} \\
+\hline
+\multicolumn{4}{|c|}{\textbf{Tabla de métodos}} \\
+\hline
+\textbf{Nombre} & \textbf{Descripción} & \textbf{Dato(s) de entrada} & \textbf{Dato(s) de salida} \\
+\hline
+instance() & Retorna la instancia única del Singleton. & Ninguno & \texttt{SystemManager\&} \\
+\hline
+init() & Crea las colas FreeRTOS de comunicación entre tareas. & Ninguno & \texttt{void} \\
+\hline
+changeState() & Ejecuta la transición de estado de la FSM global. & \texttt{SystemState} & \texttt{void} \\
+\hline
+\end{tabular}
+\caption{Descripción del módulo \texttt{system.h / system.cpp}}
+\label{tab:module_system}
+\end{table}
+
+% ---- Tabla 4: task_comms.h / task_comms.cpp ---------------------------
+\begin{table}[h!]
+\centering
+\small
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{2.8cm}|p{5.5cm}|p{2.8cm}|p{1.7cm}|}
+\hline
+\multicolumn{4}{|c|}{\textbf{Módulo task\_comms.h / task\_comms.cpp}} \\
+\hline
+\multicolumn{4}{|p{12.8cm}|}{Este módulo modela la tarea de comunicaciones del
+nodo radar, ejecutada en el Core 0 del ESP32. Gestiona la conexión TCP con el
+servidor, el envío y recepción de paquetes del protocolo de coordinación y la
+comunicación con la tarea radar mediante colas FreeRTOS.} \\
+\hline
+\multicolumn{4}{|c|}{\textbf{Tabla de variables}} \\
+\hline
+\textbf{Nombre} & \textbf{Descripción} & \multicolumn{2}{l|}{\textbf{Tipo de dato}} \\
+\hline
+client & Socket TCP persistente hacia el servidor de coordinación. & \multicolumn{2}{l|}{\texttt{WiFiClient}} \\
+\hline
+buffer[128] & Buffer auxiliar para construcción y recepción de mensajes. & \multicolumn{2}{l|}{\texttt{uint8\_t[128]}} \\
+\hline
+last\_msg\_time & Marca temporal del último mensaje procesado. & \multicolumn{2}{l|}{\texttt{uint32\_t}} \\
+\hline
+cachedServerIP & Dirección IP del servidor almacenada en caché. & \multicolumn{2}{l|}{\texttt{IPAddress}} \\
+\hline
+\multicolumn{4}{|c|}{\textbf{Tabla de métodos}} \\
+\hline
+\textbf{Nombre} & \textbf{Descripción} & \textbf{Dato(s) de entrada} & \textbf{Dato(s) de salida} \\
+\hline
+TaskComms() & Tarea principal de comunicaciones ejecutada por FreeRTOS. & \texttt{void* pvParameters} & \texttt{void} \\
+\hline
+connectToServer() & Realiza la resolución mDNS y establece la conexión TCP. & Ninguno & \texttt{bool} \\
+\hline
+sendPacket() & Serializa y envía un paquete del protocolo binario. & type, payload, length & \texttt{void} \\
+\hline
+calcularSiguienteAngulo() & Calcula el siguiente ángulo del barrido en zigzag. & Ninguno & \texttt{float} \\
+\hline
+\end{tabular}
+\caption{Descripción del módulo \texttt{task\_comms.h / task\_comms.cpp}}
+\label{tab:module_comms}
+\end{table}
+
+% ---- Tabla 5: task_radar.h / task_radar.cpp ---------------------------
+\begin{table}[h!]
+\centering
+\small
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{2.8cm}|p{5.5cm}|p{2.8cm}|p{1.7cm}|}
+\hline
+\multicolumn{4}{|c|}{\textbf{Módulo task\_radar.h / task\_radar.cpp}} \\
+\hline
+\multicolumn{4}{|p{12.8cm}|}{Este módulo contiene la tarea de control hardware del
+nodo, ejecutada en el Core 1 del ESP32. Encapsula el driver del motor paso a paso,
+la lectura del sensor ultrasónico HC-SR04 y la secuencia de homing mediante reed
+switch, además de los tipos de comandos y resultados intercambiados con la tarea
+de comunicaciones.} \\
+\hline
+\multicolumn{4}{|c|}{\textbf{Tabla de variables y tipos}} \\
+\hline
+\textbf{Nombre} & \textbf{Descripción} & \multicolumn{2}{l|}{\textbf{Tipo de dato}} \\
+\hline
+hw & Instancia del controlador de hardware del nodo radar. & \multicolumn{2}{l|}{\texttt{RadarHardware}} \\
+\hline
+currentStepPos & Posición absoluta acumulada en micropasos del motor. & \multicolumn{2}{l|}{\texttt{long}} \\
+\hline
+HwCmdType & Tipos de comando: HOME, SYNC\_POS, MOVE, EXECUTE\_SLOT. & \multicolumn{2}{l|}{\texttt{enum}} \\
+\hline
+HwResType & Tipos de resultado: MOVED, SLOT\_DONE, HOME\_DONE. & \multicolumn{2}{l|}{\texttt{enum}} \\
+\hline
+HwCommand & Estructura de comando: tipo + ángulo objetivo + tiempo de ejecución. & \multicolumn{2}{l|}{\texttt{struct}} \\
+\hline
+HwResult & Estructura de resultado: tipo + distancia medida + ángulo. & \multicolumn{2}{l|}{\texttt{struct}} \\
+\hline
+\multicolumn{4}{|c|}{\textbf{Tabla de métodos}} \\
+\hline
+\textbf{Nombre} & \textbf{Descripción} & \textbf{Dato(s) de entrada} & \textbf{Dato(s) de salida} \\
+\hline
+TaskRadar() & Tarea principal de hardware ejecutada por FreeRTOS en Core 1. & \texttt{void* pvParameters} & \texttt{void} \\
+\hline
+RadarHardware::init() & Configura los pines GPIO del motor, sensor y reed switch. & Ninguno & \texttt{void} \\
+\hline
+RadarHardware::moveToAngle() & Mueve el motor paso a paso al ángulo objetivo. & \texttt{float targetAngle} & \texttt{void} \\
+\hline
+RadarHardware::goHome() & Secuencia de homing: búsqueda del reed switch y reset de posición. & Ninguno & \texttt{void} \\
+\hline
+RadarHardware::syncPosition() & Actualiza la posición lógica sin mover el motor. & \texttt{float angle} & \texttt{void} \\
+\hline
+RadarHardware::getDistance() & Dispara el sensor HC-SR04 y retorna la distancia en cm. & Ninguno & \texttt{float} \\
+\hline
+\end{tabular}
+\caption{Descripción del módulo \texttt{task\_radar.h / task\_radar.cpp}}
+\label{tab:module_radar}
+\end{table}
+
+% ---- Tabla 6: main.cpp ------------------------------------------------
+\begin{table}[h!]
+\centering
+\small
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{2.8cm}|p{5.5cm}|p{2.8cm}|p{1.7cm}|}
+\hline
+\multicolumn{4}{|c|}{\textbf{Módulo main.cpp — Aplicación principal}} \\
+\hline
+\multicolumn{4}{|p{12.8cm}|}{Punto de entrada del firmware Arduino-ESP32. Contiene
+los perfiles de nodo identificados por dirección MAC, la lógica de conexión WiFi
+con redes preferentes, la gestión de eventos de red y el bucle principal de la
+máquina de estados global del firmware.} \\
+\hline
+\multicolumn{4}{|c|}{\textbf{Tabla de variables}} \\
+\hline
+\textbf{Nombre} & \textbf{Descripción} & \multicolumn{2}{l|}{\textbf{Tipo de dato}} \\
+\hline
+PROFILES[] & Perfiles de nodo: dirección MAC, ID, inversión motor y nivel reed. & \multicolumn{2}{l|}{\texttt{NodeProfile[]}} \\
+\hline
+KNOWN\_NETWORKS[] & Redes WiFi conocidas con SSID y contraseña. & \multicolumn{2}{l|}{\texttt{struct[]}} \\
+\hline
+\_wifi\_reconnect\_needed & Señal de reconexión WiFi activada por el manejador de eventos. & \multicolumn{2}{l|}{\texttt{bool}} \\
+\hline
+hTaskComms & Handle FreeRTOS de la tarea de comunicaciones. & \multicolumn{2}{l|}{\texttt{TaskHandle\_t}} \\
+\hline
+hTaskRadar & Handle FreeRTOS de la tarea de control hardware. & \multicolumn{2}{l|}{\texttt{TaskHandle\_t}} \\
+\hline
+\multicolumn{4}{|c|}{\textbf{Tabla de métodos}} \\
+\hline
+\textbf{Nombre} & \textbf{Descripción} & \textbf{Dato(s) de entrada} & \textbf{Dato(s) de salida} \\
+\hline
+setup() & Inicialización del sistema: perfil, WiFi, colas y tareas FreeRTOS. & Ninguno & \texttt{void} \\
+\hline
+loop() & Bucle principal: gestiona la FSM global y la reconexión WiFi. & Ninguno & \texttt{void} \\
+\hline
+applyNodeProfile() & Identifica el nodo por MAC y aplica su perfil de configuración. & Ninguno & \texttt{void} \\
+\hline
+tryConnectWiFi() & Escanea redes visibles y conecta a la primera red conocida. & Ninguno & \texttt{void} \\
+\hline
+WiFiEvent() & Manejador de eventos WiFi: conexión, desconexión y reconexión. & \texttt{WiFiEvent\_t} & \texttt{void} \\
+\hline
+\end{tabular}
+\caption{Descripción del módulo \texttt{main.cpp}}
+\label{tab:module_main}
+\end{table}
+
+
+% ─── SERVIDOR CENTRAL PYTHON ─────────────────────────────────
+
+% ---- Tabla 7: ArbitroServer -------------------------------------------
+\begin{table}[h!]
+\centering
+\small
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{2.8cm}|p{5.5cm}|p{2.8cm}|p{1.7cm}|}
+\hline
+\multicolumn{4}{|c|}{\textbf{Módulo server\_central.py — ArbitroServer}} \\
+\hline
+\multicolumn{4}{|p{12.8cm}|}{Clase principal del servidor de coordinación. Mantiene
+el estado global del enjambre de nodos, gestiona las conexiones TCP entrantes,
+registra el servicio mDNS y lanza el hilo de orquestación de supertramas. Actúa
+como núcleo de integración entre los módulos de orquestación, localización y
+persistencia.} \\
+\hline
+\multicolumn{4}{|c|}{\textbf{Tabla de variables}} \\
+\hline
+\textbf{Nombre} & \textbf{Descripción} & \multicolumn{2}{l|}{\textbf{Tipo de dato}} \\
+\hline
+clients & Mapeo de socket a identificador de nodo. & \multicolumn{2}{l|}{\texttt{dict[socket, int]}} \\
+\hline
+client\_sockets & Mapeo inverso de identificador de nodo a socket. & \multicolumn{2}{l|}{\texttt{dict[int, socket]}} \\
+\hline
+client\_buffers & Buffer TCP por conexión para paquetes parciales. & \multicolumn{2}{l|}{\texttt{dict[socket, bytes]}} \\
+\hline
+track\_states & Estado de seguimiento por nodo: modo, ángulo y contadores. & \multicolumn{2}{l|}{\texttt{dict[int, dict]}} \\
+\hline
+latest\_reports & Última medición registrada por nodo en la supertrama actual. & \multicolumn{2}{l|}{\texttt{dict[int, dict]}} \\
+\hline
+track\_lock & Supertrama hasta la que el nodo tiene inmunidad de conflicto. & \multicolumn{2}{l|}{\texttt{dict[int, int]}} \\
+\hline
+strikes & Contador de fallos consecutivos por nodo (umbral: 7). & \multicolumn{2}{l|}{\texttt{dict[int, int]}} \\
+\hline
+grace\_until\_sf & Supertrama hasta la que el nodo está en período de gracia. & \multicolumn{2}{l|}{\texttt{dict[int, int]}} \\
+\hline
+seq & Número de secuencia de la supertrama en curso. & \multicolumn{2}{l|}{\texttt{int}} \\
+\hline
+grid & Posiciones físicas y orientaciones de los nodos. & \multicolumn{2}{l|}{\texttt{dict}} \\
+\hline
+\multicolumn{4}{|c|}{\textbf{Tabla de métodos}} \\
+\hline
+\textbf{Nombre} & \textbf{Descripción} & \textbf{Dato(s) de entrada} & \textbf{Dato(s) de salida} \\
+\hline
+start() & Registra mDNS, abre TCP:8080 y lanza el hilo de orquestación. & Ninguno & \texttt{void} \\
+\hline
+handle\_client() & Bucle de recepción: parsea mensajes y actualiza estado del enjambre. & socket, addr & \texttt{void} \\
+\hline
+remove\_client() & Elimina las referencias a un nodo desconectado del estado global. & socket, radar\_id & \texttt{void} \\
+\hline
+get\_state() & Inicializa o retorna el estado de seguimiento de un nodo. & \texttt{radar\_id: int} & \texttt{dict} \\
+\hline
+\end{tabular}
+\caption{Descripción del módulo \texttt{ArbitroServer} (\texttt{server\_central.py})}
+\label{tab:module_arbitro}
+\end{table}
+
+% ---- Tabla 8: OrquestadorSuperframe -----------------------------------
+\begin{table}[h!]
+\centering
+\small
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{2.8cm}|p{5.5cm}|p{2.8cm}|p{1.7cm}|}
+\hline
+\multicolumn{4}{|c|}{\textbf{Módulo OrquestadorSuperframe}} \\
+\hline
+\multicolumn{4}{|p{12.8cm}|}{Responsable del ciclo de vida de cada supertrama TDMA:
+difunde el MSG\_SUPERFRAME\_START, recoge las peticiones de ángulo, calcula los
+slots con separación espacial, envía las asignaciones temporales, solicita las
+mediciones y aplica la máquina de estados de seguimiento por nodo
+(SEARCH\,/\,TRACK).} \\
+\hline
+\multicolumn{4}{|c|}{\textbf{Tabla de constantes}} \\
+\hline
+\textbf{Nombre} & \textbf{Descripción} & \multicolumn{2}{l|}{\textbf{Valor / Tipo}} \\
+\hline
+TRACK\_LOCK\_DURATION & Supertramas de inmunidad concedidas al ganador de un conflicto. & \multicolumn{2}{l|}{6 / \texttt{int}} \\
+\hline
+MAX\_MISSES & Detecciones fallidas consecutivas antes de abandonar TRACK. & \multicolumn{2}{l|}{3 / \texttt{int}} \\
+\hline
+MAX\_EDGE\_FLIPS & Inversiones de borde antes de considerar el objetivo perdido. & \multicolumn{2}{l|}{5 / \texttt{int}} \\
+\hline
+DIRTY\_MARGIN & Umbral angular de la zona sucia ($\pm$30° locales). & \multicolumn{2}{l|}{30° / \texttt{float}} \\
+\hline
+CLEAN\_LIMIT & Ángulo libre de interferencia entre nodos adyacentes. & \multicolumn{2}{l|}{15° / \texttt{float}} \\
+\hline
+STEP\_ANGLE & Incremento angular por supertrama en el servidor. & \multicolumn{2}{l|}{2.5° / \texttt{float}} \\
+\hline
+\multicolumn{4}{|c|}{\textbf{Tabla de métodos}} \\
+\hline
+\textbf{Nombre} & \textbf{Descripción} & \textbf{Dato(s) de entrada} & \textbf{Dato(s) de salida} \\
+\hline
+orchestration\_loop() & Bucle infinito de supertramas: sincronización, asignación de slots, recolección de medidas y actualización de la FSM de seguimiento. & Ninguno & \texttt{void} \\
+\hline
+calculate\_movement\_time() & Estima el tiempo de desplazamiento del motor entre dos ángulos. & current, target: \texttt{float} & \texttt{int} (ms) \\
+\hline
+\end{tabular}
+\caption{Descripción del módulo \texttt{OrquestadorSuperframe}}
+\label{tab:module_orquestador}
+\end{table}
+
+% ---- Tabla 9: LocalizadorCooperativo ----------------------------------
+\begin{table}[h!]
+\centering
+\small
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{2.8cm}|p{5.5cm}|p{2.8cm}|p{1.7cm}|}
+\hline
+\multicolumn{4}{|c|}{\textbf{Módulo LocalizadorCooperativo}} \\
+\hline
+\multicolumn{4}{|p{12.8cm}|}{Proporciona las funciones de cálculo de posición en el
+sistema de referencia global. Transforma coordenadas polares locales de cada nodo
+a coordenadas cartesianas globales, y estima la posición del objetivo mediante la
+intersección de dos circunferencias en el caso de detección cooperativa.} \\
+\hline
+\multicolumn{4}{|c|}{\textbf{Tabla de variables}} \\
+\hline
+\textbf{Nombre} & \textbf{Descripción} & \multicolumn{2}{l|}{\textbf{Tipo de dato}} \\
+\hline
+defcon1\_limit & Umbral de distancia de detección firme (zona interior). & \multicolumn{2}{l|}{\texttt{float} (cm)} \\
+\hline
+defcon2\_limit & Umbral de detección intermedia. & \multicolumn{2}{l|}{\texttt{float} (cm)} \\
+\hline
+defcon3\_limit & Umbral de detección en zona lejana. & \multicolumn{2}{l|}{\texttt{float} (cm)} \\
+\hline
+valla\_limit & Distancia máxima considerada como detección válida. & \multicolumn{2}{l|}{\texttt{float} (cm)} \\
+\hline
+TRILAT\_MAX\_DIST\_RATIO & Cociente máximo entre distancias para trilateración válida. & \multicolumn{2}{l|}{2.0 / \texttt{float}} \\
+\hline
+\multicolumn{4}{|c|}{\textbf{Tabla de métodos}} \\
+\hline
+\textbf{Nombre} & \textbf{Descripción} & \textbf{Dato(s) de entrada} & \textbf{Dato(s) de salida} \\
+\hline
+calculate\_global\_coords() & Convierte coordenadas polares locales del nodo a coordenadas cartesianas globales. & radar\_id, local\_angle, distance & (x, y): \texttt{float} \\
+\hline
+calcular\_trilateracion() & Estima la posición del objetivo por intersección de las circunferencias de dos nodos. & id1, d1, id2, d2 & (x, y): \texttt{float} \\
+\hline
+\end{tabular}
+\caption{Descripción del módulo \texttt{LocalizadorCooperativo}}
+\label{tab:module_localizador}
+\end{table}
+
+% ---- Tabla 10: GestorPersistencia -------------------------------------
+\begin{table}[h!]
+\centering
+\small
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{|p{2.8cm}|p{5.5cm}|p{2.8cm}|p{1.7cm}|}
+\hline
+\multicolumn{4}{|c|}{\textbf{Módulo GestorPersistencia}} \\
+\hline
+\multicolumn{4}{|p{12.8cm}|}{Gestiona la lectura y escritura de los ficheros JSON
+de configuración y estado del servidor. Permite reanudar sesiones de seguimiento
+previas sin necesidad de volver a descubrir los nodos ni reiniciar el homing,
+siempre que la posición física de los radares no haya cambiado.} \\
+\hline
+\multicolumn{4}{|c|}{\textbf{Tabla de variables}} \\
+\hline
+\textbf{Nombre} & \textbf{Descripción} & \multicolumn{2}{l|}{\textbf{Tipo de dato}} \\
+\hline
+CONFIG\_FILE & Ruta al fichero JSON con posiciones y orientaciones de los nodos. & \multicolumn{2}{l|}{\texttt{str}} \\
+\hline
+STATE\_FILE & Ruta al fichero JSON con el estado de seguimiento persistido. & \multicolumn{2}{l|}{\texttt{str}} \\
+\hline
+VIZ\_SETTINGS & Ruta al fichero JSON de umbrales DEFCON del visualizador. & \multicolumn{2}{l|}{\texttt{str}} \\
+\hline
+\multicolumn{4}{|c|}{\textbf{Tabla de métodos}} \\
+\hline
+\textbf{Nombre} & \textbf{Descripción} & \textbf{Dato(s) de entrada} & \textbf{Dato(s) de salida} \\
+\hline
+load\_grid() & Carga la configuración de la red de nodos desde CONFIG\_FILE. & Ninguno & \texttt{dict} \\
+\hline
+save\_grid() & Persiste la configuración actualizada de la red en CONFIG\_FILE. & Ninguno & \texttt{void} \\
+\hline
+load\_state() & Carga el estado de seguimiento y ofrece reanudación interactiva. & Ninguno & \texttt{dict} \\
+\hline
+save\_state() & Guarda el estado de seguimiento actual en STATE\_FILE. & Ninguno & \texttt{void} \\
+\hline
+\end{tabular}
+\caption{Descripción del módulo \texttt{GestorPersistencia}}
+\label{tab:module_persistencia}
+\end{table}

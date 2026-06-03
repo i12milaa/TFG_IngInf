@@ -1,0 +1,165 @@
+% ============================================================
+% ANEXO: Manual de Fabricación, Instalación y Operativa
+% Sin \appendix aquí — va en main.tex
+% ============================================================
+
+% ============================================================
+\chapter{Fabricación del Nodo Radar}
+\label{anexo:fabricacion}
+% ============================================================
+
+En esta parte del documento se detallan los pasos necesarios para construir un nodo radar periférico, grabar su firmware y dejarlo listo para conectarse al sistema.
+
+\section{Requisitos Previos}
+
+Para la fabricación de cada nodo se requiere:
+
+\begin{itemize}
+    \item Piezas estructurales impresas en 3D (chasis inferior, placa intermedia, placa superior, soportes y cabezal rotatorio).
+    \item Motor paso a paso NEMA~17.
+    \item Driver A4988.
+    \item Sensor ultrasónico HC-SR04.
+    \item Microcontrolador ESP32-WROOM-32D.
+    \item Módulo regulador DC-DC LM2596.
+    \item Reed switch magnético e imán permanente.
+    \item Fuente de alimentación centralizada de 24~V.
+    \item Protoboard, cables dupont y resistencias de 10~k$\Omega$.
+    \item Ordenador con Visual Studio Code y extensión PlatformIO instalada.
+\end{itemize}
+
+\section{Montaje de la Estructura Mecánica}
+
+El ensamblaje de las piezas debe realizarse en el siguiente orden:
+
+\begin{enumerate}
+    \item Colocar la placa inferior e insertar los pilares de separación en las esquinas.
+    \item Fijar el motor NEMA~17 en su soporte sobre la placa intermedia.
+    \item Instalar el soporte del reed switch adyacente al motor.
+    \item Encajar a presión los soportes del ESP32 y la protoboard en la placa inferior.
+    \item Fijar el módulo LM2596 y ajustar su potenciómetro hasta obtener exactamente $5{,}0$~V de salida, verificado con multímetro.
+    \item Acoplar el cabezal rotatorio al eje del motor mediante encaje a presión.
+    \item Insertar el sensor HC-SR04 en el alojamiento del cabezal.
+    \item Fijar el imán en el cabezal, en el lado opuesto al sensor.
+    \item Cerrar el chasis con la placa superior, organizando el cableado para que no interfiera con el giro del cabezal.
+\end{enumerate}
+
+Las Figuras~\ref{fig:nodo_completo} y~\ref{fig:nodo_montaje} muestran el nodo completamente ensamblado desde dos ángulos complementarios.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.55\textwidth]{fig_anexo_nodo_completo}
+    \caption{Vista frontal del nodo radar ensamblado.}
+    \label{fig:nodo_completo}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.55\textwidth]{fig_anexo_nodo_montaje}
+    \caption{Vista lateral del nodo radar ensamblado.}
+    \label{fig:nodo_montaje}
+\end{figure}
+
+\section{Conexiones Electrónicas}
+
+El diagrama completo de conexiones se encuentra en la Figura~\ref{fig:diagrama_conexiones} del Capítulo~\ref{chap:disenyo}. La asignación de pines es la siguiente:
+
+\begin{itemize}[topsep=4pt, partopsep=0pt, itemsep=2pt, parsep=0pt]
+    \item \textbf{HC-SR04:} VCC $\rightarrow$ 5\,V;\; TRIG $\rightarrow$ D14;\; ECHO $\rightarrow$ D27;\; GND $\rightarrow$ GND.
+    \item \textbf{Reed switch:} Lado 1 $\rightarrow$ D26 (pull-up interno);\; Lado 2 $\rightarrow$ GND.
+    \item \textbf{A4988 (lógica):} STEP $\rightarrow$ D19;\; DIR $\rightarrow$ D18;\; MS1, MS2, MS3 $\rightarrow$ 3V3;\; VDD $\rightarrow$ 3V3;\; EN $\rightarrow$ GND.
+    \item \textbf{A4988 (potencia):} VMOT $\rightarrow$ Bus 24\,V;\; GND $\rightarrow$ GND.
+    \item \textbf{LM2596:} VIN $\rightarrow$ Bus 24\,V;\; VOUT $\rightarrow$ 5\,V;\; GND $\rightarrow$ GND.
+    \item \textbf{ESP32:} VIN $\rightarrow$ 5\,V (LM2596);\; GND $\rightarrow$ GND.
+\end{itemize}
+
+\section{Grabación del Firmware}
+
+\begin{enumerate}
+    \item Abrir la carpeta del proyecto en Visual Studio Code. PlatformIO detectará el archivo \texttt{platformio.ini} automáticamente.
+
+    \item Conectar el ESP32 al ordenador mediante cable USB.
+
+    \item Editar \texttt{src/config.h} y localizar el array \texttt{KNOWN\_NETWORKS}. El proyecto incluye dos redes preconfiguradas. Para añadir nuevas redes, agregar entradas adicionales en el mismo formato:
+
+\begin{verbatim}
+{"SSID_red", "contraseña_red"},
+\end{verbatim}
+
+    \item Pulsar \textbf{Build} en la barra de PlatformIO para compilar y verificar que no hay errores.
+
+    \item Pulsar \textbf{Upload} para grabar el firmware en el ESP32. Tras la grabación, el nodo realizará el homing y quedará a la espera del servidor.
+\end{enumerate}
+
+% ============================================================
+\chapter{Instalación y Configuración del Sistema}
+\label{anexo:instalacion}
+% ============================================================
+
+En esta parte se describe cómo instalar el entorno software, desplegar los nodos físicamente y configurar el sistema antes de la primera sesión.
+
+\section{Requisitos Previos}
+
+\begin{itemize}
+    \item Ordenador con Python 3.8 o superior.
+    \item Tres nodos radar fabricados y con firmware grabado.
+    \item Red WiFi local accesible desde el ordenador y los nodos.
+    \item Cinta métrica para la medición de coordenadas físicas.
+\end{itemize}
+
+\section{Instalación de Dependencias}
+
+Las únicas dependencias no estándar del sistema son las siguientes. Instalarlas con:
+
+\begin{verbatim}
+pip install zeroconf ifaddr
+\end{verbatim}
+
+La interfaz gráfica utiliza exclusivamente librerías incluidas en la distribución estándar de Python y no requiere instalación adicional.
+
+\section{Arranque del Sistema}
+
+Ejecutar el siguiente comando desde la carpeta \texttt{tools/} del proyecto:
+
+\begin{verbatim}
+python radar_visualizer.py
+\end{verbatim}
+
+Se abrirá el panel gráfico en Modo Diseño. El servidor no arranca hasta que se pulse \textbf{GUARDAR Y EJECUTAR}.
+
+\section{Ubicación Física de los Nodos}
+
+Colocar los tres nodos sobre la superficie de vigilancia con el sensor HC-SR04 orientado hacia el interior del área, tal como muestra la Figura~\ref{fig:anexo_despliegue_fisico}. Medir con una cinta métrica las distancias entre nodos para obtener sus coordenadas en centímetros.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{fig_anexo_despliegue_fisico}
+    \caption{Despliegue físico de los tres nodos radar en disposición triangular sobre la superficie de vigilancia.}
+    \label{fig:anexo_despliegue_fisico}
+\end{figure}
+
+\section{Configuración de Coordenadas y Zonas de Alerta}
+
+Las coordenadas, ángulos y zonas de alerta se configuran en el Modo Diseño, como se muestra en la Figura~\ref{fig:gui_parametros}. Los nodos se reposicionan arrastrando su icono sobre el canvas; las zonas DEFCON se ajustan con los controles deslizantes del panel lateral. Al pulsar \textbf{GUARDAR Y EJECUTAR} toda la configuración se guarda en disco y el servidor arranca.
+
+% ============================================================
+\chapter{Guía de Operativa}
+\label{anexo:operativa}
+% ============================================================
+
+La interfaz gráfica se describe en detalle en la Sección~5.4 de esta memoria. A continuación se recogen los aspectos operativos esenciales.
+
+\section{Modo Diseño}
+
+Permite configurar la geometría del despliegue y los umbrales de alerta antes de iniciar la vigilancia. Una vez listos todos los parámetros, pulsar \textbf{GUARDAR Y EJECUTAR} para arrancar el servidor y pasar al Modo Telemetría.
+
+\section{Modo Telemetría}
+
+Muestra las detecciones en tiempo real. Cada eco aparece como un punto de color según la zona de alerta alcanzada (rojo DEFCON~1, naranja DEFCON~2, amarillo DEFCON~3, azul claro valla). Cuando dos nodos detectan el mismo objeto en zona de solapamiento, aparece un círculo amarillo con las coordenadas de la posición cooperativa estimada.
+
+El panel lateral muestra el estado de cada nodo. Si un nodo se desconecta, su tarjeta indica \textit{DESCONECTADO / SIN DATOS} hasta la reconexión automática.
+
+Para finalizar la sesión, pulsar \textbf{DETENER SERVIDOR}. El sistema guarda el estado angular de todos los nodos y regresa al Modo Diseño.
+
+\section{Reanudación de Sesión}
+
+Al iniciar el visualizador, si existe un estado de sesión anterior guardado en disco, el sistema ofrece la opción de reanudarlo, recuperando posiciones y ángulos de todos los nodos, o comenzar una sesión nueva.

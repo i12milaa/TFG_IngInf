@@ -3,6 +3,7 @@
 #include "config.h"
 #include "system.h"
 #include <math.h>
+#include <esp_system.h>
 
 RadarHardware hw;
 static long currentStepPos = 0;
@@ -43,6 +44,9 @@ void TaskRadar(void *pvParameters) {
             else if (cmd.type == HW_CMD_MOVE) {
                 hw.moveToAngle(cmd.param);
 
+                HwResult flush;
+                while (xQueueReceive(SystemManager::instance().queueResults, &flush, 0));
+
                 HwResult res;
                 res.type = HW_RES_MOVED;
                 res.angle = cmd.param;
@@ -55,7 +59,7 @@ void TaskRadar(void *pvParameters) {
                 hw.moveToAngle(safe_angle);
 
                 long time_to_wait = (long)cmd.execution_time_ms - (long)millis();
-                if (time_to_wait > 0) {
+                if (time_to_wait > 0 && time_to_wait < 2000) {
                     vTaskDelay(pdMS_TO_TICKS(time_to_wait));
                 }
 

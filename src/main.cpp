@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <ESPmDNS.h>
+#include <esp_wifi.h>
 #include "config.h"
 #include "system.h"
 #include "task_comms.h"
@@ -50,8 +51,10 @@ static const struct { const char* ssid; const char* pass; } KNOWN_NETWORKS[] = {
 static volatile bool _wifi_reconnect_needed = false;
 
 void tryConnectWiFi() {
-    WiFi.disconnect(true);
-    delay(200);
+    // Si ya está conectado o intentando conectar, no interrumpir.
+    wl_status_t st = WiFi.status();
+    if (st == WL_CONNECTED || st == WL_IDLE_STATUS) return;
+
     Serial.println("[WIFI] Escaneando redes...");
     int found = WiFi.scanNetworks();
     if (found <= 0) {
@@ -205,6 +208,12 @@ void setup() {
     Serial.print("[ID] MAC: ");
     Serial.println(WiFi.macAddress());
 
+    WiFi.setSleep(false);
+    esp_wifi_set_ps(WIFI_PS_NONE);
+    WiFi.setAutoReconnect(true);   // el stack WiFi reconecta solo sin que el código intervenga
+    WiFi.persistent(false);        // no guardar credenciales en flash en cada begin()
+    WiFi.setTxPower(WIFI_POWER_19_5dBm); // potencia máxima
+
     WiFi.onEvent(WiFiEvent);
     SystemManager::instance().changeState(WAITING_FOR_CONNECTION);
     tryConnectWiFi();
@@ -213,16 +222,22 @@ void setup() {
 void loop() {
     SystemState current = SystemManager::instance().currentState;
 
+    // LED: parpadeo = sin WiFi, encendido fijo = WiFi conectado
+    static unsigned long lastBlink = 0;
+    if (current == WAITING_FOR_CONNECTION) {
+        if (millis() - lastBlink > 250) {
+            digitalWrite(PIN_LED, !digitalRead(PIN_LED));
+            lastBlink = millis();
+        }
+    } else {
+        digitalWrite(PIN_LED, HIGH);
+    }
+
     switch (current) {
         case CONFIGURACION:
             break;
 
         case WAITING_FOR_CONNECTION: {
-            static unsigned long lastBlink = 0;
-            if (millis() - lastBlink > 250) {
-                digitalWrite(PIN_LED, !digitalRead(PIN_LED));
-                lastBlink = millis();
-            }
             static unsigned long lastTry = 0;
             if (_wifi_reconnect_needed || millis() - lastTry > 15000) {
                 _wifi_reconnect_needed = false;
@@ -233,7 +248,6 @@ void loop() {
         }
 
         case SYNC_CONTROL: {
-            digitalWrite(PIN_LED, HIGH);
             if (hTaskComms == NULL) {
                 Serial.println("[FSM] Arrancando TaskComms");
                 xTaskCreatePinnedToCore(TaskComms, "TaskComms", STACK_SIZE_COMMS, NULL, 2, &hTaskComms, CORE_NET);
@@ -242,7 +256,6 @@ void loop() {
         }
 
         case RADAR:
-            digitalWrite(PIN_LED, HIGH);
             if (hTaskRadar == NULL) {
                 Serial.println("[FSM] Arrancando TaskRadar");
                 xTaskCreatePinnedToCore(TaskRadar, "TaskRadar", STACK_SIZE_RADAR, NULL, 3, &hTaskRadar, CORE_PHYS);

@@ -13,6 +13,12 @@ bool connectToServer();
 void sendPacket(uint8_t type, void* payload, uint16_t length);
 float calcularSiguienteAngulo();
 
+// Reinicia el ESP32 si la reconexión falla demasiadas veces seguidas.
+// Garantiza que el WiFi stack vuelve a estado limpio independientemente
+// de qué estado interno haya acumulado tras múltiples KICKs del servidor.
+static int s_connect_failures = 0;
+static const int MAX_CONNECT_FAILURES = 5;
+
 void TaskComms(void *pvParameters) {
     uint8_t buffer[128];
     uint32_t last_msg_time = millis();
@@ -31,7 +37,12 @@ void TaskComms(void *pvParameters) {
 
                 HwCommand cmdHome;
                 cmdHome.type = HW_CMD_HOME;
-                xQueueSend(SystemManager::instance().queueCommands, &cmdHome, portMAX_DELAY);
+                // Timeout de 200ms: si la cola sigue llena tras el flush hay un estado
+                // interno corrupto; no bloqueamos indefinidamente.
+                if (xQueueSend(SystemManager::instance().queueCommands, &cmdHome, pdMS_TO_TICKS(200)) != pdPASS) {
+                    Serial.println("[COMMS][ERR] queueCommands llena tras flush. Reiniciando...");
+                    esp_restart();
+                }
 
                 HwResult homeRes;
                 uint32_t t_home = millis();
@@ -48,10 +59,31 @@ void TaskComms(void *pvParameters) {
 
             SystemManager::instance().changeState(SYNC_CONTROL);
 
+            // Esperar a que el WiFi esté disponible antes de intentar TCP.
+            // Evita incrementar s_connect_failures durante caídas de WiFi y
+            // que el esp_restart() salte por algo que no es culpa del servidor.
+            {
+                uint32_t t_wifi = millis();
+                while (WiFi.status() != WL_CONNECTED && millis() - t_wifi < 20000) {
+                    vTaskDelay(pdMS_TO_TICKS(500));
+                }
+                if (WiFi.status() != WL_CONNECTED) {
+                    Serial.println("[COMMS] WiFi no disponible tras 20s. Reintentando...");
+                    continue;
+                }
+            }
+
             if (!connectToServer()) {
+                s_connect_failures++;
+                Serial.printf("[COMMS] Fallo de conexion TCP %d/%d\n", s_connect_failures, MAX_CONNECT_FAILURES);
+                if (s_connect_failures >= MAX_CONNECT_FAILURES) {
+                    Serial.println("[COMMS] Servidor inaccesible. Reiniciando ESP32...");
+                    esp_restart();
+                }
                 vTaskDelay(pdMS_TO_TICKS(2000));
                 continue;
             }
+            s_connect_failures = 0;  // WiFi y TCP OK — reset contador
 
             Payload_HelloReq req;
             WiFi.macAddress(req.mac_address);
@@ -107,7 +139,10 @@ void TaskComms(void *pvParameters) {
                         cmdInit.type  = HW_CMD_SYNC_POS;
                     }
                     cmdInit.param = p->saved_angle;
-                    xQueueSend(SystemManager::instance().queueCommands, &cmdInit, portMAX_DELAY);
+                    if (xQueueSend(SystemManager::instance().queueCommands, &cmdInit, pdMS_TO_TICKS(200)) != pdPASS) {
+                        Serial.println("[COMMS][ERR] HELLO_ACK: queueCommands bloqueada. Reiniciando...");
+                        esp_restart();
+                    }
                     SystemManager::instance().justHomed = false;
 
                     HwResult res;
@@ -124,6 +159,14 @@ void TaskComms(void *pvParameters) {
                 }
 
                 case MSG_SUPERFRAME_START: {
+                    // Vaciar resultados obsoletos del SF anterior. Sin este flush,
+                    // timeouts repetidos en MSG_REPORT_REQ acumulan resultados en
+                    // queueResults hasta llenarla (~10 SFs) y provocar el deadlock
+                    // de TaskRadar. El flush garantiza que la cola nunca supere
+                    // 1 elemento entre SF y SF, haciendo el deadlock imposible.
+                    HwResult stale;
+                    while (xQueueReceive(SystemManager::instance().queueResults, &stale, 0) == pdPASS);
+
                     // Anclamos t0 aquí: SF_START tiene jitter mínimo de red.
                     // El servidor envía start_delay_ms relativo a este instante,
                     // así execution_time_ms no depende del jitter de SLOT_ASSIGN.
@@ -146,11 +189,19 @@ void TaskComms(void *pvParameters) {
                         cmd.type = HW_CMD_EXECUTE_SLOT;
                         cmd.param = p->confirmed_angle;
                         cmd.execution_time_ms = SystemManager::instance().t0_last_superframe + p->start_delay_ms;
-                        
+
                         HwCommand flushCmd;
                         while(xQueueReceive(SystemManager::instance().queueCommands, &flushCmd, 0));
-                        xQueueSend(SystemManager::instance().queueCommands, &cmd, portMAX_DELAY);
-                        
+                        // Con el flush de queueResults en MSG_SUPERFRAME_START, TaskRadar
+                        // nunca queda bloqueado en xQueueSend, así que la cola siempre
+                        // acepta el comando inmediatamente. Si por alguna razón excepcional
+                        // no lo acepta, saltamos este slot (el servidor dará un strike) pero
+                        // NO rompemos la conexión TCP — eso sería peor que perder un slot.
+                        if (xQueueSend(SystemManager::instance().queueCommands, &cmd, pdMS_TO_TICKS(100)) != pdPASS) {
+                            Serial.println("[COMMS][WARN] SLOT_ASSIGN: queueCommands ocupada, saltando slot.");
+                            break;
+                        }
+
                         SystemManager::instance().current_angle_logic = p->confirmed_angle;
                     }
                     break;
@@ -158,9 +209,10 @@ void TaskComms(void *pvParameters) {
 
                 case MSG_REPORT_REQ: {
                     HwResult res;
-                    // 300ms: en operación normal el resultado ya está listo cuando llega REPORT_REQ.
-                    // Fallo rápido evita bloquear el siguiente SF_START si el timing fue a la deriva.
-                    if (xQueueReceive(SystemManager::instance().queueResults, &res, pdMS_TO_TICKS(300)) == pdPASS) {
+                    // 500ms: el servidor espera max_delay_ms+400ms (~570-620ms) antes de
+                    // pasar al siguiente SF, así que tenemos margen para absorber ejecuciones
+                    // ligeramente lentas sin añadir tiempo a la supertrama.
+                    if (xQueueReceive(SystemManager::instance().queueResults, &res, pdMS_TO_TICKS(500)) == pdPASS) {
                         if (res.type == HW_RES_SLOT_DONE) {
                             Payload_DataReport rep;
                             rep.radar_id = SystemManager::instance().radarId;
@@ -201,9 +253,6 @@ float calcularSiguienteAngulo() {
 }
 
 bool connectToServer() {
-    WiFi.setSleep(false);
-    esp_wifi_set_ps(WIFI_PS_NONE);
-
     static IPAddress cachedServerIP(0, 0, 0, 0);
 
     if (cachedServerIP != IPAddress(0, 0, 0, 0)) {

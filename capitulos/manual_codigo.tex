@@ -1,0 +1,244 @@
+\chapter{Manual de Código}
+
+En este documento se detalla el código fuente completo del sistema de vigilancia distribuido
+basado en una red de radares cooperativos. El código se organiza en tres bloques funcionales:
+el firmware embebido del nodo radar (C++ sobre ESP32 con FreeRTOS), el servidor central de
+orquestación (Python) y las herramientas de visualización y simulación (Python).
+
+Se presupone que el lector tiene conocimientos básicos de programación en C++ y Python,
+así como familiaridad con los conceptos de sistemas embebidos y comunicaciones TCP/IP.
+
+% ================================================================
+\section{Firmware del Nodo Radar (C++)}
+% ================================================================
+
+El firmware se desarrolla en C++ usando el entorno PlatformIO con el núcleo Arduino para
+ESP32. La arquitectura multitarea se apoya en FreeRTOS: la tarea \texttt{TaskComms}
+gestiona la conexión TCP con el servidor central en el núcleo 0, mientras que
+\texttt{TaskRadar} controla el motor paso a paso y el sensor ultrasónico en el núcleo 1.
+
+Para compilar y cargar el firmware basta con abrir la carpeta del proyecto en Visual Studio
+Code y pulsar \textbf{Upload} en la barra de PlatformIO, o ejecutar:
+
+\begin{lstlisting}[style=Consola]
+pio run --target upload
+\end{lstlisting}
+
+% ----------------------------------------------------------------
+\subsection{Archivo \texttt{config.h}}
+% ----------------------------------------------------------------
+
+Centraliza todas las constantes de configuración del firmware: asignación de pines GPIO,
+parámetros del motor (pasos por vuelta, micropasos, ratio de engranaje), rango angular del
+barrido, velocidades de homing, credenciales WiFi conocidas y dirección del servidor. Para
+adaptar el firmware a hardware distinto basta con modificar únicamente este archivo.
+
+\lstinputlisting[
+  style=C++-color,
+  caption={config.h — Constantes de configuración globales del firmware.},
+  label={lst:config}
+]{src/config.h}
+
+% ----------------------------------------------------------------
+\subsection{Archivo \texttt{comms\_protocol.h}}
+% ----------------------------------------------------------------
+
+Define el protocolo binario de comunicación entre los nodos y el servidor central. Cada
+mensaje se compone de una cabecera de tres bytes (\texttt{type\,+\,length}) seguida de
+una carga útil de longitud fija. Las estructuras se declaran con \texttt{\#pragma~pack(1)}
+para eliminar el relleno del compilador y garantizar que la representación en memoria sea
+idéntica en el ESP32 y en el servidor Python.
+
+\lstinputlisting[
+  style=C++-color,
+  caption={comms\_protocol.h — Opcodes y estructuras del protocolo binario.},
+  label={lst:protocol}
+]{src/comms_protocol.h}
+
+% ----------------------------------------------------------------
+\subsection{Archivo \texttt{system.h}}
+% ----------------------------------------------------------------
+
+Declara la máquina de estados (\texttt{SystemState}) y el gestor de sistema
+(\texttt{SystemManager}), implementado como \textit{singleton} de FreeRTOS. El
+\texttt{SystemManager} mantiene el estado global compartido entre ambas tareas: las colas
+de mensajes, el identificador del nodo, el ángulo lógico actual y los perfiles de hardware
+específicos de cada unidad (dirección del motor, nivel de activación del reed switch).
+
+\lstinputlisting[
+  style=C++-color,
+  caption={system.h — FSM y gestor de estado global compartido entre tareas.},
+  label={lst:system_h}
+]{src/system.h}
+
+% ----------------------------------------------------------------
+\subsection{Archivo \texttt{system.cpp}}
+% ----------------------------------------------------------------
+
+Implementa los métodos del \texttt{SystemManager}: la inicialización de las colas FreeRTOS
+y el método de transición de estado, que imprime un mensaje de diagnóstico por el puerto
+serie en cada cambio.
+
+\lstinputlisting[
+  style=C++-color,
+  caption={system.cpp — Inicialización de colas FreeRTOS y transiciones de estado.},
+  label={lst:system_cpp}
+]{src/system.cpp}
+
+% ----------------------------------------------------------------
+\subsection{Archivo \texttt{task\_radar.h}}
+% ----------------------------------------------------------------
+
+Define los tipos de mensajes intercambiados entre \texttt{TaskComms} y \texttt{TaskRadar}
+a través de las colas FreeRTOS: \texttt{HwCommand} (órdenes enviadas al hardware) y
+\texttt{HwResult} (resultados devueltos desde el hardware). Incluye la declaración de la
+clase \texttt{RadarHardware}, que encapsula el control del motor paso a paso y del sensor
+ultrasónico.
+
+\lstinputlisting[
+  style=C++-color,
+  caption={task\_radar.h — Interfaz de la tarea hardware y de RadarHardware.},
+  label={lst:radar_h}
+]{src/task_radar.h}
+
+% ----------------------------------------------------------------
+\subsection{Archivo \texttt{task\_comms.h}}
+% ----------------------------------------------------------------
+
+Cabecera mínima de la tarea de comunicaciones. Declara únicamente el prototipo de
+\texttt{TaskComms}, que es el punto de entrada de la tarea FreeRTOS responsable del
+ciclo TCP con el servidor.
+
+\lstinputlisting[
+  style=C++-color,
+  caption={task\_comms.h — Prototipo de la tarea de comunicaciones.},
+  label={lst:comms_h}
+]{src/task_comms.h}
+
+% ----------------------------------------------------------------
+\subsection{Archivo \texttt{main.cpp}}
+% ----------------------------------------------------------------
+
+Contiene \texttt{setup()} y \texttt{loop()} del núcleo Arduino. \texttt{setup()} inicializa
+el hardware, aplica el perfil del nodo según su dirección MAC (tabla \texttt{PROFILES[]}),
+registra el manejador de eventos WiFi y lanza el proceso de conexión.
+
+\texttt{loop()} implementa la FSM de alto nivel: parpadeo del LED de estado según la
+conectividad, reintento de conexión WiFi con escaneo periódico y creación de las tareas
+FreeRTOS en el núcleo adecuado cuando el estado del sistema lo requiere.
+
+El bloque condicional \texttt{\#if~DEBUG\_HARDWARE\_TEST~==~1} activa un modo de
+diagnóstico interactivo que verifica el sensor ultrasónico, el reed switch y el motor paso
+a paso de forma autónoma, sin necesidad de servidor.
+
+\lstinputlisting[
+  style=C++-color,
+  caption={main.cpp — Inicialización, perfiles de nodo y bucle principal de la FSM.},
+  label={lst:main}
+]{src/main.cpp}
+
+% ----------------------------------------------------------------
+\subsection{Archivo \texttt{task\_radar.cpp}}
+% ----------------------------------------------------------------
+
+Implementa la tarea \texttt{TaskRadar} y los métodos de \texttt{RadarHardware}. La tarea
+espera bloqueada en la cola de comandos y despacha cada \texttt{HwCommand}: \texttt{HW\_CMD\_HOME}
+invoca \texttt{goHome()}, que mueve el motor al ángulo cero y verifica la posición con el reed
+switch; \texttt{HW\_CMD\_MOVE} y \texttt{HW\_CMD\_EXECUTE\_SLOT} llaman a \texttt{moveToAngle()},
+que calcula y ejecuta los pasos necesarios; \texttt{HW\_CMD\_SYNC\_POS} actualiza la
+variable de ángulo sin mover el motor (útil tras una reconexión). El resultado se envía a
+\texttt{TaskComms} mediante la cola de resultados.
+
+\lstinputlisting[
+  style=C++-color,
+  caption={task\_radar.cpp — Control del motor paso a paso, homing y medición ultrasónica.},
+  label={lst:radar_cpp}
+]{src/task_radar.cpp}
+
+% ----------------------------------------------------------------
+\subsection{Archivo \texttt{task\_comms.cpp}}
+% ----------------------------------------------------------------
+
+Implementa la tarea \texttt{TaskComms}, que gestiona el ciclo de vida completo de la
+conexión TCP: establecimiento de la conexión, \textit{handshake} HELLO, recepción y
+procesamiento de todos los tipos de mensaje del protocolo (inicio de supertrama, asignación
+de ranura, solicitud de reporte y petición de ángulo) y envío de las respuestas. Incluye
+los mecanismos de recuperación ante fallos: \textit{timeout} de servidor inactivo de 5\,s,
+contador de fallos TCP y reinicio del ESP32 al superar el límite de fallos consecutivos.
+
+\lstinputlisting[
+  style=C++-color,
+  caption={task\_comms.cpp — Gestión del protocolo TCP y máquina de estados de comunicación.},
+  label={lst:comms_cpp}
+]{src/task_comms.cpp}
+
+% ================================================================
+\section{Servidor Central (Python)}
+% ================================================================
+
+El servidor se desarrolla en Python 3 y se ejecuta en un ordenador de propósito general
+conectado a la misma red WiFi que los nodos. Implementa el bucle de supertrama TDMA, el
+algoritmo de asignación dinámica de ranuras con reutilización espacial, la lógica de
+seguimiento cooperativo, la trilateración y la detección de desconexiones. La comunicación
+con los nodos se realiza mediante sockets TCP; la comunicación con el visualizador, mediante
+datagramas UDP. No requiere dependencias externas más allá de la biblioteca estándar de Python.
+
+Para arrancar el servidor de forma autónoma (sin el visualizador):
+
+\begin{lstlisting}[style=Consola]
+cd server/
+python server_central.py
+\end{lstlisting}
+
+% ----------------------------------------------------------------
+\subsection{Archivo \texttt{server\_central.py}}
+% ----------------------------------------------------------------
+
+Archivo principal del servidor. Contiene la clase \texttt{RadarServer}, que gestiona el
+registro de nodos mediante mDNS con el \textit{hostname} \texttt{radar-server}, el cálculo
+de pares conflictivos (zona sucia), la ejecución del ciclo de supertrama TDMA y el algoritmo
+de trilateración cooperativa. El estado angular de todos los nodos se persiste en disco en
+\texttt{config/radar\_state.json} para que la sesión pueda reanudarse.
+
+\lstinputlisting[
+  style=Python-color,
+  caption={server\_central.py — Servidor central de orquestación TDMA y trilateración.},
+  label={lst:server}
+]{server/server_central.py}
+
+% ================================================================
+\section{Herramientas e Interfaz Gráfica (Python)}
+% ================================================================
+
+Las herramientas se desarrollan en Python 3 usando exclusivamente bibliotecas incluidas en
+la distribución estándar (\texttt{tkinter}, \texttt{socket}, \texttt{threading},
+\texttt{subprocess}, \texttt{json}). Las únicas dependencias externas son \texttt{zeroconf}
+e \texttt{ifaddr}, necesarias para el anuncio y descubrimiento mDNS:
+
+\begin{lstlisting}[style=Consola]
+pip install zeroconf ifaddr
+\end{lstlisting}
+
+% ----------------------------------------------------------------
+\subsection{Archivo \texttt{radar\_visualizer.py}}
+% ----------------------------------------------------------------
+
+Interfaz gráfica principal del sistema. Implementa dos modos de operación: el \textbf{Modo
+Diseño}, que permite configurar la geometría del despliegue y los umbrales DEFCON antes
+de iniciar la sesión, y el \textbf{Modo Telemetría}, que representa en tiempo real las
+detecciones recibidas del servidor mediante datagramas UDP. Gestiona también el arranque y
+la parada del servidor central como subproceso y la persistencia de sesión entre ejecuciones.
+
+Para ejecutarlo:
+
+\begin{lstlisting}[style=Consola]
+cd tools/
+python radar_visualizer.py
+\end{lstlisting}
+
+\lstinputlisting[
+  style=Python-color,
+  caption={radar\_visualizer.py — Interfaz gráfica de visualización y control del sistema.},
+  label={lst:visualizer}
+]{tools/radar_visualizer.py}
+

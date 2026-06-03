@@ -1,0 +1,37 @@
+\chapter{Objetivos}
+
+El presente Trabajo de Fin de Grado nace de la constatación de que los sistemas de detección basados en sensores ultrasónicos individuales presentan limitaciones estructurales que impiden su escalabilidad en aplicaciones de vigilancia perimetral. Un único sensor cubre un sector angular reducido y no puede monitorizar simultáneamente distintas regiones del espacio. La solución natural, desplegar varios sensores en paralelo, introduce un problema físico nuevo: las ondas acústicas emitidas por un nodo pueden ser recibidas por el sensor de otro, generando lecturas espurias que invalidan la medida. Este fenómeno, conocido como interferencia acústica o \textit{crosstalk}, no tiene solución de hardware sencilla y obliga a abordarlo desde la coordinación entre nodos.
+
+El objetivo de este trabajo no es únicamente construir un sistema multisensor, sino diseñar e implementar la lógica de coordinación que hace posible que varios nodos radar operen de forma cooperativa, sin interferirse mutuamente, y sean capaces de combinar sus medidas para obtener información espacial que ninguno de ellos podría proporcionar de forma aislada.
+
+\section{Objetivo Principal}
+
+Diseñar, desarrollar y validar un sistema de vigilancia distribuido formado por una red de nodos radar cooperativos sobre plataformas embebidas de bajo coste, capaz de cubrir un área perimetral de forma continua, coordinar el acceso al medio acústico para evitar interferencias entre nodos, y estimar la posición de objetos detectados de forma conjunta. El sistema debe operar en tiempo real sobre una infraestructura inalámbrica estándar y ser verificado mediante un prototipo físico funcional.
+
+\section{Objetivos Secundarios}
+
+\begin{itemize}
+    \item \textbf{Desarrollo del firmware del nodo radar:} Cada nodo debe operar de forma autónoma, ejecutando simultáneamente el control mecánico del sensor, la adquisición de medidas y la comunicación con el servidor central. El objetivo es que esta concurrencia sea robusta y predecible, de forma que ninguna tarea interfiera con las demás ni comprometa la precisión del posicionamiento angular o la fiabilidad de las medidas.
+
+    \item \textbf{Diseño de un protocolo de comunicaciones eficiente:} La coordinación de la red exige que los nodos y el servidor intercambien información de control y medidas dentro de márgenes temporales estrictos. El objetivo es definir un protocolo de mensajería de baja latencia que soporte la sincronización del ciclo de medida, la detección de pérdida de conexión y la reincorporación de un nodo sin pérdida de su estado previo.
+
+    \item \textbf{Desarrollo del servidor central de orquestación:} El servidor debe concentrar la lógica de coordinación de la red: organizar los turnos de medida de cada nodo, resolver los conflictos de acceso al medio derivados de la geometría del sistema, mantener el estado global de la red y calcular estimaciones de posición cooperativas a partir de las medidas de varios nodos. El objetivo es que esta lógica opere en tiempo real y sea tolerante a la incorporación y pérdida de nodos durante el funcionamiento.
+
+    \item \textbf{Desarrollo de la interfaz gráfica de visualización:} El sistema debe ofrecer una representación visual en tiempo real del estado de la red y de las detecciones registradas, de forma que un operador pueda interpretar de un vistazo la situación del área monitorizada. El objetivo es que esta interfaz se actualice de forma continua y refleje fielmente el estado interno del sistema.
+
+    \item \textbf{Construcción del prototipo físico y diseño del banco de pruebas:} La validación del sistema requiere un entorno experimental reproducible que permita verificar su comportamiento bajo distintas condiciones de operación: funcionamiento normal, situaciones de interferencia acústica y pérdida de conectividad de nodos. El objetivo es disponer de un prototipo físico funcional y de un conjunto de pruebas que cubran los requisitos funcionales definidos para el sistema.
+
+    \item \textbf{Elaboración de la memoria académica:} Documentar de forma completa y rigurosa las decisiones de diseño, el desarrollo del sistema, los resultados obtenidos y las posibles líneas de trabajo futuro, de modo que la memoria constituya por sí sola una referencia suficiente para reproducir o extender el trabajo realizado.
+\end{itemize}
+
+\section{Alcance del Sistema}
+
+El prototipo desarrollado en este trabajo comprende una red de tres nodos radar operando de forma coordinada sobre una superficie plana en entorno de interior. Aunque la arquitectura diseñada es escalable en número de nodos, el alcance de validación experimental se limita a esta configuración de tres unidades, que es suficiente para demostrar los mecanismos de coordinación y localización cooperativa. El sistema emplea sensores ultrasónicos para la detección de objetos, por lo que su aplicabilidad queda circunscrita a entornos sin fuertes corrientes de aire, superficies altamente absorbentes o distancias superiores a las que el sensor puede medir con fiabilidad. No se persigue precisión centimétrica en la localización, el cual sería un objetivo que requeriría sensores de mayor coste, sino demostrar la viabilidad de la coordinación espacial y temporal entre nodos como mecanismo para eliminar interferencias y mejorar la cobertura del área monitorizada.
+
+\section{Restricciones y condicionantes}
+
+El desarrollo está sujeto a varias restricciones que condicionan las decisiones de diseño a lo largo de todo el trabajo. En primer lugar, el coste del hardware de cada nodo debe mantenerse en un rango accesible para validar la escalabilidad económica del enfoque, lo que limita la selección a componentes comerciales de bajo coste disponibles en el mercado de electrónica de prototipado. En segundo lugar, la infraestructura de comunicaciones se restringe a una red WiFi estándar, descartando protocolos industriales de mayor fiabilidad pero menor disponibilidad y mayor coste. En tercer lugar, el sistema no puede apoyarse en ninguna infraestructura externa de posicionamiento: la única referencia espacial disponible son las posiciones fijas y conocidas de los propios nodos. Por último, el alcance del trabajo está acotado temporalmente al marco de un Trabajo de Fin de Grado, lo que impone límites sobre el número de iteraciones de diseño y el grado de optimización alcanzable.
+
+\section{Criterios de Éxito}
+
+El trabajo se considerará satisfactorio si el prototipo implementado cumple los siguientes criterios verificables: los nodos se conectan al servidor de forma autónoma y retoman su estado angular tras una reconexión sin intervención manual; el servidor asigna turnos de medida diferenciados a los nodos en situación de interferencia geométrica sin que se registren lecturas espurias atribuibles al \textit{crosstalk} acústico; el sistema produce estimaciones de posición cooperativas cuando la geometría lo permite; la interfaz gráfica refleja el estado de la red en tiempo real con una latencia inferior a un ciclo de medida; y el conjunto del sistema supera sin fallos los escenarios de prueba diseñados para validar los requisitos funcionales definidos en el capítulo correspondiente.

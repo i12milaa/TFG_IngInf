@@ -1,0 +1,38 @@
+% ============================================================
+% Sección 7.3 — Retos Técnicos y Limitaciones
+% Sustituye la sección equivalente en cap7_conclusiones.tex
+% ============================================================
+
+\section{Retos Técnicos y Limitaciones}
+
+Durante el desarrollo surgieron desafíos que condicionaron decisiones de diseño no evidentes en la especificación inicial, y el sistema presenta en su configuración actual limitaciones que conviene delimitar con precisión para contextualizar el alcance real de los resultados.
+
+\subsection*{Retos técnicos}
+
+\begin{itemize}
+
+    \item \textbf{Referencia temporal en entornos WiFi con jitter variable.} El protocolo de sincronización ancló inicialmente la referencia $t_0$ al valor de tiempo transmitido en el payload del pulso de sincronización. En las pruebas tempranas esto produjo desincronizaciones de hasta 200\,ms entre nodos, causando colisiones acústicas esporádicas. La solución fue descartarlo y registrar el instante de recepción local como $t_0$, eliminando por completo la dependencia del sesgo de reloj y del jitter de red. Con mayor tiempo de desarrollo, la implementación de un protocolo de sincronización de relojes distribuidos como PTP permitiría además garantizar la coherencia temporal entre nodos sin depender de la estabilidad de la red.
+
+    \item \textbf{Criterio de desempate en conflictos de zona sucia.} Definir una política de arbitraje que fuera justa, determinista y libre de inanición requirió varias iteraciones de diseño. La solución final, que combina inmunidad temporal por bloqueo de seguimiento con el instante de primera detección como criterio de desempate, no era evidente en la especificación inicial y emergió de la experimentación con escenarios de conflicto repetido. Con más tiempo de iteración, sería posible evaluar políticas de arbitraje más sofisticadas basadas en la calidad de la señal o en la posición angular relativa de los nodos.
+
+    \item \textbf{Latencia introducida por el algoritmo de Nagle y el modo de ahorro WiFi.} La pila TCP del sistema operativo acumulaba los mensajes de control en búferes antes de enviarlos, introduciendo retardos de hasta 200\,ms que desestabilizaban el ciclo de supertrama. La desactivación explícita del algoritmo de Nagle y del modo de ahorro de energía del módulo WiFi del ESP32 resolvió el problema, pero requirió un diagnóstico prolongado dado que el comportamiento era no determinista y dependía de la carga de la red.
+
+    \item \textbf{Pérdida de pasos del motor y calibración del reed switch.} En las primeras versiones del firmware, el motor acumulaba errores de posición angular de forma silenciosa al perder pasos por carga mecánica excesiva durante el homing rápido. La reducción de la velocidad durante la rutina de homing y el ajuste fino del umbral de corriente del driver A4988 resolvieron el problema. Con mayor presupuesto, la incorporación de un encoder incremental sobre el eje del motor permitiría cerrar el lazo de control y eliminar esta fuente de error por diseño.
+
+\end{itemize}
+
+\subsection*{Limitaciones actuales}
+
+\begin{itemize}
+
+    \item \textbf{Entorno de validación controlado.} El sistema ha sido validado en un entorno de laboratorio con condiciones acústicas óptimas: superficie plana, ausencia de corrientes de aire y temperatura estable. En condiciones reales, las variaciones de temperatura afectan a la velocidad del sonido, las corrientes de aire desvían los pulsos acústicos y las superficies irregulares generan reflexiones parásitas indistinguibles de ecos legítimos. La extrapolación del comportamiento del sistema a entornos exteriores o industriales requeriría una campaña de validación específica.
+
+    \item \textbf{Limitaciones relacionadas con el objeto detectado.} El cono de emisión del HC-SR04 de aproximadamente $\pm 15°$ impone restricciones sobre los objetos detectables. Los objetos de dimensión inferior al ancho de haz pueden no devolver un eco suficientemente intenso, las superficies no perpendiculares al eje del sensor reflejan el pulso en dirección contraria al receptor generando falsos negativos, y los materiales blandos o porosos absorben parcialmente el pulso reduciendo el alcance efectivo. El rango muerto de dos centímetros impide además la detección de objetos muy próximos al sensor.
+
+    \item \textbf{Limitaciones de hardware.} El paso de barrido de $2{,}5°$ por supertrama implica que un objeto angularmente estrecho situado entre dos pasos consecutivos puede no ser detectado en un ciclo determinado. El sistema de alimentación centralizado a 24\,V restringe el despliegue a localizaciones con acceso a corriente alterna. Con mayor presupuesto, la sustitución del HC-SR04 por un sensor LiDAR de un solo punto aumentaría la precisión de las medidas y reduciría la apertura angular del cono de detección sin modificar el protocolo ni el firmware.
+
+    \item \textbf{Limitaciones de software.} El algoritmo de localización cooperativa calcula la posición del objeto como el promedio aritmético de los puntos estimados por cada nodo, en lugar de una intersección geométrica de circunferencias. Este enfoque introduce un sesgo proporcional a los errores angulares que no puede eliminarse aumentando el número de mediciones. El servidor se ejecuta sobre Python en un sistema operativo de propósito general, sin garantías de tiempo real, lo que introduce una variabilidad en la latencia del bucle de supertrama que el protocolo mitiga pero no puede eliminar por completo.
+
+    \item \textbf{Limitaciones de firmware.} El control del motor paso a paso se realiza en lazo abierto sin realimentación de posición. Si el motor pierde pasos por sobrecarga, el error angular se acumula de forma silenciosa hasta el siguiente ciclo de homing. El watchdog de inactividad TCP, configurado en 5\,000\,ms, puede provocar desconexiones en redes WiFi con alta latencia momentánea, incrementando artificialmente la tasa de reconexiones.
+
+\end{itemize}

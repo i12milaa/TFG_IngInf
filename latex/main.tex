@@ -1,0 +1,125 @@
+\documentclass[12pt, a4paper, oneside]{report}
+
+% --- Codificación e idioma ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish, es-tabla]{babel}
+
+% --- Geometría de página ---
+\usepackage[top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm]{geometry}
+
+% --- Tipografía ---
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{microtype}
+
+% --- Matemáticas ---
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% --- Figuras y tablas ---
+\usepackage{graphicx}
+\graphicspath{{figuras/}}
+\usepackage{float}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{tabularx}
+
+% --- Código fuente ---
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstdefinestyle{cpp}{
+    language=C++,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue!70!black}\bfseries,
+    commentstyle=\color{gray}\itshape,
+    stringstyle=\color{red!60!black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=8pt,
+    breaklines=true,
+    frame=single,
+    captionpos=b,
+    tabsize=4,
+    showstringspaces=false
+}
+
+\lstdefinestyle{python}{
+    language=Python,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue!70!black}\bfseries,
+    commentstyle=\color{gray}\itshape,
+    stringstyle=\color{red!60!black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=8pt,
+    breaklines=true,
+    frame=single,
+    captionpos=b,
+    tabsize=4,
+    showstringspaces=false
+}
+
+% --- Cabeceras y pies de página ---
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\small\nouppercase{\leftmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyfoot[C]{\thepage}
+    \renewcommand{\headrulewidth}{0pt}
+}
+
+% --- Hipervínculos ---
+\usepackage[
+    hidelinks,
+    pdftitle={Sistema de Vigilancia Distribuido Basado en Red de Radares Cooperativos},
+    pdfauthor={Alejandro Millán de Lara},
+    pdfsubject={Trabajo Fin de Grado},
+    pdfkeywords={ESP32, radar, FreeRTOS, TDMA, trilateración}
+]{hyperref}
+
+% --- Bibliografía ---
+\usepackage[backend=biber, style=numeric, sorting=none]{biblatex}
+\addbibresource{referencias.bib}
+
+% ============================================================
+\begin{document}
+
+% --- Portada ---
+\input{portada}
+
+% --- Páginas preliminares (numeración romana) ---
+\pagenumbering{roman}
+\input{chapters/agradecimientos}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+% --- Cuerpo del documento (numeración arábiga) ---
+\pagenumbering{arabic}
+\input{chapters/cap1_introduccion}
+\input{chapters/cap2_estado_arte}
+\input{chapters/cap3_especificacion}
+\input{chapters/cap4_requisitos}
+\input{chapters/cap5_implementacion}
+\input{chapters/cap6_pruebas}
+\input{chapters/cap7_conclusiones}
+
+% --- Anexos ---
+\input{chapters/anexo_manual}
+
+% --- Bibliografía ---
+\printbibliography[heading=bibintoc, title={Bibliografía}]
+
+\end{document}

@@ -1,0 +1,152 @@
+\chapter{Análisis del problema}
+\label{chap:analisis_problema}
+
+Este capítulo examina en profundidad la esencia del problema que el sistema necesita resolver, diferencia el problema auténtico de los desafíos de ingeniería que surgen de él, justifica el enfoque elegido para tratarlo y formaliza los requisitos y limitaciones que han orientado el diseño.
+
+\section{Descripción del problema}
+
+Este capítulo descompone dicho problema en sus dos niveles fundamentales y examina los desafíos técnicos que surgen de cada uno.
+
+\subsection{El problema real}
+
+Como se mencionó en la sección 1.3, el desafío principal de este proyecto radica en la coordinación de múltiples sensores ultrasónicos económicos para que funcionen simultáneamente sin generar interferencias acústicas. El problema se articula en dos niveles distintos.
+
+El primero es el objetivo de aplicación: supervisar un perímetro físico con varios nodos distribuidos que operen en tiempo real. Un solo transductor abarca un ángulo de apertura limitado, por lo que la vigilancia de un área completa requiere una red de sensores ubicados en diferentes posiciones.
+
+El segundo es la dificultad técnica que convierte este objetivo en un reto no trivial: como se analizó en el Capítulo 3, la operación simultánea de varios transductores en el mismo espacio provoca interferencia acústica cruzada. El verdadero problema no es, por tanto, solo vigilar el área, sino hacerlo de manera confiable a pesar de que los propios sensores pueden interferirse entre sí.
+
+El sistema debe responder a la pregunta: \textit{\textquestiondown{}cómo coordinar una red de sensores económicos para que monitoricen un perímetro de manera simultánea, sin interferencias mutuas y centralizando la información en tiempo real?}
+
+\subsection{Problema técnico}
+
+Dar respuesta a esa pregunta se traduce en cuatro retos técnicos concretos que estructuran todo el diseño posterior:
+
+\begin{itemize}[leftmargin=*, label=\textbullet]
+    \item \textbf{Selección de la plataforma hardware-software:} El primer reto consiste en elegir los componentes físicos (microcontrolador, sensor de distancia, actuador angular) y el entorno de desarrollo adecuados para los objetivos del proyecto. Esta elección debe equilibrar coste, capacidad de procesamiento en tiempo real, compatibilidad entre componentes y disponibilidad de herramientas de desarrollo accesibles.
+
+    \item \textbf{Concurrencia en el firmware del nodo:} Cada nodo debe realizar simultáneamente varias tareas con restricciones temporales estrictas: controlar el movimiento angular del motor, emitir el pulso acústico en el instante preciso indicado por el servidor, medir el tiempo de vuelo mediante interrupciones de hardware y transmitir el resultado por red. Estas tareas no pueden bloquearse entre sí, lo que exige una arquitectura de firmware basada en un sistema operativo de tiempo real que gestione las tareas de forma concurrente.
+
+    \item \textbf{Arquitectura del servidor de orquestación:} El servidor central debe mantener en todo momento el estado de cada nodo (posición, orientación y estado de conexión) y gestionar dinámicamente su presencia en la red. Dado que la comunicación se realiza sobre WiFi, cuya disponibilidad no está garantizada, el servidor debe detectar desconexiones y reintegrar nodos sin interrumpir la operación del resto del sistema. Este requisito surge de la naturaleza distribuida y no cableada de la red, y no puede ignorarse si se quiere un sistema robusto en condiciones reales.
+
+    \item \textbf{Gestión del medio acústico:} Este es el núcleo algorítmico del proyecto. El servidor debe calcular en cada ciclo qué pares de nodos son espacialmente incompatibles, es decir, cuyos conos de emisión se solapan y por tanto podrían interferirse, y asignar los \textit{slots} temporales de emisión en consecuencia: los nodos compatibles disparan en paralelo; los incompatibles, en \textit{slots} separados. Esta lógica implementa el esquema TDMA dinámico con reutilización espacial descrito en el Capítulo 3.
+\end{itemize}
+
+\section{Justificación del enfoque adoptado}
+
+Una vez identificados los desafíos, es fundamental justificar por qué la solución elegida es la más apropiada dentro de las limitaciones del proyecto, y no simplemente asumir que lo es.
+
+Como se concluye en el análisis comparativo del Capítulo 3, los enfoques alternativos para la eliminación del \textit{crosstalk} presentan limitaciones que los hacen inviables en este contexto: la separación en frecuencia requiere hardware analógico especializado que no se ajusta al requisito de bajo coste, el barrido secuencial genera una latencia que aumenta linealmente y dificulta la respuesta en tiempo real, y el mecanismo de contención CSMA/CA no se adapta al dominio acústico debido a la lentitud de propagación del sonido. El TDMA dinámico con reutilización espacial es el único de los enfoques analizados que satisface simultáneamente los tres requisitos del proyecto: ausencia de interferencias, tiempo de respuesta aceptable y coste reducido.
+
+La implementación de este esquema recae completamente en el servidor de orquestación, por una razón estructural: los nodos no pueden detectar por sí mismos si el canal acústico está ocupado —la baja velocidad del sonido hace inviable cualquier mecanismo de escucha previa, como se explicó en la sección 3.3.3—, por lo que la decisión de cuándo puede emitir cada nodo debe ser tomada por un elemento central que tenga una visión global del sistema. Esta arquitectura de control centralizado no representa una limitación del diseño, sino una consecuencia directa de las propiedades físicas del medio acústico.
+
+Como resultado, los nodos periféricos funcionan como actuadores esclavos: llevan a cabo las órdenes del servidor en los momentos precisos que este les indica, sin autonomía propia sobre el acceso al medio.
+
+\section{Identificación de Requisitos}
+
+Los requisitos que se detallan a continuación establecen el comportamiento esperado del sistema en términos observables y verificables. Cada requisito funcional se relaciona directamente con uno o varios objetivos específicos definidos en el Capítulo 2.
+
+Antes de enumerar los requisitos, se identifican los actores del sistema y el alcance de su interacción:
+
+\begin{itemize}
+    \item \textbf{El Nodo Sensor (Sistema Periférico):} Componente físico que lleva a cabo las acciones mecánicas de escaneo y la medición acústica de distancias.
+    \item \textbf{El Árbitro Central (Sistema Core):} Servidor responsable de recibir datos de telemetría, calcular intersecciones geométricas y emitir las órdenes de disparo a los nodos.
+    \item \textbf{El Entorno (Contexto):} Agente pasivo que proporciona los obstáculos físicos sobre los cuales rebotan las ondas ultrasónicas.
+    \item \textbf{El Administrador (Usuario):} Responsable de la activación, asignación de coordenadas topológicas en el mapa y supervisión a través de la interfaz gráfica.
+\end{itemize}
+
+\subsection{Requisitos Funcionales (RF)}
+
+Los requisitos funcionales especifican el comportamiento que el sistema debe exhibir en respuesta a entradas y condiciones específicas. La tabla siguiente recoge las funcionalidades esenciales que el sistema debe satisfacer para cumplir con los objetivos del Capítulo 2.
+
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+    \begin{tabular}{p{2cm} p{14cm}}
+        \toprule
+        \textbf{Código} & \textbf{Descripción} \\
+        \midrule
+        \textbf{RF01} & El sistema operará bajo una arquitectura distribuida en la que el servidor central gestionará de forma autónoma el despliegue de los barridos de cada nodo, garantizando la cobertura del área monitorizada y la eliminación de interferencias acústicas cruzadas sin requerir intervención manual. \\
+        \addlinespace
+        \textbf{RF02} & Cada nodo memorizará su última posición angular al cerrar la sesión y la restaurará al reconectarse, evitando movimientos bruscos de recalibración y reanudando el barrido desde el ángulo exacto. \\
+        \addlinespace
+        \textbf{RF03} & Los nodos filtrarán internamente las lecturas fuera del rango útil configurado antes de reportarlas al servidor, descartando mediciones espurias producidas por ausencia de eco. \\
+        \addlinespace
+        \textbf{RF04} & El servidor calculará las proyecciones geométricas de los haces acústicos en tiempo real y asignará \textit{slots} de emisión dinámicos: disparos simultáneos para nodos no interferentes y \textit{slots} separados para los que apunten a zonas de solapamiento. \\
+        \addlinespace
+        \textbf{RF05} & El sistema implementará un mecanismo de control de latencia bidireccional: el servidor cerrará la conexión de un nodo que no responda tras un número determinado de ciclos; el nodo se reiniciará lógicamente si no recibe comandos del servidor en el tiempo estipulado. \\
+        \addlinespace
+        \textbf{RF06} & Cuando varios nodos detecten un mismo obstáculo en zonas de solapamiento, el servidor ejecutará un algoritmo de trilateración para estimar su posición global, asignará el seguimiento concentrado al nodo con mayor certidumbre y liberará al resto para que retomen el barrido de exploración. \\
+        \addlinespace
+        \textbf{RF07} & La interfaz gráfica recibirá tramas de estado desde el servidor y representará visualmente, con una actualización inferior a 1 segundo, la posición estática de cada nodo, su orientación angular en tiempo real y las coordenadas de los obstáculos detectados con indicación de su nivel de criticidad. \\
+        \addlinespace
+        \textbf{RF08} & El sistema modificará dinámicamente el régimen de barrido de cada nodo en función de la proximidad del obstáculo detectado: al identificar un objeto en el perímetro de criticidad máxima, el nodo transitará de un barrido de arco completo a un barrido concentrado de alta frecuencia hasta que el objeto abandone esa zona. \\
+        \addlinespace
+        \textbf{RF09} & El nodo contará con un chasis modular y estandarizado que aloje e inmovilice los componentes electrónicos, garantice la alineación del eje de rotación y facilite el ensamblaje y el mantenimiento sin herramientas especializadas. \\
+        \bottomrule
+    \end{tabular}
+}
+\caption{Requisitos funcionales (RF) del sistema.}
+\label{tab:rf}
+\end{table}
+
+\subsection{Requisitos No Funcionales (RNF)}
+
+Los requisitos no funcionales establecen las restricciones y condiciones de calidad bajo las cuales el sistema debe operar.
+
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+    \begin{tabular}{p{2cm} p{14cm}}
+        \toprule
+        \textbf{Código} & \textbf{Descripción} \\
+        \midrule
+        \textbf{RNF01} & El diseño del firmware optimizará el uso de recursos del microcontrolador para reducir el consumo energético operativo, estableciendo las bases para un eventual despliegue autónomo mediante fuentes de alimentación portátiles. \\
+        \addlinespace
+        \textbf{RNF02} & La arquitectura de software, tanto en el firmware como en el servidor, seguirá un principio de alta cohesión y bajo acoplamiento, de forma que mejoras algorítmicas futuras puedan integrarse sin necesidad de refactorizar la estructura general del sistema. \\
+        \addlinespace
+        \textbf{RNF03} & El sistema se construirá exclusivamente con componentes de hardware comercial de uso general, evitando dependencias de arquitecturas propietarias y garantizando la máxima accesibilidad tecnológica. \\
+        \addlinespace
+        \textbf{RNF04} & La totalidad del código fuente y la especificación del protocolo de comunicación se publicarán en repositorios públicos bajo licencia de código abierto, asegurando la auditabilidad del sistema. \\
+        \addlinespace
+        \textbf{RNF05} & La pila de comunicaciones y el lazo de control del servidor operarán bajo restricciones estrictas de latencia, empleando optimizaciones a nivel de socket para garantizar que el \textit{overhead} de red no afecte la frecuencia de muestreo global ni desestabilice la sincronización temporal. \\
+        \addlinespace
+        \textbf{RNF06} & La topología hardware, los esquemas de interconexión eléctrica y el diseño mecánico de los soportes estructurales contarán con documentación técnica suficiente para garantizar la replicabilidad del prototipo por terceros. \\
+        \addlinespace
+        \textbf{RNF07} & El entorno de software estará acompañado de una guía de despliegue que documente dependencias, cadenas de compilación del firmware y configuración del servidor, asegurando la portabilidad del sistema en plataformas heterogéneas. \\
+        \addlinespace
+        \textbf{RNF09} & La escalabilidad horizontal del sistema debe ser económicamente sostenible, optimizando el coste unitario de cada nodo para facilitar la expansión del perímetro vigilado sin incurrir en costes de nivel industrial. \\
+        \addlinespace
+        \textbf{RNF10} & La integración electromecánica de los nodos debe ser realizable con herramientas manuales estándar y conexiones prefabricadas, sin necesidad de soldadura de componentes de montaje superficial ni maquinaria de precisión industrial. \\
+        \bottomrule
+    \end{tabular}
+}
+\caption{Requisitos no funcionales (RNF) del sistema.}
+\label{tab:rnf}
+\end{table}
+
+\textbf{Nota sobre RNF01:} La validación energética no se ha llevado a cabo utilizando instrumentación de laboratorio debido a los plazos del proyecto. Su cumplimiento se justifica de manera cualitativa mediante la elección de hardware de bajo consumo y la implementación de un RTOS que bloquea tareas inactivas, previniendo el consumo innecesario de ciclos de CPU, y se establece como una línea de trabajo para futuras iteraciones.
+
+\section{Restricciones}
+
+El desarrollo de este sistema no es el resultado de un proceso de diseño abierto, sino que se basa en la aplicación de restricciones específicas sobre el espacio de soluciones posibles. A continuación, se detallan los factores que han influido en las decisiones de diseño.
+
+\subsection{Factores Estratégicos}
+
+Estos factores surgen de la esencia académica del proyecto y establecen el marco de trabajo.
+
+\begin{itemize}
+    \item \textbf{Plazo de desarrollo:} La naturaleza académica del proyecto establece un plazo de entrega innegociable que prioriza la rapidez en el desarrollo sobre la optimización extrema del código. Esto justifica la elección de lenguajes de alto nivel para el servidor y de bibliotecas consolidadas para la conectividad WiFi del microcontrolador, en lugar de desarrollar protocolos desde cero.
+    \item \textbf{Presupuesto:} La exigencia de un bajo coste limita las opciones de hardware a componentes estándar de electrónica de consumo, excluyendo soluciones como la modulación cruzada de frecuencias o sensores de mayor precisión, como los que utilizan tecnología láser.
+    \item \textbf{Accesibilidad y replicabilidad:} La solución debe ser reproducible y auditable en un entorno educativo estándar, lo que implica el uso de tecnologías de código abierto y hardware de fácil adquisición.
+\end{itemize}
+
+\subsection{Factores Técnicos}
+
+Las condiciones físicas y lógicas en las que funcionará la red de radares establecen las siguientes limitaciones:
+
+\begin{itemize}
+    \item \textbf{Límites físicos del medio acústico:} La velocidad del sonido representa una restricción física ineludible. El sistema debe calcular ventanas de guarda temporales fundamentadas en esta constante para asegurar que el eco de un disparo se haya disipado antes de que un nodo adyacente incompatible emita el suyo.
+    \item \textbf{Latencia de red:} A pesar de que las redes WiFi cuentan con un ancho de banda adecuado, la latencia en la transmisión de paquetes pequeños puede resultar considerable. Esto obliga a evitar protocolos de texto pesados en favor de un protocolo binario ligero sobre TCP, con el fin de minimizar el \textit{overhead} de comunicación.
+    \item \textbf{Modelo de control centralizado:} La autoridad para decidir sobre el acceso al medio recae exclusivamente en el servidor árbitro. Los nodos periféricos carecen de capacidad de activación autónoma, lo que asegura un control total y determinista sobre el problema del \textit{crosstalk}, tal como se justifica en la sección 4.2.
+    \item \textbf{Entorno de pruebas controlado:} El sistema se valida en un entorno de laboratorio con condiciones acústicas óptimas, lo que elimina la necesidad de técnicas avanzadas de filtrado de señal y permite enfocar el diseño en la lógica de coordinación.
+\end{itemize}

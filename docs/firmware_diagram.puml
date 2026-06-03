@@ -1,0 +1,167 @@
+@startuml
+allowmixing
+
+title Diagrama de módulos — Firmware Nodo ESP32
+
+left to right direction
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+skinparam nodesep 80
+skinparam ranksep 90
+
+class "main.cpp\nAplicación principal" as Main <<module>> {
+  --
+  +PROFILES[3]: NodeProfile
+  +KNOWN_NETWORKS[2]
+  -_wifi_reconnect_needed: volatile bool
+  -hTaskComms: TaskHandle_t
+  -hTaskRadar: TaskHandle_t
+  --
+  +setup()
+  +loop()
+  +applyNodeProfile()
+  +tryConnectWiFi()
+  +WiFiEvent()
+}
+
+class "config.h\nConfiguración" as Config <<module>> {
+  --
+  +PIN_LED
+  +PIN_MOTOR_STEP
+  +PIN_MOTOR_DIR
+  +PIN_REED_SWITCH
+  +PIN_TRIG
+  +PIN_ECHO
+  +STACK_SIZE_COMMS
+  +STACK_SIZE_RADAR
+  +STEPS_PER_REV
+  +MICROSTEPPING
+  +RADAR_MIN_ANGLE
+  +RADAR_MAX_ANGLE
+  +RADAR_STEP_ANGLE
+  +SERVER_HOSTNAME
+  +SERVER_PORT
+  --
+}
+
+class "system.h / system.cpp\nSystemManager" as System <<module>> {
+  --
+  +currentState: SystemState
+  +queueCommands: QueueHandle_t
+  +queueResults: QueueHandle_t
+  +radarId: uint8_t
+  +t0_last_superframe: uint32_t
+  +current_angle_logic: float
+  +sweep_direction_up: bool
+  +motorActive: bool
+  +justHomed: bool
+  +motorDirInvert: bool
+  +reedTriggerLevel: int
+  --
+  +instance()
+  +init()
+  +changeState()
+}
+
+class "task_comms.h / task_comms.cpp\nTarea comunicaciones" as Comms <<module>> {
+  --
+  -client: WiFiClient
+  -buffer[128]: uint8_t
+  -last_msg_time: uint32_t
+  -cachedServerIP: IPAddress
+  --
+  +TaskComms()
+  +connectToServer()
+  +sendPacket()
+  +calcularSiguienteAngulo()
+}
+
+class "task_radar.h / task_radar.cpp\nRadarHardware / TaskRadar" as Radar <<module>> {
+  --
+  -currentAngle: float
+  --
+  +TaskRadar()
+  +RadarHardware::init()
+  +RadarHardware::moveToAngle()
+  +RadarHardware::goHome()
+  +RadarHardware::syncPosition()
+  +RadarHardware::getDistance()
+  +RadarHardware::step()
+}
+
+class "task_radar.h\nComandos HW" as HwTypes <<module>> {
+  --
+  +enum HwCmdType
+  +enum HwResType
+  +struct HwCommand
+  +struct HwResult
+  --
+  +HW_CMD_HOME
+  +HW_CMD_SYNC_POS
+  +HW_CMD_MOVE
+  +HW_CMD_SCAN
+  +HW_CMD_EXECUTE_SLOT
+  +HW_RES_MOVED
+  +HW_RES_MEASURED
+  +HW_RES_SLOT_DONE
+  +HW_RES_HOME_DONE
+}
+
+class "comms_protocol.h\nProtocolo TCP" as Protocol <<module>> {
+  --
+  +PacketHeader
+  +Payload_HelloReq
+  +Payload_HelloAck
+  +Payload_SuperFrame
+  +Payload_AngleReq
+  +Payload_SlotAssign
+  +Payload_DataReport
+  --
+  +MSG_HELLO_REQ
+  +MSG_HELLO_ACK
+  +MSG_SUPERFRAME_START
+  +MSG_SLOT_ASSIGN
+  +MSG_REPORT_REQ
+  +MSG_ANGLE_REQ
+  +MSG_DATA_REPORT
+}
+
+class "Servidor central\n«external»" as Server <<external>> {
+}
+
+' --- Estructura visual fija ---
+Config -[hidden]down- System
+System -[hidden]down- HwTypes
+
+Main -[hidden]right- Comms
+Comms -[hidden]right- Protocol
+Protocol -[hidden]right- Server
+
+Comms -[hidden]down- Radar
+
+' --- Dependencias reales ---
+Main --> Config
+Main --> System
+Main --> Comms
+Main --> Radar
+
+System --> HwTypes
+
+Comms --> System
+Comms --> Protocol
+Comms --> HwTypes
+Comms --> Config
+Comms --> Server : TCP / WiFi
+
+Radar --> System
+Radar --> HwTypes
+Radar --> Config
+
+Comms --> Radar : queueCommands
+Radar --> Comms : queueResults
+
+Server --> Comms : protocolo
+
+@enduml

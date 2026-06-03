@@ -1,0 +1,74 @@
+% !TeX program = xelatex
+% !TeX TXS-program:compile = txs:///xelatex/[--shell-escape]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Manual de Código — TFG
+% Sistema de Vigilancia Distribuido Basado en Red de Radares Cooperativos
+% Autor: Alejandro Millán de Lara
+% Basado en la plantilla EPSC/UCO de Adrián López Guerrero
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\OptimizaTikZ{2} % No optimizar TikZ en el manual de código
+
+\input{include/configuracioninicial}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% INFORMACIÓN DEL DOCUMENTO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\titulo}{Sistema de Vigilancia Distribuido Basado en Red de Radares Cooperativos}
+\newcommand{\miNombre}{Alejandro Millan de Lara}
+\newcommand{\miEmail}{i12milaa@uco.es}
+\newcommand{\miTutor}{Dr. Fernando León García}
+\newcommand{\miTutorB}{Cristina Martínez Ruedas}
+\newcommand{\departamentoTutor}{Departamento}
+\newcommand{\departamentoTutorB}{Departamento}
+\newcommand{\miFacultad}{Escuela Politécnica Superior de Córdoba}
+\newcommand{\miFacultadCorto}{EPSC}
+\newcommand{\miUniversidad}{\protect{Universidad de Córdoba}}
+\newcommand{\miUbicacion}{Córdoba, España}
+
+\def\IDtitulo{4} % Grado en Ingeniería Informática
+
+\input{include/configuraciontitulacion}
+
+\hypersetup{
+  pdfauthor = {\miNombre~(\miEmail)},
+  pdftitle  = {Manual de Código — \titulo},
+}
+
+\makeglossaries
+\input{anexos/acronimos.tex}
+
+% ----------------------------------------------------------------
+% Corrección: el estilo Consola de la plantilla usa \bf (obsoleto
+% en KOMA-Script). Se redefine aquí antes del \begin{document}.
+% ----------------------------------------------------------------
+\lstdefinestyle{Consola}{
+  basicstyle=\scriptsize\bfseries\ttfamily,
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% INICIO DEL DOCUMENTO
+%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\frontmatter
+
+% ----------------------------------------------------------------
+% PORTADA
+% ----------------------------------------------------------------
+% Se reutiliza la misma portada de color pero con subtítulo propio.
+% Si la plantilla permite un subtítulo configurable, editar portada_color
+% para añadir "Manual de Código" debajo del título principal.
+\input{include/portada/portada_color}
+
+\tableofcontents
+\clearpage
+
+\mainmatter
+
+%%%%
+% CAPÍTULO ÚNICO: MANUAL DE CÓDIGO
+%%%%
+\include{capitulos/manual_codigo}
+
+\end{document}

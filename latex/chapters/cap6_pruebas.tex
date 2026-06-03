@@ -1,0 +1,265 @@
+% ============================================================
+% Capítulo 6 completo — contenido de cap6_pruebas.tex
+% Pegar en Overleaf como nuevo archivo chapters/cap6_pruebas.tex
+% (ya referenciado en main.tex con \input{chapters/cap6_pruebas})
+% ============================================================
+
+\chapter{Pruebas}
+\label{chap:pruebas}
+
+En este capítulo se presentan las pruebas realizadas sobre el sistema de vigilancia distribuido con el fin de verificar que el comportamiento real del prototipo se ajusta a los requisitos funcionales definidos durante la fase de diseño. Las pruebas han sido diseñadas de forma incremental: la primera evalúa el funcionamiento global del sistema bajo condiciones normales de operación, la segunda profundiza en los mecanismos de gestión de conflictos de ranura y localización cooperativa que entran en juego cuando dos nodos apuntan simultáneamente hacia la misma zona, y la tercera verifica la capacidad del sistema para recuperarse ante la desconexión y posterior reconexión de un nodo, restaurando su estado angular sin pérdida de cobertura. Cada prueba sigue una estructura uniforme que incluye la descripción de los componentes implicados, el escenario físico empleado, los requisitos que se pretenden validar, los resultados obtenidos y las conclusiones extraídas.
+
+% ============================================================
+\section{Prueba 1: Verificación del Ciclo de Supertrama y Detección de Objetos}
+% ============================================================
+
+La primera prueba tiene como finalidad comprobar el comportamiento global del sistema de vigilancia distribuido en condiciones normales de operación. En esta evaluación se verifica que los tres nodos radar se inician correctamente, establecen comunicación con el servidor central, participan en el protocolo de supertrama y detectan objetos, transmitiendo los resultados al panel de visualización. Esta prueba establece la base para las verificaciones específicas que se llevarán a cabo en las pruebas subsiguientes.
+
+\subsection{Descripción de los Componentes Utilizados}
+
+El servidor central, que se ejecuta en un ordenador personal, implementa el protocolo de supertrama y la lógica de asignación de recursos. Junto a este, opera el panel de visualización \textit{DEFCON — Centro de Mando Táctico}, desarrollado en Python con la biblioteca Tkinter, que recibe los datos del servidor a través de un canal UDP y los representa gráficamente en un plano bidimensional. El sistema hardware es el descrito en los capítulos anteriores, con su diseño en impresión 3D, su firmware y sus componentes electrónicos.
+
+La disposición física de los nodos sigue una topología triangular fija. El nodo N1 se localiza en las coordenadas $(-25,~15)$~cm, el nodo N2 en $(0,~28)$~cm y el nodo N3 en $(25,~15)$~cm, con orientaciones base de $144^\circ$, $90^\circ$ y $36^\circ$ respectivamente en relación al eje horizontal del sistema de referencia global.
+
+\subsection{Escenario de Prueba}
+
+La prueba se lleva a cabo en un entorno interior controlado, sobre una superficie plana libre de obstáculos no deseados. Los tres nodos se disponen en sus posiciones fijas de acuerdo con la topología triangular previamente descrita y se conectan a la red inalámbrica local que utiliza el servidor. Tanto el servidor como el panel de visualización operan en el mismo equipo anfitrión. La Figura~\ref{fig:prueba1_despliegue} muestra la configuración del despliegue en el panel de visualización antes de iniciar la sesión, con los sectores de cobertura de cada nodo y las zonas de solapamiento entre pares adyacentes visibles sobre el plano.
+
+\subsection{Funcionamiento del Sistema}
+
+Al activarse, cada nodo establece de manera automática una conexión TCP con el servidor central y envía un mensaje de presentación que contiene su identificador de hardware. Al recibir este mensaje, el servidor registra al nodo, le asigna una posición y orientación basándose en su tabla de configuración y le responde con un mensaje de confirmación que puede incluir el último ángulo registrado si el nodo ya había estado en funcionamiento anteriormente.
+
+Una vez que se completa la fase de inicialización, el servidor inicia el ciclo de supertrama de forma periódica. Cada supertrama comienza con un mensaje de inicio que se envía a todos los nodos conectados. Posteriormente, el servidor solicita el ángulo actual de cada nodo; con esta información, calcula la asignación de ranuras temporales para el periodo de reporte y transmite a cada nodo su ranura asignada. Cuando llega el momento correspondiente a cada ranura, el servidor envía una solicitud de reporte al nodo correspondiente, que responde con la distancia y el ángulo medidos en ese momento.
+
+En el modo de búsqueda, cada nodo barre continuamente el sector angular que le corresponde, avanzando un paso fijo por supertrama dentro de los límites de su rango de cobertura. Cuando el sensor detecta un objeto a una distancia inferior al umbral de seguimiento, el nodo cambia al modo de seguimiento, en el que mantiene el sensor orientado hacia el objetivo detectado. El servidor procesa los reportes de todos los nodos activos y envía al visualizador, al final de cada supertrama, un paquete con las posiciones estimadas y los estados actuales, que el panel muestra en tiempo real.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{archivos/figuras-procesadas/Prueba1.1.png}
+    \caption{Configuración del despliegue en el Modo Diseño del visualizador: posición de los tres nodos sobre el plano, sectores de cobertura angulares y zonas de solapamiento entre pares adyacentes.}
+    \label{fig:prueba1_despliegue}
+\end{figure}
+
+Una vez que se ha confirmado que los tres nodos aparecen como conectados en el panel de visualización, se introduce un objeto sólido dentro del área de cobertura del sistema, a una distancia de entre 30 y 50~cm de uno de los nodos, asegurándose de que esté en una posición que no interfiera con las trayectorias de barrido de los otros dos. Se monitorea el comportamiento del sistema durante al menos diez supertramas para verificar la detección, la transición de estado y la representación gráfica.
+
+\subsection{Requisitos a Cumplir}
+
+La Tabla~\ref{tab:requisitos_prueba1} recoge los requisitos funcionales cuya verificación es el objeto de esta prueba.
+
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+    \begin{tabular}{p{2cm} p{14cm}}
+        \toprule
+        \textbf{Código} & \textbf{Descripción} \\
+        \midrule
+        \textbf{RF01} & Los nodos deben establecer conexión automática con el servidor al encenderse, sin intervención manual. \\
+        \addlinespace
+        \textbf{RF03} & Los nodos deben ejecutar un barrido angular continuo del sector asignado cuando no se detecta ningún objeto en rango. \\
+        \addlinespace
+        \textbf{RF04} & El servidor debe coordinar la comunicación con los nodos mediante un ciclo de supertrama TDMA de periodicidad fija. \\
+        \addlinespace
+        \textbf{RF07} & El sistema debe detectar la presencia de un objeto y hacer que el nodo correspondiente adopte el modo de seguimiento, orientando el sensor hacia el objetivo. \\
+        \addlinespace
+        \textbf{RF08} & El panel de visualización debe mostrar en tiempo real la posición estimada de los objetos detectados y el estado de cada nodo. \\
+        \bottomrule
+    \end{tabular}
+}
+\caption{Requisitos funcionales evaluados en la Prueba~1.}
+\label{tab:requisitos_prueba1}
+\end{table}
+
+\subsection{Resultados Obtenidos}
+
+\textbf{Inicialización y conexión (RF01):} Los tres nodos completaron la secuencia de arranque y establecieron conexión con el servidor en un tiempo inferior a cinco segundos desde la alimentación eléctrica. El panel de visualización reflejó el estado conectado de cada nodo inmediatamente tras la recepción del mensaje de confirmación del servidor.
+
+\textbf{Protocolo de supertrama (RF04):} El servidor inició el ciclo de supertramas de forma periódica y mantuvo la cadencia durante toda la prueba sin interrupciones. Los tres nodos respondieron a las solicitudes del servidor en el orden y los instantes temporales correspondientes a sus ranuras asignadas. No se registró ninguna colisión de mensajes ni pérdida de respuesta atribuible al protocolo de coordinación.
+
+\textbf{Barrido en modo de búsqueda (RF03):} Antes de la introducción del objeto, los tres nodos realizaron el barrido angular de forma continua, avanzando un paso angular fijo por supertrama entre los límites establecidos. El visualizador mostró la posición angular actualizada de cada nodo en cada ciclo, permitiendo confirmar visualmente que el sector asignado se recorría de forma íntegra y sin saltos, tal como se observa en la Figura~\ref{fig:prueba1_busqueda}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{archivos/figuras-procesadas/Prueba1.2.png}
+    \caption{Panel de visualización en Modo Telemetría con los tres nodos activos en modo búsqueda, mostrando el ángulo de apuntamiento actual de cada nodo antes de la introducción del objeto.}
+    \label{fig:prueba1_busqueda}
+\end{figure}
+
+\textbf{Detección y modo de seguimiento (RF07):} Al introducir el objeto en el área de cobertura, el nodo más próximo detectó su presencia dentro del umbral de seguimiento tras un máximo de cuatro supertramas, correspondientes a los pasos angulares necesarios para que el barrido alcanzara el ángulo del objetivo. A partir de ese momento el nodo mantuvo el sensor orientado hacia el objeto y continuó reportando distancias estables al servidor sin interrupciones.
+
+\textbf{Visualización en tiempo real (RF08):} El panel de visualización actualizó la representación gráfica en cada supertrama, mostrando el modo de operación de cada nodo ---búsqueda o seguimiento--- y marcando la posición estimada del objeto sobre el plano. La latencia visual observada fue inferior a un periodo de supertrama, como ilustra la Figura~\ref{fig:prueba1_deteccion}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{archivos/figuras-procesadas/Prueba1.3.png}
+    \caption{Panel de visualización en Modo Telemetría tras la detección: nodo en modo seguimiento con el marcador de posición del objeto sobre el plano y las lecturas de distancia y ángulo activas en la tarjeta lateral.}
+    \label{fig:prueba1_deteccion}
+\end{figure}
+
+\subsection{Evaluación de Resultados Obtenidos}
+
+La evaluación confirma que el sistema funciona de manera integrada y sin errores en condiciones normales de operación. Se cumplieron los cinco requisitos funcionales analizados: los nodos se conectan de manera autónoma al servidor, el protocolo de supertrama gestiona la comunicación sin colisiones, el barrido angular opera adecuadamente en ausencia de detección, la transición al modo de seguimiento ocurre tan pronto como el objeto ingresa al campo de visión del sensor, y el visualizador muestra el estado del sistema con una latencia mínima.
+
+\clearpage
+% ============================================================
+\section{Prueba 2: Resolución de Conflictos de Ranura y Localización Cooperativa}
+% ============================================================
+
+La segunda prueba tiene como finalidad comprobar los mecanismos que el sistema activa cuando dos nodos del mismo par de conflicto apuntan simultáneamente hacia la zona de interferencia angular. En tal circunstancia, el servidor debe resolver el conflicto de ranura asignando momentos de reporte diferentes a cada nodo y, al mismo tiempo, calcular una estimación cooperativa de la posición del objeto a partir de las mediciones de ambos. Dado que la condición geométrica que permite la trilateración y la que provoca el conflicto de ranura son idénticas ---ambos nodos del par deben tener el objeto dentro de su zona sucia---, esta prueba valida ambos mecanismos de manera conjunta.
+
+\subsection{Descripción de los Componentes Utilizados}
+
+Los componentes empleados son los mismos tres nodos radar descritos en la Prueba~1, junto con el servidor central y el panel de visualización \textit{DEFCON — Centro de Mando Táctico}. En esta prueba cobran especial relevancia la lógica de asignación de ranuras del servidor, que opera sobre la información de ángulo reportada por cada nodo en cada supertrama, y el módulo de trilateración, que estima la posición del objeto combinando las medidas de distancia y ángulo de los dos nodos del par.
+
+El sistema define dos pares de nodos con riesgo de interferencia acústica: el formado por N1 y N2, y el formado por N2 y N3. La interferencia es posible únicamente cuando ambos nodos de un par dirigen su sensor hacia la zona sucia, entendida como los ángulos locales que superan en valor absoluto el límite de zona limpia establecido en el diseño. Fuera de esa zona, la propagación de las ondas ultrasónicas no produce solapamientos relevantes entre nodos del mismo par.
+
+\subsection{Funcionamiento del Sistema}
+
+Cuando al inicio de cada supertrama el servidor recibe los ángulos actuales de los nodos, verifica si algún par de nodos en conflicto se encuentra simultáneamente en zona sucia. Si esta condición se cumple y ambos nodos tienen activa una detección, el servidor determina al ganador del conflicto ---el que entró antes en modo de seguimiento, registrado en el campo \texttt{track\_entry\_sf}--- y le asigna la ranura prioritaria. Al nodo perdedor se le otorga la ranura secundaria, separada en el tiempo de la primera por una cantidad fija, y se le obliga a regresar al modo de búsqueda, aunque mantiene el registro de su primera detección para no perder su posición en futuros desempates. El nodo ganador recibe además un periodo de inmunidad durante el cual ningún nuevo conflicto puede desplazarlo.
+
+Cabe señalar que, dado que N2 pertenece a dos pares de conflicto (N1-N2 y N2-N3), podría plantearse la situación de que existan objetos en ambas zonas sucias de forma simultánea. En la práctica, esto no genera conflictos solapados: cada nodo dispone de un único sensor y solo puede apuntar en una dirección a la vez, por lo que un nodo en modo de seguimiento permanece orientado hacia el primer objeto detectado y no entra en conflicto por su otra zona sucia. El servidor solo evalúa el conflicto del par cuyo nodo esté apuntando activamente a la zona compartida.
+
+Simultáneamente, siempre que ambos nodos del par se encuentren en zona sucia, el servidor calcula en cada supertrama una estimación cooperativa de la posición del objeto combinando las medidas de distancia y ángulo de ambos nodos, y transmite el resultado al visualizador diferenciado de las detecciones individuales.
+
+\subsection{Escenario de Prueba}
+
+La prueba se lleva a cabo en el mismo montaje físico que la Prueba~1. Para activar el par de conflicto N1-N2, se coloca un objeto en la región del plano que se encuentra dentro del sector de zona sucia de N1 y, al mismo tiempo, dentro del sector de zona sucia de N2. Dado que N1 tiene su orientación base a $144^\circ$ y N2 a $90^\circ$, esta región se sitúa aproximadamente en la parte superior izquierda del triángulo formado por los nodos. La Figura~\ref{fig:prueba2_despliegue} muestra las zonas sucias de ambos pares de conflicto sobre el Modo Diseño del visualizador.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{archivos/figuras-procesadas/Prueba2.1.png}
+    \caption{Modo Diseño del visualizador con las zonas sucias de los pares N1-N2 y N2-N3 señaladas.}
+    \label{fig:prueba2_despliegue}
+\end{figure}
+
+El objeto se introduce con los tres nodos en modo de búsqueda y se mantiene en esa posición durante un mínimo de quince supertramas. Durante este periodo se observa la transición de ambos nodos al modo de seguimiento, la resolución del conflicto de ranura y la aparición del marcador de posición cooperativa en el panel de visualización.
+
+\subsection{Requisitos a Cumplir}
+
+La Tabla~\ref{tab:requisitos_prueba2} recoge los requisitos funcionales cuya verificación es el objeto de esta prueba.
+
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+    \begin{tabular}{p{2cm} p{14cm}}
+        \toprule
+        \textbf{Código} & \textbf{Descripción} \\
+        \midrule
+        \textbf{RF04} & El servidor debe detectar situaciones de conflicto entre nodos del mismo par y asignarles ranuras temporales distintas para evitar interferencias acústicas. \\
+        \addlinespace
+        \textbf{RF06} & Cuando dos nodos del mismo par detectan un objeto en la zona de interferencia, el sistema debe calcular una estimación cooperativa de la posición del objeto mediante trilateración y mostrarla en el panel de visualización. \\
+        \bottomrule
+    \end{tabular}
+}
+\caption{Requisitos funcionales evaluados en la Prueba~2.}
+\label{tab:requisitos_prueba2}
+\end{table}
+
+\subsection{Resultados Obtenidos}
+
+\textbf{Detección del conflicto, asignación de ranuras y localización cooperativa (RF04, RF06):} La Figura~\ref{fig:prueba2_log} muestra el registro del servidor durante tres supertramas consecutivas (SF~62 a SF~64) con el par N1-N2 activo en zona sucia. Cada supertrama incluye tres bloques de información. En primer lugar, la línea con prefijo \texttt{[TRILAT]} indica las coordenadas cartesianas de la posición cooperativa calculada en ese ciclo, que se mantienen estables en torno a $(-16{,}3,~30{,}5)$~cm a lo largo de los tres superframes. En segundo lugar, la línea con prefijo \texttt{[CONF]} registra la decisión de arbitraje: en SF~62 el servidor determina que N2 es el ganador porque fue el primero en entrar en modo de seguimiento (en SF~51), y le otorga un periodo de inmunidad que se refleja en las supertramas siguientes como \texttt{N2 bloqueo hasta SF68} y \texttt{N2 bloqueo hasta SF69}. En tercer lugar, la tabla de asignación de ranuras muestra el estado de cada nodo: N1 en modo búsqueda con ranura~0 y N2 en modo seguimiento con ranura~1, con sus respectivos ángulos de apuntamiento, nivel DEFCON y distancia medida.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{archivos/figuras-procesadas/Prueba2.3.png}
+    \caption{Registro del servidor durante las supertramas SF62 a SF64 con el par N1-N2 activo en zona sucia.}
+    \label{fig:prueba2_log}
+\end{figure}
+
+\textbf{Representación visual de la localización cooperativa (RF06):} La Figura~\ref{fig:prueba2_cooperativa} muestra el estado del panel de visualización durante la prueba. En el canvas se distinguen dos puntos rojos correspondientes a las detecciones individuales de N1 y N2, y un círculo amarillo con las coordenadas de la posición cooperativa estimada, coherente con los valores calculados en el log. Las tarjetas laterales confirman el estado de cada nodo: N1 en modo búsqueda y N2 en modo seguimiento, con ambos reportando distancias en zona DEFCON~1.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{archivos/figuras-procesadas/Prueba2.2.png}
+    \caption{Panel de visualización en Modo Telemetría con localización cooperativa activa: detecciones individuales de N1 y N2 (puntos rojos) y posición combinada estimada (círculo amarillo).}
+    \label{fig:prueba2_cooperativa}
+\end{figure}
+
+\subsection{Evaluación de Resultados Obtenidos}
+
+La prueba confirma que el sistema maneja adecuadamente las situaciones de interferencia acústica entre nodos adyacentes. La resolución del conflicto de ranura ocurre de manera automática en la supertrama que sigue inmediatamente a la detección simultánea, el ganador se determina por criterio objetivo de primera detección y recibe inmunidad durante el número de supertramas establecido, y la localización cooperativa genera coordenadas estables y coherentes con la posición real del objeto actualizadas en cada ciclo. Ambos requisitos evaluados son cumplidos.
+
+\clearpage
+% ============================================================
+\section{Prueba 3: Detección de Desconexión y Recuperación de Estado Angular}
+% ============================================================
+
+La tercera prueba tiene como finalidad comprobar la solidez del sistema frente a la pérdida de conexión de uno de los nodos y su posterior reconexión. Se verifica que el servidor identifica la desconexión de manera autónoma tras acumular un número específico de respuestas perdidas de forma consecutiva, excluye al nodo del ciclo de supertrama activo y, cuando el nodo se reconecta, le restaura el último ángulo registrado para que pueda retomar la cobertura de su sector sin necesidad de reiniciar el barrido desde el principio.
+
+\subsection{Descripción de los Componentes Utilizados}
+
+Los componentes utilizados son los mismos tres nodos radar, el servidor central y el panel de visualización mencionados en pruebas anteriores. En esta prueba, el elemento central es el mecanismo de supervisión de conectividad del servidor, que mantiene un contador de fallos de respuesta por nodo y actúa sobre él cuando se supera el umbral establecido. Complementariamente, interviene el módulo de persistencia de estado, que almacena periódicamente en disco el ángulo de apuntamiento de cada nodo activo, y el protocolo de presentación, mediante el cual un nodo que se conecta al servidor solicita y recibe el último estado guardado antes de integrarse al ciclo de supertrama.
+
+\subsection{Funcionamiento del Sistema}
+
+Durante la operación normal, el servidor espera la respuesta de cada nodo en el momento correspondiente a su ranura dentro de la supertrama. Si un nodo no responde, el servidor incrementa su contador de fallos consecutivos. Cuando ese contador alcanza el umbral máximo de siete fallos permitidos, el servidor considera al nodo desconectado, lo elimina de la lista de participantes activos y deja de incluirlo en las supertramas siguientes. Este proceso se lleva a cabo de manera completamente automática y sin interrumpir el ciclo de los nodos restantes.
+
+Cuando el nodo se reinicia y establece una nueva conexión TCP con el servidor, envía un mensaje de presentación. El servidor, al identificar el identificador del nodo, busca en su tabla de estado el último ángulo registrado y lo comunica en el mensaje de respuesta. El nodo adopta ese ángulo como su punto de partida y retoma el barrido desde esa posición, sin realizar un homing completo desde el extremo del sector. Durante un periodo de gracia posterior a la reconexión, el servidor no contabiliza como fallos las respuestas tardías del nodo recién incorporado.
+
+Es importante destacar que los nodos no disponen de autonomía operativa si el servidor cae: la asignación de ranuras temporales y la coordinación del acceso al medio acústico dependen íntegramente del servidor central. Cuando un nodo detecta la pérdida de la conexión TCP ---tras el umbral de inactividad de 5\,000~ms sin recibir mensajes---, detiene sus mediciones, ejecuta el procedimiento de \textit{homing} para restablecer la referencia angular y entra en un bucle de reconexión hasta que el servidor vuelva a estar disponible. Esta prueba cubre únicamente la caída de un nodo individual; la resiliencia ante un reinicio del servidor queda garantizada por el mecanismo de persistencia de estado descrito anteriormente.
+
+\subsection{Escenario de Prueba}
+
+La prueba se lleva a cabo con los tres nodos funcionando de manera normal y sin objetos en el área de cobertura, con el fin de aislar el comportamiento de reconexión de cualquier interacción con la lógica de detección. La Figura~\ref{fig:prueba3_antes} muestra el estado del sistema antes de la desconexión, con los tres nodos activos y N1 en modo seguimiento sobre un objeto en la zona DEFCON~1.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{archivos/figuras-procesadas/Prueba3.1.png}
+    \caption{Panel de visualización con los tres nodos activos antes de la desconexión de N2.}
+    \label{fig:prueba3_antes}
+\end{figure}
+
+Una vez alcanzadas al menos veinte supertramas estables, se interrumpe la alimentación del nodo N2, simulando una desconexión no planificada. Posteriormente se restablece la alimentación y se verifica la reincorporación automática al ciclo.
+
+\subsection{Requisitos a Cumplir}
+
+La Tabla~\ref{tab:requisitos_prueba3} recoge los requisitos funcionales cuya verificación es el objeto de esta prueba.
+
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+    \begin{tabular}{p{2cm} p{14cm}}
+        \toprule
+        \textbf{Código} & \textbf{Descripción} \\
+        \midrule
+        \textbf{RF02} & Cuando un nodo se reconecta al servidor, el sistema debe restaurar su último ángulo de apuntamiento registrado para que retome la cobertura de su sector sin reiniciar el barrido desde el inicio. \\
+        \addlinespace
+        \textbf{RF05} & El servidor debe detectar la pérdida de conexión de un nodo de forma autónoma tras un número determinado de respuestas perdidas consecutivas y eliminarlo del ciclo de supertrama activo. \\
+        \bottomrule
+    \end{tabular}
+}
+\caption{Requisitos funcionales evaluados en la Prueba~3.}
+\label{tab:requisitos_prueba3}
+\end{table}
+
+\subsection{Resultados Obtenidos}
+
+\textbf{Detección de la desconexión (RF05):} Tras interrumpir la alimentación de N2, el servidor comenzó a registrar los fallos de respuesta en cada supertrama. La Figura~\ref{fig:prueba3_log} muestra, de forma compuesta, dos zonas del registro del servidor: en la parte izquierda, las supertramas SF~150 y SF~151, donde se acumulan los strikes 6/7 y 7/7 respectivamente y se emite el mensaje \texttt{[KICK \#1] Nodo 2 atascado en inicio. Forzando cierre}, seguido del indicador \texttt{sin reconectar: N[2]} que acompaña a cada supertrama durante la ausencia del nodo; en la parte derecha, las supertramas SF~257 a SF~260, que muestran el ciclo operando con N1 y N3 únicamente, y la línea de reconexión en SF~260: \texttt{[SYS] Conectado MAC F0:24:F9:44:0A:20 -> ID 2 (Reanudando en -27.5°) [reconexión tras KICK \#1]}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{archivos/figuras-procesadas/Prueba3.4.png}
+    \caption{Registro del servidor: desconexión de N2 con strikes 6/7 y 7/7 más mensaje de expulsión (izquierda) y reconexión en SF~260 con ángulo restaurado a $-27{,}5^\circ$ (derecha).}
+    \label{fig:prueba3_log}
+\end{figure}
+
+La Figura~\ref{fig:prueba3_desconexion} confirma visualmente el estado del sistema durante la ausencia de N2: la tarjeta del nodo muestra \textit{DESCONECTADO / SIN DATOS}, mientras que N1 y N3 continúan operando con normalidad sin ninguna interrupción en sus ciclos de barrido.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{archivos/figuras-procesadas/Prueba3.2.png}
+    \caption{Panel de visualización con N2 marcado como desconectado y N1 y N3 operando sin interrupción.}
+    \label{fig:prueba3_desconexion}
+\end{figure}
+
+\textbf{Recuperación del ángulo (RF02):} Como acredita la línea de reconexión del registro, el servidor comunicó a N2 el ángulo $-27{,}5^\circ$ en el mensaje de presentación, correspondiente a la última posición registrada antes de la desconexión. N2 adoptó ese ángulo como punto de partida sin necesidad de realizar un homing completo desde el extremo del sector. La Figura~\ref{fig:prueba3_reconexion} muestra el sistema completamente restablecido: los tres nodos aparecen activos en el panel, con N2 retomando el barrido desde el ángulo restaurado y avanzando progresivamente por su sector.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{archivos/figuras-procesadas/Prueba3.3.png}
+    \caption{Panel de visualización con los tres nodos activos tras la reconexión de N2, que retoma el barrido desde el ángulo restaurado.}
+    \label{fig:prueba3_reconexion}
+\end{figure}
+
+\subsection{Evaluación de Resultados Obtenidos}
+
+La evaluación confirma que el sistema es capaz de tolerar la desconexión inesperada de un nodo sin perjudicar el funcionamiento de los otros, y puede reintegrarlo de manera autónoma con su estado angular restaurado. La identificación de la desconexión ocurre dentro de un número limitado y predecible de supertramas, la restauración del ángulo elimina la necesidad de un barrido completo de inicialización, y el periodo de gracia asegura una reincorporación estable. Ambos requisitos evaluados son cumplidos.

@@ -1,0 +1,87 @@
+\chapter{Antecedentes}
+\label{Antecedentes}
+
+El propósito de este capítulo es exponer el estado actual del arte desde la perspectiva particular del problema que este Trabajo de Fin de Grado busca resolver: la coordinación de varios sensores de medición de distancia de bajo coste para que funcionen simultáneamente y sin interferencias en un entorno perimetral. Para lograr esto, el capítulo se organiza en torno a una progresión intencionada: primero se presenta la naturaleza física del problema que toda solución debe enfrentar, luego se examinan los enfoques que la literatura y la industria han utilizado para abordarlo, y finalmente se concluye identificando la estrategia más adecuada para los requisitos del presente proyecto, destacando en qué se diferencia de las aproximaciones anteriores.
+
+\section{El sensor ultrasónico como unidad de detección}
+
+Para comprender adecuadamente los antecedentes de este proyecto, es conveniente explicar primero el funcionamiento del elemento sensor en el que se basa. Un transductor ultrasónico de bajo costo opera bajo el principio del tiempo de vuelo: emite un pulso acústico de alta frecuencia y mide el intervalo de tiempo hasta que el eco reflejado por un objeto regresa al receptor. Dado que la velocidad del sonido en el aire es aproximadamente 343 m/s, la distancia al obstáculo se calcula directamente a partir de la mitad del tiempo de tránsito \cite{7}. Este principio es análogo al del radar electromagnético clásico \cite{6} y proporciona una precisión aceptable para aplicaciones de corto y medio alcance, con un costo de hardware muy reducido.
+
+El uso de este tipo de sensores para la detección de obstáculos se popularizó en el ámbito de la robótica reactiva desde la década de 1980 \cite{8} y, desde entonces, se ha extendido a entornos de vigilancia perimetral civil, protección de infraestructuras agrícolas \cite{14} y sistemas de vallado virtual \cite{15}. Sin embargo, la cobertura angular de un único transductor es limitada. Para monitorear un área amplia con una resolución angular suficiente, es necesario disponer de varios nodos sensores en distintas posiciones del perímetro, formando lo que la literatura denomina una Red de Sensores Inalámbricos \cite{3}.
+
+Es precisamente en este paso, del sensor aislado a la red de sensores, donde surge el problema central que este capítulo analiza.
+
+\section{El problema central: la interferencia acústica entre nodos}
+
+Cuando múltiples transductores ultrasónicos funcionan simultáneamente en el mismo espacio físico, se genera un fenómeno de interferencia acústica conocido en la literatura como \textit{crosstalk} o interferencia cruzada. El mecanismo es fácil de comprender: al emitir un nodo su pulso acústico, las ondas no solo se dirigen hacia el objetivo deseado, sino que se dispersan en todas las direcciones del espacio. Si otro nodo receptor está activo en ese momento, puede captar ese eco ajeno e interpretarlo erróneamente como la reflexión de su propio disparo. Esto resulta en lecturas de distancia incorrectas que comprometen completamente la fiabilidad del sistema \cite{9}.
+
+Es crucial señalar que el problema no es de naturaleza software, sino física: las ondas acústicas se propagan sin depender de ninguna lógica de control. Borenstein y Koren \cite{9} caracterizaron experimentalmente este fenómeno en el ámbito de la robótica móvil y demostraron que sus efectos son sistemáticos y reproducibles, además de que se intensifican a medida que aumenta la densidad de nodos en el área monitoreada. En un entorno como el de este proyecto, donde varios nodos radar operan sobre una maqueta de dimensiones reducidas, la cercanía física entre ellos hace que el \textit{crosstalk} sea inevitable si no se gestiona de manera explícita.
+
+\section{Enfoques para la eliminación del \textit{crosstalk}}
+
+La literatura científica y la práctica industrial han abordado este problema desde tres perspectivas diferenciadas. A continuación se analizan sus principios, ventajas y limitaciones. Para vigilar un área perimetral con varios sensores es necesario que estos operen de forma coordinada y, en la medida de lo posible, simultánea. Esta simultaneidad es precisamente la que genera el problema del \textit{crosstalk} descrito en la sección anterior, y es el motivo por el que la gestión del acceso al medio acústico resulta un componente crítico del diseño.
+
+\subsection{Separación en frecuencia y codificación de canal}
+
+El primer enfoque consiste en asignar a cada nodo una frecuencia de emisión distinta o una firma de codificación única, de modo que cada receptor sea capaz de distinguir los ecos propios de los ajenos. Esta estrategia, estudiada por Moebus y Zoubir \cite{10}, permite en principio que todos los nodos operen de forma completamente simultánea sin interferencias.
+
+Sin embargo, su implementación en plataformas de bajo coste tiene un problema de raíz: los transductores piezoeléctricos económicos operan en una frecuencia fija y no son reprogramables. Dotar a cada nodo de una frecuencia diferenciada exige transductores especializados y circuitos analógicos de filtrado dedicados, lo que incrementa el coste y la complejidad del hardware de forma incompatible con los objetivos de este proyecto \cite{10}.
+
+\subsection{Barrido secuencial (\textit{Round Robin})}
+
+El segundo enfoque, y el más extendido en implementaciones de bajo coste, consiste en serializar temporalmente las emisiones. El sistema garantiza que en ningún instante haya más de un nodo activo, esperando a que el eco del sensor anterior se disipe completamente antes de activar el siguiente. Este método, conocido como barrido secuencial o \textit{Round Robin}, elimina el \textit{crosstalk} de forma efectiva mediante una solución puramente software \cite{11}.
+
+El problema es que la latencia de actualización de la red crece de forma lineal con el número de nodos. Si cada ciclo de emisión-recepción requiere un tiempo mínimo $T$, una red de $N$ nodos necesita $N \cdot T$ para completar un ciclo completo de mediciones. Teniendo en cuenta que la velocidad del sonido limita físicamente la duración mínima de cada ciclo, el tiempo de respuesta total de la red se vuelve inaceptable para la detección en tiempo real en cuanto el número de nodos crece \cite{11}.
+
+\subsection{Contención con detección de portadora (CSMA/CA)}
+
+Un tercer enfoque, ampliamente utilizado en redes de datos inalámbricas como el estándar WiFi, es el acceso múltiple por detección de portadora con prevención de colisiones (CSMA/CA). En este modelo, cada nodo escucha el canal antes de proceder a transmitir y, si detecta que está ocupado, aplica un retardo aleatorio antes de intentarlo nuevamente.
+
+La dificultad de trasladar este mecanismo al ámbito acústico radica en que la velocidad de propagación del sonido en el aire es aproximadamente un millón de veces menor que la de las ondas electromagnéticas. Esto significa que cuando un nodo verifica que el canal está libre y decide emitir, el pulso de otro nodo puede haber sido enviado instantes antes, pero aún no ha llegado al receptor. El resultado es una colisión tardía que la detección de portadora no puede evitar \cite{9}. Por esta razón, CSMA/CA no es una solución viable en redes de sensores acústicos.
+
+\subsection{TDMA Dinámico con reutilización espacial}
+
+Los tres enfoques anteriores presentan una limitación inherente: suponen que todos los nodos de la red interfieren entre sí en todo momento. Esta premisa es conservadora y, en numerosos escenarios, resulta innecesariamente restrictiva.
+
+Para comprender la alternativa, es útil introducir el concepto de TDMA (Acceso Múltiple por División de Tiempo). En un esquema TDMA, el tiempo se segmenta en intervalos discretos denominados \textit{slots}. Cada nodo tiene asignado uno o varios \textit{slots} en los que puede transmitir, mientras que los demás permanecen en modo de escucha. Esto asegura que las transmisiones sean completamente disjuntas en el tiempo, eliminando el riesgo de colisiones de manera determinista y sin requerir mecanismos de contención \cite{17}. En su forma más elemental, el TDMA es equivalente al barrido secuencial previamente analizado y hereda sus mismas limitaciones en cuanto a latencia.
+
+La mejora se presenta al incorporar conocimiento espacial en la asignación de \textit{slots}. La literatura sobre redes de comunicaciones se refiere a este principio como reutilización espacial \cite{16}: dos nodos cuyos conos de emisión no se superponen no pueden interferirse entre sí, sin importar si transmiten simultáneamente. Si el árbitro central tiene conocimiento de la posición y la orientación de cada nodo, puede determinar qué pares son físicamente incompatibles y cuáles pueden operar en paralelo sin riesgo.
+
+Con esta información, los \textit{slots} dejan de asignarse de manera fija y estática, y se asignan en función de la compatibilidad espacial calculada en tiempo real. Los nodos que no interfieren comparten un \textit{slot} y transmiten simultáneamente; solo los pares incompatibles reciben \textit{slots} separados \cite{16,17}. El resultado es una frecuencia de actualización global de la red notablemente superior a la del barrido secuencial, con garantía determinista de ausencia de \textit{crosstalk}.
+
+La Tabla \ref{tab:comparativa_acceso} recoge un resumen comparativo de las características de los cuatro enfoques en relación con los requisitos del presente proyecto.
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{p{3.4cm} X X X}
+    \toprule
+    \textbf{Característica} & \textbf{Barrido Secuencial} & \textbf{Contención (CSMA/CA)} & \textbf{TDMA Dinámico} \\
+    \midrule
+    \textbf{Riesgo de \textit{crosstalk}} & Nulo & Alto & Nulo \\
+    \addlinespace
+    \textbf{Escalabilidad de la red} & Muy baja & Media & Alta \\
+    \addlinespace
+    \textbf{Frecuencia de actualización} & Lenta (crecimiento lineal) & Variable e impredecible & Rápida y optimizada \\
+    \addlinespace
+    \textbf{Complejidad del software central} & Baja & Media & Alta \\
+    \addlinespace
+    \textbf{Sincronización temporal} & No requerida & Relajada & Estricta \\
+    \addlinespace
+    \textbf{Eficiencia del medio acústico} & Muy baja & Media & Alta \\
+    \addlinespace
+    \textbf{Tolerancia a latencia} & Pobre & Pobre bajo alta carga & Excelente (determinista) \\
+    \bottomrule
+\end{tabularx}
+\caption{Comparativa de técnicas de gestión de acceso al medio en redes de sensores ultrasónicos.}
+\label{tab:comparativa_acceso}
+\end{table}
+
+De los cuatro enfoques analizados, el TDMA Dinámico con reutilización espacial es el único que satisface simultáneamente la ausencia de \textit{crosstalk}, la respuesta en tiempo real y un coste de hardware reducido. Es, por tanto, la estrategia adoptada en el presente proyecto.
+
+\section{Enfoque adoptado y aportación de este proyecto}
+
+Del análisis previo se concluye que el único enfoque que satisface simultáneamente los tres requisitos del proyecto, es decir, la ausencia de \textit{crosstalk}, la respuesta en tiempo real y un coste reducido, es el TDMA dinámico con reutilización espacial.
+
+La contribución específica de este estudio en relación con los antecedentes revisados radica en la implementación de este esquema de manera íntegra a través de software, utilizando hardware de consumo masivo y sin la necesidad de componentes analógicos especializados. La coordinación se realiza mediante un servidor central que actúa como árbitro de la red: recibe el ángulo de apuntado actual de cada nodo antes de cada ciclo de medición, calcula qué pares son espacialmente compatibles y asigna los \textit{slots} de emisión en consecuencia, todo ello sobre una red TCP/IP estándar mediante un protocolo de comunicación diseñado específicamente para este proyecto y detallado en el Capítulo 5.
+
+Ninguno de los trabajos revisados combina reutilización espacial dinámica, coordinación puramente software y una plataforma de bajo coste en un sistema de vigilancia perimetral operativo. Es en esta combinación donde se encuentra la novedad técnica del presente trabajo.

@@ -1,0 +1,342 @@
+% ============================================================
+% BIBLIOGRAFÍA — TFG: Sistema de Vigilancia Distribuido
+% Basado en Red de Radares Cooperativos
+% Alejandro Millán de Lara — UCO, EPSC, 2026
+% ============================================================
+
+% ============================================================
+% BLOQUE 1: CONTEXTO HISTÓRICO Y TECNOLÓGICO (Cap. 1)
+% ============================================================
+
+@incollection{1,
+  author    = {Lee, Edward A.},
+  title     = {Embedded Software},
+  booktitle = {Advances in Computers},
+  volume    = {56},
+  publisher = {Elsevier},
+  year      = {2002},
+  pages     = {55--95},
+  doi       = {10.1016/S0065-2458(02)80004-3}
+}
+
+@manual{2,
+  author       = {{Espressif Systems}},
+  title        = {{ESP32} Series Datasheet},
+  organization = {Espressif Systems},
+  year         = {2023},
+  url          = {https://www.espressif.com/sites/default/files/documentation/esp32_datasheet_en.pdf}
+}
+
+@article{3,
+  author  = {Akyildiz, I. F. and Su, W. and Sankarasubramaniam, Y. and Cayirci, E.},
+  title   = {Wireless sensor networks: a survey},
+  journal = {Computer Networks},
+  volume  = {38},
+  number  = {4},
+  pages   = {393--422},
+  year    = {2002},
+  doi     = {10.1016/S1389-1286(01)00302-4}
+}
+
+@inproceedings{4,
+  author    = {Liang, Qian and Liang, Yunjie},
+  title     = {Design and Analysis of Distributed Radar Sensor Networks},
+  booktitle = {International Conference on Wireless Communications, Networking and Mobile Computing (WiCOM)},
+  year      = {2007},
+  doi       = {10.1109/WICOM.2007.672}
+}
+
+% ============================================================
+% BLOQUE 2: FUNDAMENTOS DE RADAR Y TIEMPO DE VUELO (Cap. 1 y 3)
+% ============================================================
+
+% Historia del radar: Hertz, Chain HOME, WWII
+@book{5,
+  author    = {Buderi, Robert},
+  title     = {The Invention That Changed the World},
+  publisher = {Simon \& Schuster},
+  year      = {1997},
+  isbn      = {978-0684835297}
+}
+
+@book{6,
+  author    = {Skolnik, Merrill I.},
+  title     = {Introduction to Radar Systems},
+  publisher = {McGraw-Hill},
+  edition   = {3rd},
+  year      = {2001},
+  isbn      = {978-0072881387}
+}
+
+@book{7,
+  author    = {Richards, Mark A.},
+  title     = {Fundamentals of Radar Signal Processing},
+  publisher = {McGraw-Hill Education},
+  year      = {2005},
+  isbn      = {978-0071826990}
+}
+
+% Robótica reactiva con sensores (origen de los nodos sensores simples)
+@book{8,
+  author    = {Braitenberg, Valentino},
+  title     = {Vehicles: {E}xperiments in Synthetic Psychology},
+  publisher = {MIT Press},
+  year      = {1984},
+  isbn      = {978-0262521123}
+}
+
+% ============================================================
+% BLOQUE 3: INTERFERENCIA ACÚSTICA Y CROSSTALK (Cap. 3)
+% ============================================================
+
+@inproceedings{9,
+  author    = {Borenstein, Johann and Koren, Yoram},
+  title     = {Ultrasonic Sensor Interference Rejection in Mobile Robotics},
+  booktitle = {Proceedings of the IEEE International Conference on Robotics and Automation (ICRA)},
+  year      = {1995},
+  doi       = {10.1109/ROBOT.1995.525497}
+}
+
+@article{10,
+  author  = {Moebus, M. and Zoubir, A. M.},
+  title   = {Crosstalk Cancellation in Ultrasonic Sensor Arrays},
+  journal = {IEEE Transactions on Ultrasonics, Ferroelectrics, and Frequency Control},
+  volume  = {55},
+  number  = {4},
+  pages   = {863--879},
+  year    = {2008},
+  doi     = {10.1109/TUFFC.2008.718}
+}
+
+@phdthesis{11,
+  author = {Chandrasekar, J.},
+  title  = {Radar Design and Management in a Networked Environment},
+  school = {Colorado State University},
+  year   = {2008}
+}
+
+% ============================================================
+% BLOQUE 4: HISTORIA Y EVOLUCIÓN DE LAS WSN (Cap. 1)
+% ============================================================
+
+% Evolución histórica WSN: desde sensores de Vietnam hasta redes modernas
+@article{12,
+  author  = {Chong, Chee-Yee and Kumar, Srikanta P.},
+  title   = {Sensor Networks: Evolution, Opportunities, and Challenges},
+  journal = {Proceedings of the IEEE},
+  volume  = {91},
+  number  = {8},
+  pages   = {1247--1256},
+  year    = {2003},
+  doi     = {10.1109/JPROC.2003.814918}
+}
+
+% Estado del arte industrial de alto nivel
+@misc{13,
+  author       = {{Tesla, Inc.}},
+  title        = {Tesla {A}utopilot and Full Self-Driving Capability},
+  howpublished = {\url{https://www.tesla.com/autopilot}},
+  year         = {2024},
+  note         = {Accedido: 2026-03-16}
+}
+
+% ============================================================
+% BLOQUE 5: APLICACIONES DE VIGILANCIA PERIMETRAL (Cap. 1 y 3)
+% ============================================================
+
+@article{14,
+  author  = {Oyelade, O. A. and Ezugwu, A. E.},
+  title   = {A Review of Existing Farmland Intrusion Detection Systems},
+  journal = {Agricultural Sciences},
+  volume  = {12},
+  number  = {11},
+  pages   = {1278--1305},
+  year    = {2021},
+  doi     = {10.4236/as.2021.1211077}
+}
+
+@article{15,
+  author  = {Anderson, D. M.},
+  title   = {Virtual Fencing --- Past, Present and Future},
+  journal = {Computers and Electronics in Agriculture},
+  volume  = {56},
+  number  = {2},
+  pages   = {113--117},
+  year    = {2007},
+  doi     = {10.1016/j.compag.2007.02.013}
+}
+
+% ============================================================
+% BLOQUE 6: TDMA Y REUTILIZACIÓN ESPACIAL (Cap. 3)
+% ============================================================
+
+% Reutilización espacial y protocolo MAC para WSN
+@inproceedings{16,
+  author    = {Ye, Wei and Heidemann, John and Estrin, Deborah},
+  title     = {An Energy-Efficient {MAC} Protocol for Wireless Sensor Networks},
+  booktitle = {Proceedings of the 21st Annual Joint Conference of the IEEE Computer and Communications Societies (INFOCOM)},
+  year      = {2002},
+  pages     = {1567--1576},
+  doi       = {10.1109/INFCOM.2002.1019408}
+}
+
+@article{17,
+  author  = {Ergen, Sinem Coleri and Varaiya, Pravin},
+  title   = {{TDMA} Scheduling Algorithms for Wireless Sensor Networks},
+  journal = {Computer Communications},
+  volume  = {33},
+  number  = {2},
+  pages   = {192--202},
+  year    = {2010},
+  doi     = {10.1016/j.comcom.2009.06.007}
+}
+
+% ============================================================
+% BLOQUE 7: WSN AVANZADAS Y LOCALIZACIÓN (Cap. 1 y 5)
+% ============================================================
+
+% Encuesta exhaustiva de WSN: aplicaciones, despliegue y validación
+@article{18,
+  author  = {Yick, Jennifer and Mukherjee, Biswanath and Ghosal, Dipak},
+  title   = {Wireless Sensor Network Survey},
+  journal = {Computer Networks},
+  volume  = {52},
+  number  = {12},
+  pages   = {2292--2330},
+  year    = {2008},
+  doi     = {10.1016/j.comnet.2008.04.002}
+}
+
+% Redes de sensores acústicos para detección y seguimiento perimetral
+@article{19,
+  author  = {Arora, Anish and Dutta, Prabal and Bapat, Sandip and others},
+  title   = {A Line in the Sand: A Wireless Sensor Network for Target Detection,
+             Classification, and Tracking},
+  journal = {Computer Networks},
+  volume  = {46},
+  number  = {5},
+  pages   = {605--634},
+  year    = {2004},
+  doi     = {10.1016/j.comnet.2004.06.007}
+}
+
+% Espacio de diseño de WSN: estrategias de acceso al medio y coordinación
+@article{20,
+  author  = {R{\"o}mer, Kay and Mattern, Friedemann},
+  title   = {The Design Space of Wireless Sensor Networks},
+  journal = {IEEE Wireless Communications},
+  volume  = {11},
+  number  = {6},
+  pages   = {54--61},
+  year    = {2004},
+  doi     = {10.1109/MWC.2004.1368897}
+}
+
+% Técnicas de localización en WSN: trilateración y estimación por ToF
+@article{21,
+  author  = {Mao, Guoqiang and Fidan, Bar{\i}{\c{s}} and Anderson, Brian D. O.},
+  title   = {Wireless Sensor Network Localization Techniques},
+  journal = {Computer Networks},
+  volume  = {51},
+  number  = {10},
+  pages   = {2529--2553},
+  year    = {2007},
+  doi     = {10.1016/j.comnet.2007.01.023}
+}
+
+% Naturaleza interdisciplinar del desarrollo de sistemas embebidos distribuidos
+@book{22,
+  author    = {Barr, Michael and Massa, Anthony},
+  title     = {Programming Embedded Systems: With {C} and {GNU} Development Tools},
+  publisher = {O'Reilly Media},
+  edition   = {2nd},
+  year      = {2006},
+  isbn      = {978-0596009830}
+}
+
+% ============================================================
+% BLOQUE 8: TECNOLOGÍAS DE IMPLEMENTACIÓN (Cap. 5)
+% ============================================================
+
+% Sistema operativo de tiempo real FreeRTOS
+@manual{23,
+  author       = {Barry, Richard},
+  title        = {Mastering the {FreeRTOS} Real Time Kernel --- A Hands-On Tutorial Guide},
+  organization = {Real Time Engineers Ltd.},
+  year         = {2016},
+  url          = {https://www.freertos.org/Documentation/RTOS_book.html}
+}
+
+% Protocolo mDNS para descubrimiento automático de servicios en red local
+@techreport{24,
+  author      = {Cheshire, Stuart and Krochmal, Marc},
+  title       = {Multicast {DNS}},
+  institution = {Internet Engineering Task Force (IETF)},
+  type        = {RFC},
+  number      = {6762},
+  month       = feb,
+  year        = {2013},
+  url         = {https://www.rfc-editor.org/rfc/rfc6762}
+}
+
+% Fundamentos del protocolo TCP/IP
+@book{25,
+  author    = {Stevens, W. Richard},
+  title     = {{TCP/IP} Illustrated, Volume~1: The Protocols},
+  publisher = {Addison-Wesley Professional},
+  year      = {1994},
+  isbn      = {978-0201633467}
+}
+
+% Plataforma radar en red distribuida (coordinación de múltiples radares)
+@inproceedings{26,
+  author    = {Zhou, W. and Zhao, Y. and Liang, Q.},
+  title     = {Networked Radar System: {A} More Advanced Radar Detection Platform},
+  booktitle = {CIE International Conference on Radar},
+  year      = {2006},
+  doi       = {10.1109/CIE-Radar.2006.334057}
+}
+
+% ============================================================
+% BLOQUE 9: DOCUMENTACIÓN TÉCNICA DE COMPONENTES (VÉASE ANEXO)
+% ============================================================
+
+@manual{27,
+  author       = {{Espressif Systems}},
+  title        = {{ESP32-WROOM-32D} \& {ESP32-WROOM-32U} Datasheet},
+  organization = {Espressif Systems},
+  year         = {2024},
+  url          = {https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32d_esp32-wroom-32u_datasheet_en.pdf}
+}
+
+@manual{28,
+  author       = {{Elecfreaks}},
+  title        = {{HC-SR04} Ultrasonic Ranging Module --- User Guide},
+  organization = {Elecfreaks},
+  year         = {2011},
+  url          = {https://cdn.sparkfun.com/datasheets/Sensors/Proximity/HCSR04.pdf}
+}
+
+@manual{29,
+  author       = {{Usongshine Technology}},
+  title        = {{NEMA}~17 Stepper Motor Datasheet},
+  organization = {Usongshine Technology Co., Ltd.},
+  year         = {2020},
+  url          = {https://components101.com/motors/nema17-stepper-motor}
+}
+
+@manual{30,
+  author       = {{Allegro MicroSystems}},
+  title        = {{A4988} {DMOS} Microstepping Driver with Translator and Overcurrent Protection},
+  organization = {Allegro MicroSystems},
+  year         = {2021},
+  url          = {https://www.allegromicro.com/~/media/Files/Datasheets/A4988-Datasheet.pdf}
+}
+
+@manual{31,
+  author       = {{Texas Instruments}},
+  title        = {{LM2596} {SIMPLE SWITCHER} Power Converter 150-kHz 3-A Step-Down Voltage Regulator},
+  organization = {Texas Instruments},
+  year         = {2020},
+  url          = {https://www.ti.com/lit/ds/symlink/lm2596.pdf}
+}

@@ -1,0 +1,128 @@
+\chapter{Conclusiones}
+\label{chap:conclusiones}
+
+Tras finalizar el diseño, la implementación y la validación experimental del sistema, se presentan las conclusiones obtenidas, evaluando el grado de cumplimiento de los objetivos iniciales y analizando el impacto de las decisiones técnicas adoptadas.
+
+% ============================================================
+\section{Conclusiones Generales}
+% ============================================================
+
+El presente Trabajo de Fin de Grado ha logrado diseñar, implementar y validar con éxito un sistema de vigilancia distribuida compuesto por una red de tres nodos radar cooperativos sobre plataformas embebidas de bajo coste. El prototipo resultante es capaz de cubrir de forma continua un área perimetral interior, coordinar el acceso al medio acústico para evitar interferencias entre nodos adyacentes y estimar cooperativamente la posición de los objetos detectados mediante trilateración.
+
+La principal aportación del proyecto ha sido demostrar que es posible resolver el problema del \textit{crosstalk} acústico en redes de sensores distribuidos de bajo coste mediante una solución íntegramente software, sin requerir hardware analógico especializado ni infraestructura de posicionamiento externa. La implementación de un protocolo TDMA dinámico centralizado ha permitido que los tres nodos operen de forma simultánea sin interferirse, y la arquitectura de firmware basada en FreeRTOS sobre el ESP32 de doble núcleo ha garantizado la separación determinista entre las tareas de red y las de control físico. Ambas decisiones de diseño, adoptadas durante las fases tempranas del proyecto, han resultado ser las que mayor impacto han tenido sobre la fiabilidad y la robustez del sistema final.
+
+% ============================================================
+\section{Grado de Cumplimiento de los Objetivos}
+% ============================================================
+
+El objetivo principal de este Trabajo de Fin de Grado era diseñar, desarrollar y validar un sistema de vigilancia distribuido formado por una red de nodos radar cooperativos sobre plataformas embebidas de bajo coste, capaz de cubrir un área perimetral de forma continua, coordinar el acceso al medio acústico para evitar interferencias entre nodos y estimar la posición de los objetos detectados de forma conjunta. Para evaluar el éxito del proyecto de manera objetiva, se procede a verificar el cumplimiento de los requisitos formales establecidos en el capítulo de Análisis del Problema.
+
+\subsection{Validación de Requisitos Funcionales}
+
+La Tabla~\ref{tab:cumplimiento_rf} detalla el grado de cobertura de las funcionalidades operativas del sistema.
+
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+    \begin{tabular}{p{1.5cm} p{5.5cm} p{2.2cm} p{6.5cm}}
+        \toprule
+        \textbf{Cód.} & \textbf{Descripción resumida} & \textbf{Estado} & \textbf{Validación / Observaciones} \\
+        \midrule
+        \textbf{RF01} & Arquitectura distribuida con gestión autónoma de barridos y eliminación de interferencias. & Cumplido & El servidor coordina el ciclo TDMA de forma autónoma sin intervención manual. Verificado en Prueba 1. \\
+        \addlinespace
+        \textbf{RF02} & Restauración del ángulo de apuntamiento al reconectar. & Cumplido & El servidor persiste el ángulo en \texttt{radar\_state.json} y lo restituye en el \textit{handshake}. Verificado en Prueba 3. \\
+        \addlinespace
+        \textbf{RF03} & Filtrado de lecturas fuera del rango útil antes de reportar. & Cumplido & El firmware descarta mediciones con distancia cero o negativa y no las incluye en el reporte al servidor. \\
+        \addlinespace
+        \textbf{RF04} & Asignación dinámica de \textit{slots} TDMA: disparos simultáneos para nodos no interferentes y \textit{slots} separados para pares con solapamiento. & Cumplido & El algoritmo de asignación detecta conflictos de zona sucia y separa temporalmente los pares N1-N2 y N2-N3. Verificado en Prueba 2. \\
+        \addlinespace
+        \textbf{RF05} & Control de latencia bidireccional: desconexión por ausencia de respuesta y reinicio lógico del nodo por inactividad del servidor. & Cumplido & El servidor acumula \textit{strikes} y cierra la conexión al superar el umbral. El nodo cierra el socket si no recibe mensajes en 5000 ms. Verificado en Prueba 3. \\
+        \addlinespace
+        \textbf{RF06} & Trilateración cooperativa cuando varios nodos detectan el mismo obstáculo en zona de solapamiento. & Cumplido & El servidor calcula la posición combinada por intersección geométrica cuando ambos nodos del par están en zona sucia. Verificado en Prueba 2. \\
+        \addlinespace
+        \textbf{RF07} & Interfaz gráfica con actualización inferior a 1 segundo, orientación angular en tiempo real y nivel de criticidad del obstáculo. & Cumplido & El visualizador recibe el datagrama UDP al final de cada supertrama y actualiza la representación con latencia inferior a un periodo de supertrama. Verificado en Prueba 1. \\
+        \addlinespace
+        \textbf{RF08} & Barrido concentrado en modo seguimiento al detectar un obstáculo en el perímetro de criticidad máxima. & Cumplido & La transición SEARCH-TRACK orienta el sensor hacia el objeto detectado y mantiene el seguimiento. Los niveles DEFCON se representan visualmente en la interfaz. \\
+        \addlinespace
+        \textbf{RF09} & Chasis modular estandarizado para alojar e inmovilizar los componentes electrónicos. & Cumplido & El diseño 3D iterativo en cuatro versiones alcanzó un ensamblaje sin holguras ni vibraciones parásitas. \\
+        \bottomrule
+    \end{tabular}
+}
+\caption{Grado de cumplimiento de los Requisitos Funcionales (RF).}
+\label{tab:cumplimiento_rf}
+\end{table}
+
+\subsection{Validación de Requisitos No Funcionales}
+
+Del mismo modo, la Tabla~\ref{tab:cumplimiento_rnf} analiza el cumplimiento de las restricciones de diseño y calidad del sistema.
+
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+    \begin{tabular}{p{1.5cm} p{5cm} p{2.2cm} p{7cm}}
+        \toprule
+        \textbf{Cód.} & \textbf{Restricción} & \textbf{Estado} & \textbf{Justificación} \\
+        \midrule
+        \textbf{RNF01} & Optimización del consumo energético operativo. & Parcial & FreeRTOS bloquea tareas inactivas previniendo ciclos de CPU innecesarios, pero no se realizaron mediciones energéticas con instrumentación de laboratorio por los plazos del proyecto. \\
+        \addlinespace
+        \textbf{RNF02} & Alta cohesión y bajo acoplamiento en firmware y servidor. & Cumplido & Arquitectura por cinco capas funcionales en el servidor y cuatro módulos C++ en el firmware con interfaces bien definidas entre capas. \\
+        \addlinespace
+        \textbf{RNF03} & Hardware COTS exclusivamente. & Cumplido & El prototipo se construye íntegramente con componentes comerciales de catálogo: ESP32, HC-SR04, NEMA 17, A4988 y LM2596. \\
+        \addlinespace
+        \textbf{RNF04} & Código fuente y protocolo publicados bajo licencia abierta. & Cumplido & El código fuente del firmware, el servidor y el visualizador está disponible públicamente en el repositorio del proyecto. \\
+        \addlinespace
+        \textbf{RNF05} & Latencia de red optimizada para no desestabilizar la sincronización temporal. & Cumplido & Se deshabilita el algoritmo de Nagle y el modo de ahorro de energía WiFi del ESP32. La referencia temporal $t_0$ se fija en la recepción local del pulso de sincronización, eliminando la dependencia del sesgo de red. \\
+        \addlinespace
+        \textbf{RNF06} & Documentación técnica suficiente para la replicabilidad del prototipo. & Cumplido & La memoria incluye esquemas de conexión, tablas de componentes con especificaciones, diagramas UML y planos del diseño 3D. \\
+        \addlinespace
+        \textbf{RNF07} & Guía de despliegue con dependencias, compilación del firmware y configuración del servidor. & Cumplido & La memoria documenta la cadena de compilación del firmware sobre ESP-IDF/Arduino Core y las dependencias Python del servidor y el visualizador. \\
+        \addlinespace
+        \textbf{RNF09} & Escalabilidad económica del coste unitario por nodo. & Cumplido & El coste de los componentes electrónicos de cada nodo se mantiene en el rango de electrónica de prototipado de bajo coste, compatible con la escalabilidad de la red. \\
+        \addlinespace
+        \textbf{RNF10} & Integración electromecánica sin soldadura SMD ni maquinaria de precisión industrial. & Cumplido & El ensamblaje emplea conectores estándar, protoboard y piezas impresas en 3D, sin requerir herramientas especializadas. \\
+        \bottomrule
+    \end{tabular}
+}
+\caption{Grado de cumplimiento de los Requisitos No Funcionales (RNF).}
+\label{tab:cumplimiento_rnf}
+\end{table}
+
+\subsection{Conclusión sobre los Objetivos}
+
+A la vista de los resultados, se puede afirmar que el objetivo principal se ha alcanzado satisfactoriamente. Los nueve requisitos funcionales se han cumplido y los nueve no funcionales se han cumplido en su totalidad, con la excepción de RNF01, cuyo cumplimiento se justifica cualitativamente mediante la elección de un RTOS y hardware de bajo consumo, pero no ha podido validarse con mediciones instrumentadas en el marco temporal de este proyecto. Las tres pruebas de validación han verificado los escenarios operativos más relevantes ---funcionamiento en condiciones normales, gestión de conflictos de zona sucia con trilateración cooperativa y recuperación ante desconexión de nodo--- sin que ninguna de ellas haya producido un fallo en los requisitos evaluados.
+
+% ============================================================
+\section{Retos Técnicos y Limitaciones}
+% ============================================================
+
+Durante el desarrollo surgieron desafíos significativos que condicionaron la solución final, y el sistema presenta en su configuración actual una serie de limitaciones que conviene delimitar con precisión:
+
+\begin{itemize}
+    \item \textbf{Referencia temporal en entornos WiFi con jitter variable.} El protocolo de sincronización inicialmente ancló la referencia $t_0$ al valor de tiempo transmitido en el payload del pulso de sincronización. En las pruebas tempranas esto produjo desincronizaciones de hasta 200 ms entre nodos, causando colisiones acústicas esporádicas. La solución fue descartar el valor transmitido y registrar el instante de recepción local como $t_0$, eliminando por completo la dependencia del sesgo de reloj y del jitter de red.
+
+    \item \textbf{Criterio de desempate en conflictos de zona sucia.} Definir una política de arbitraje que fuera justa, determinista y libre de hambruna requirió varias iteraciones de diseño. La solución final, que combina inmunidad temporal por bloqueo de seguimiento con el instante de primera detección como criterio de desempate, no era evidente en la especificación inicial y emergió de la experimentación con escenarios de conflicto repetido.
+
+    \item \textbf{Precisión limitada de la localización cooperativa.} La estimación de posición por trilateración combina los errores angulares y de tiempo de vuelo de dos nodos, lo que resulta en una precisión de localización no caracterizada cuantitativamente. El sistema no perseguía precisión centimétrica como objetivo, pero la evaluación sistemática del error en función de la posición del objeto dentro del área queda fuera del alcance de este trabajo.
+
+    \item \textbf{Restricciones físicas del sensor ultrasónico.} El cono de dispersión del HC-SR04 limita la resolución angular efectiva a varios grados e impide distinguir objetos angularmente próximos. El rango operativo fiable queda por debajo de los cuatro metros, y se degrada ante superficies absorbentes, corrientes de aire o geometrías que no devuelvan el eco de forma perpendicular. Estas características circunscriben el sistema a entornos de interior con condiciones acústicas controladas.
+
+    \item \textbf{Dependencia de la infraestructura WiFi.} En entornos con alta congestión inalámbrica o con obstáculos entre los nodos y el punto de acceso, la tasa de \textit{strikes} y desconexiones puede aumentar, degradando la continuidad de la cobertura. La comunicación TCP sobre WiFi introduce una variabilidad en la latencia que, aunque mitigada por el diseño del protocolo, no puede eliminarse por completo.
+\end{itemize}
+
+% ============================================================
+\section{Líneas de Trabajo Futuro}
+% ============================================================
+
+El diseño modular del proyecto permite plantear futuras ampliaciones que exceden el alcance de este Trabajo de Fin de Grado pero que aportarían un valor significativo:
+
+\begin{enumerate}
+    \item \textbf{Incorporación de sensores de mayor resolución.} La sustitución del sensor ultrasónico HC-SR04 por un módulo LiDAR de un solo punto o por un sensor de tiempo de vuelo óptico mantiene la compatibilidad con el protocolo y el firmware actuales, pero permite aumentar la precisión de las medidas de distancia, reducir la apertura angular del cono de detección y ampliar el rango de aplicaciones a entornos con mayores exigencias de precisión o con condiciones acústicas desfavorables.
+
+    \item \textbf{Mejora del algoritmo de localización con filtrado de Kalman.} La estimación cooperativa actual promedia las posiciones calculadas por cada nodo de forma independiente. Un primer paso de mejora sería sustituir este promedio por una intersección de circunferencias basada en las distancias medidas, eliminando el sesgo de los errores angulares individuales. La incorporación posterior de un filtro de Kalman permitiría seguir la trayectoria de objetos en movimiento, estimar su velocidad y mejorar la estabilidad de los marcadores en el visualizador.
+
+    \item \textbf{Escalado de la red a más nodos.} El protocolo de registro automático permite incorporar nuevos nodos sin modificar el firmware ni el servidor, salvo la actualización del archivo de configuración topológica. Una validación experimental con cuatro o más nodos permitiría contrastar el comportamiento del algoritmo de asignación de \textit{slots} con múltiples pares de conflicto simultáneos y evaluar el efecto del incremento del tiempo de supertrama sobre la latencia del sistema.
+
+    \item \textbf{Sustitución de WiFi por un protocolo de radio de largo alcance.} El empleo de módulos de comunicación de bajo consumo como LoRa o Zigbee en lugar de WiFi abriría la posibilidad de desplegar el sistema en entornos exteriores o en instalaciones sin infraestructura de red preexistente. Este cambio requeriría adaptar la capa de transporte del protocolo a las restricciones de ancho de banda y latencia propias de estas tecnologías.
+
+    \item \textbf{Diseño de un sistema de alimentación autónoma.} La alimentación centralizada a 24\,V mediante un bus de potencia es adecuada para un banco de pruebas estático, pero impide el despliegue en localizaciones sin acceso a corriente alterna. El diseño de un sistema de alimentación basado en baterías recargables con gestión activa de energía, combinado con los modos de bajo consumo del ESP32, permitiría un despliegue autónomo de varios días para aplicaciones de vigilancia en exteriores o en zonas sin infraestructura eléctrica.
+\end{enumerate}

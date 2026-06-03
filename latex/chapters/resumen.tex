@@ -1,0 +1,84 @@
+% ============================================================
+% Resumen (ES) y Abstract (EN)
+% ============================================================
+
+\phantomsection
+\addcontentsline{toc}{chapter}{Resumen}
+
+\begin{flushleft}
+{\Huge \textbf{\sffamily Resumen}}
+\end{flushleft}
+\vspace{0.5cm}
+
+Este Trabajo de Fin de Grado presenta el diseño, implementación y validación de un sistema
+de vigilancia distribuida basado en una red de tres nodos radar cooperativos sobre plataformas
+embebidas de bajo coste. Cada nodo integra un microcontrolador ESP32 de doble núcleo, un
+sensor ultrasónico HC-SR04 montado sobre un motor paso a paso NEMA~17 y una estructura
+mecánica diseñada e impresa en 3D.
+
+El problema central del proyecto es la interferencia acústica cruzada (\textit{crosstalk})
+que surge cuando varios transductores ultrasónicos operan simultáneamente en el mismo espacio
+físico. Para resolverlo sin hardware analógico especializado, se diseña un protocolo de
+acceso al medio basado en TDMA dinámico con reutilización espacial: un servidor central
+calcula en tiempo real qué pares de nodos son geométricamente incompatibles y asigna ranuras
+temporales diferenciadas únicamente a aquellos cuyas zonas de emisión se solapan, permitiendo
+que el resto dispare en paralelo.
+
+La arquitectura de firmware, implementada sobre FreeRTOS, dedica un núcleo exclusivamente a
+la pila de red Wi-Fi y el otro al control determinista del motor y a la medición del tiempo
+de vuelo mediante interrupciones de hardware, garantizando la separación estricta entre ambos
+dominios. El servidor central, desarrollado en Python, orquesta el ciclo de supertrama,
+gestiona las desconexiones y reincorporaciones de nodos de forma tolerante a fallos, y ejecuta
+un algoritmo de trilateración cooperativa para estimar la posición de los objetos detectados
+en zonas de solapamiento. Una interfaz gráfica desarrollada con Tkinter proporciona la
+visualización en tiempo real de las detecciones y el estado de cada nodo.
+
+Los resultados experimentales demuestran que el protocolo elimina por completo las lecturas
+espurias debidas al \textit{crosstalk}, que la arquitectura distribuida soporta la pérdida y
+la reconexión de nodos sin interrumpir la vigilancia y que el sistema produce estimaciones
+de posición cooperativas coherentes con la geometría del despliegue.
+
+\textbf{Palabras clave:} ESP32, radar ultrasónico, FreeRTOS, TDMA dinámico, trilateración,
+vigilancia distribuida, redes de sensores inalámbricos.
+
+\clearpage
+
+% ============================================================
+
+\phantomsection
+\addcontentsline{toc}{chapter}{Abstract}
+
+\begin{flushleft}
+{\Huge \textbf{\sffamily Abstract}}
+\end{flushleft}
+\vspace{0.5cm}
+
+This Final Degree Project presents the design, implementation, and validation of a distributed
+surveillance system based on a network of three cooperative radar nodes built on low-cost
+embedded platforms. Each node integrates a dual-core ESP32 microcontroller, an HC-SR04
+ultrasonic sensor mounted on a NEMA~17 stepper motor, and a 3D-printed mechanical structure.
+
+The core challenge is the acoustic cross-interference (\textit{crosstalk}) that arises when
+multiple ultrasonic transducers operate simultaneously in the same physical space. To solve
+it without specialised analogue hardware, a medium-access protocol based on dynamic TDMA
+with spatial reuse is designed: a central server computes in real time which pairs of nodes
+are geometrically incompatible and assigns separate time slots only to those whose emission
+cones overlap, while the remaining nodes fire in parallel.
+
+The firmware architecture, implemented on FreeRTOS, dedicates one core exclusively to the
+Wi-Fi TCP/IP stack and the other to deterministic motor control and hardware-interrupt-based
+time-of-flight measurement, ensuring strict separation between both domains. The central
+server, developed in Python, orchestrates the superframe cycle, handles node disconnections
+and reconnections in a fault-tolerant manner, and runs a cooperative trilateration algorithm
+to estimate the position of objects detected in overlap zones. A Tkinter graphical interface
+provides real-time visualisation of detections and the status of each node.
+
+Experimental results show that the protocol completely eliminates spurious readings caused by
+\textit{crosstalk}, that the distributed architecture supports node loss and reconnection
+without interrupting surveillance, and that the system produces cooperative position estimates
+consistent with the deployment geometry.
+
+\textbf{Keywords:} ESP32, ultrasonic radar, FreeRTOS, dynamic TDMA, trilateration,
+distributed surveillance, wireless sensor networks.
+
+\clearpage
