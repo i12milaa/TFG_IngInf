@@ -17,6 +17,15 @@ El segundo es la dificultad técnica que convierte este objetivo en un reto no t
 
 El sistema debe responder a la pregunta: \textit{\textquestiondown{}cómo coordinar una red de sensores económicos para que monitoricen un perímetro de manera simultánea, sin interferencias mutuas y centralizando la información en tiempo real?}
 
+La Figura~\ref{fig:sistema_overview} muestra el funcionamiento general del sistema. En el lado izquierdo, los nodos físicos N1, N2 y N3 barren el perímetro vigilado emitiendo pulsos acústicos; cuando uno de ellos detecta un objeto, mide la distancia a ese obstáculo y envía el par \textit{(distancia, ángulo)} al servidor. El intercambio de información se produce en dos sentidos: el servidor envía a cada nodo la orden de disparo con el instante temporal y el ángulo de barrido asignados, garantizando la ausencia de interferencias acústicas mediante el esquema TDMA; el nodo devuelve la medida obtenida en ese ciclo. En el centro de control, el árbitro TDMA determina qué nodos son geométricamente incompatibles y, al detectar un conflicto, transfiere la información al módulo de estimación de posición, que combina las medidas de los nodos implicados para calcular las coordenadas del obstáculo. El resultado, junto con el estado global de la red, se transmite a la interfaz gráfica para su visualización en tiempo real.
+
+%\begin{figure}[H]
+%\centering
+%\includegraphics[width=0.95\textwidth]{figura_sistema.png}
+%\caption{Esquema general del funcionamiento del sistema de vigilancia distribuido.}
+%\label{fig:sistema_overview}
+%\end{figure}
+
 \subsection{Problema técnico}
 
 Dar respuesta a esa pregunta se traduce en cuatro retos técnicos concretos que estructuran todo el diseño posterior:
