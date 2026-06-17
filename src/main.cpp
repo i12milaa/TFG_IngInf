@@ -116,7 +116,7 @@ void setup() {
     static const NodeInfo NODES[] = {
         {"F0:24:F9:44:0A:20", 2,  34.64f, 20.0f,  30.0f},
         {"88:13:BF:C8:40:30", 1,   0.0f,  40.0f,  90.0f},
-        {"CC:DB:A7:98:CC:E4", 3, -34.64f, 20.0f, 150.0f},
+        {"F0:24:F9:44:CD:90", 3, -34.64f, 20.0f, 150.0f},
     };
     const NodeInfo* myNode = nullptr;
     for (const NodeInfo& n : NODES) {
