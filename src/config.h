@@ -4,8 +4,8 @@
 #define DEBUG_HARDWARE_TEST 0  // 1 para activar, 0 para modo normal
 
 #define PIN_LED           2 
-#define STACK_SIZE_COMMS  4096
-#define STACK_SIZE_RADAR  4096
+#define STACK_SIZE_COMMS  6144
+#define STACK_SIZE_RADAR  6144
 
 #define PIN_MOTOR_STEP    18
 #define PIN_MOTOR_DIR     19
@@ -21,7 +21,11 @@
 
 // Velocidad del motor durante el homing (µs por flanco).
 // Más lento que en operación normal para no saltarse el trigger.
-#define HOMING_STEP_US    700
+#define HOMING_STEP_US    1200
+
+// Velocidad del motor en operación normal (µs por flanco).
+// Aumentar si el motor pierde pasos (1200-1500 más seguro en motores con carga).
+#define NORMAL_STEP_US    1200
 
 #define PIN_TRIG          14
 #define PIN_ECHO          27

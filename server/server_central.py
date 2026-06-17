@@ -73,7 +73,7 @@ TRILAT_MAX_DIST_RATIO = 2.0  # Máx cociente entre distancias para considerar mi
 MOTOR_STEPS_REV = 200
 MICROSTEPPING = 16
 GEAR_RATIO = 1.0
-STEP_DELAY_MS = 2.0  # 1000µs por flanco × 2 = 2ms por micropaso
+STEP_DELAY_MS = 2.4  # 1200µs por flanco × 2 = 2.4ms por micropaso (sincronizado con NORMAL_STEP_US en config.h)
 
 RECONNECT_WARN_SECS = 30  # aviso si un nodo kickeado no reconecta en este tiempo
 
