@@ -11,7 +11,9 @@
       "PowerShell(& \"C:\\\\Users\\\\Alexm\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\python.exe\" --version)",
       "PowerShell(& \"C:\\\\Users\\\\Alexm\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python313\\\\python.exe\" -c \"import matplotlib; print\\(matplotlib.__version__\\)\")",
       "WebFetch(domain:docs.google.com)",
-      "WebFetch(domain:doc-04-5s-docstext.googleusercontent.com)"
+      "WebFetch(domain:doc-04-5s-docstext.googleusercontent.com)",
+      "Bash(cat /tmp/radar_viz2.log; echo \"---ps---\"; ps aux | grep -i python | grep -v grep)",
+      "Read(//private/tmp/**)"
     ]
   }
 }

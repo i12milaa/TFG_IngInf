@@ -14,11 +14,24 @@ import time
 import subprocess
 import sys
 import os
+import codecs
+
+# ── Escalado de interfaz (pantallas HiDPI / Retina) ─────────────────────────────
+UI_SCALE = 1.15   # afecta solo tamaños de fuente
+
+
+def F(pt: int) -> int:
+    """Tamaño de fuente escalado según UI_SCALE."""
+    return max(6, round(pt * UI_SCALE))
+
 
 # ── Dimensiones ───────────────────────────────────────────────────────────────
-CANVAS_W = 1200
+# Mismo ancho/alto TOTAL que el original (1620x820, ya validado en pantalla);
+# se le resta espacio al canvas para dárselo al panel y evitar que el texto
+# de las tarjetas de nodo se corte.
+CANVAS_W = 1140
 CANVAS_H = 820
-PANEL_W  = 420
+PANEL_W  = 480
 TOTAL_W  = CANVAS_W + PANEL_W
 TOTAL_H  = CANVAS_H
 
@@ -80,6 +93,33 @@ SERVER_PATH     = os.path.normpath(os.path.join(_TOOLS_DIR, '..', 'server', 'ser
 SERVER_WD       = os.path.normpath(os.path.join(_TOOLS_DIR, '..'))
 SERVER_LOG      = os.path.join(SERVER_WD, 'server', 'server.log')
 SETTINGS_FILE   = os.path.join(_TOOLS_DIR, 'visualizer_settings.json')
+
+
+class FlatButton(tk.Label):
+    """Botón con bg/fg 100% custom. macOS/Aqua ignora bg y activebackground
+    en tk.Button (no tiene chrome nativo propio), así que se simula con un
+    Label clickeable — funciona igual en Windows."""
+
+    def __init__(self, parent, command=None, **kwargs):
+        kwargs.setdefault('cursor', 'hand2')
+        kwargs.setdefault('pady', 8)
+        super().__init__(parent, **kwargs)
+        self._command   = command
+        self._normal_bg = kwargs.get('bg', kwargs.get('background', self.cget('bg')))
+        self.bind('<Button-1>', lambda e: self._command() if self._command else None)
+        self.bind('<Enter>', lambda e: tk.Label.config(self, bg=self.cget('activebackground')))
+        self.bind('<Leave>', lambda e: tk.Label.config(self, bg=self._normal_bg))
+
+    def config(self, **kwargs):
+        if 'command' in kwargs:
+            self._command = kwargs.pop('command')
+        if 'bg' in kwargs:
+            self._normal_bg = kwargs['bg']
+        elif 'background' in kwargs:
+            self._normal_bg = kwargs['background']
+        super().config(**kwargs)
+
+    configure = config
 
 
 class RadarVisualizer:
@@ -190,7 +230,7 @@ class RadarVisualizer:
         p = self.frame_panel
 
         tk.Label(p, text="CENTRO DE DISEÑO", bg=C_PANEL, fg=C_WHITE,
-                 font=('Arial', 15, 'bold')).pack(pady=(20, 4))
+                 font=('Arial', F(15), 'bold')).pack(pady=(20, 4))
 
         self._add_server_control(p)
 
@@ -198,7 +238,7 @@ class RadarVisualizer:
         tk.Frame(p, bg='#1e1e1e', height=1).pack(fill=tk.X, padx=16, pady=(4, 4))
         tk.Label(p, text="POSICIÓN DE NODOS  (°)",
                  bg=C_PANEL, fg='#78909C',
-                 font=('Arial', 8, 'bold')).pack(anchor=tk.W, padx=20)
+                 font=('Arial', F(8), 'bold')).pack(anchor=tk.W, padx=20)
 
         for nid in [1, 2, 3]:
             col = NODE_DIAMOND_C[nid]
@@ -209,7 +249,7 @@ class RadarVisualizer:
         tk.Frame(p, bg='#1e1e1e', height=1).pack(fill=tk.X, padx=16, pady=(2, 4))
         tk.Label(p, text="ZONAS DE ALERTA",
                  bg=C_PANEL, fg='#78909C',
-                 font=('Arial', 8, 'bold')).pack(anchor=tk.W, padx=20)
+                 font=('Arial', F(8), 'bold')).pack(anchor=tk.W, padx=20)
 
         sliders = [
             ('zoom',     'Zoom (px/cm)',                1.0,  15.0),
@@ -225,15 +265,15 @@ class RadarVisualizer:
 
         tk.Frame(p, bg=C_PANEL).pack(expand=True, fill=tk.Y)
 
-        tk.Button(p, text="RESTAURAR POR DEFECTO",
-                  bg='#b71c1c', fg=C_WHITE, font=('Arial', 10, 'bold'),
+        FlatButton(p, text="RESTAURAR POR DEFECTO",
+                  bg='#b71c1c', fg=C_WHITE, font=('Arial', F(10), 'bold'),
                   relief=tk.FLAT, cursor='hand2',
                   activebackground='#7f0000', activeforeground=C_WHITE,
                   command=self._reset_defaults
                   ).pack(fill=tk.X, padx=20, pady=(0, 8))
 
-        tk.Button(p, text="GUARDAR Y EJECUTAR",
-                  bg='#1b5e20', fg=C_WHITE, font=('Arial', 11, 'bold'),
+        FlatButton(p, text="GUARDAR Y EJECUTAR",
+                  bg='#1b5e20', fg=C_WHITE, font=('Arial', F(11), 'bold'),
                   relief=tk.FLAT, cursor='hand2',
                   activebackground='#003300', activeforeground=C_WHITE,
                   command=lambda: [self._save_settings(), self._show_live_panel()]
@@ -248,7 +288,7 @@ class RadarVisualizer:
         p = self.frame_panel
 
         tk.Label(p, text="TELEMETRÍA EN VIVO", bg=C_PANEL, fg=C_GREEN,
-                 font=('Arial', 16, 'bold')).pack(pady=(28, 15))
+                 font=('Arial', F(16), 'bold')).pack(pady=(28, 15))
 
         self._add_server_control(p)
 
@@ -264,19 +304,19 @@ class RadarVisualizer:
 
             tk.Label(card, text=f"NODO {nid}",
                      bg=C_CARD, fg=NODE_DIAMOND_C[nid],
-                     font=('Arial', 13, 'bold')
+                     font=('Arial', F(13), 'bold')
                      ).pack(anchor=tk.W, padx=15, pady=(12, 2))
 
             lbl = tk.Label(card, text="DESCONECTADO / SIN DATOS",
                            bg=C_CARD, fg=C_ORANGE,
-                           font=('Arial', 10, 'bold'))
+                           font=('Arial', F(10), 'bold'))
             lbl.pack(anchor=tk.W, padx=15, pady=(0, 12))
             self.node_labels[nid] = lbl
 
         tk.Frame(p, bg=C_PANEL).pack(expand=True, fill=tk.Y)
 
-        tk.Button(p, text="MODIFICAR DISEÑO",
-                  bg='#1b5e20', fg=C_WHITE, font=('Arial', 11, 'bold'),
+        FlatButton(p, text="MODIFICAR DISEÑO",
+                  bg='#1b5e20', fg=C_WHITE, font=('Arial', F(11), 'bold'),
                   relief=tk.FLAT, cursor='hand2',
                   activebackground='#003300', activeforeground=C_WHITE,
                   command=self._show_design_panel
@@ -294,16 +334,16 @@ class RadarVisualizer:
         row = tk.Frame(frame, bg=C_PANEL)
         row.pack(fill=tk.X)
         tk.Label(row, text=f'◆ N{nid}', bg=C_PANEL, fg=color,
-                 font=('Arial', 9, 'bold')).pack(side=tk.LEFT)
+                 font=('Arial', F(9), 'bold')).pack(side=tk.LEFT)
         val_lbl = tk.Label(row, bg=C_PANEL, fg=color,
-                           font=('Arial', 9, 'bold'), width=7, anchor=tk.E)
+                           font=('Arial', F(9), 'bold'), width=7, anchor=tk.E)
         val_lbl.pack(side=tk.RIGHT)
         self._angle_labels[nid] = val_lbl
 
         entry_var = tk.StringVar(value=f"{var.get():.1f}")
         _busy = [False]
         entry = tk.Entry(row, textvariable=entry_var,
-                         bg='#1e1e1e', fg=color, font=('Arial', 9, 'bold'),
+                         bg='#1e1e1e', fg=color, font=('Arial', F(9), 'bold'),
                          width=6, insertbackground=C_WHITE,
                          relief=tk.FLAT, highlightthickness=1,
                          highlightbackground='#444', highlightcolor=color)
@@ -345,12 +385,12 @@ class RadarVisualizer:
         row = tk.Frame(frame, bg=C_PANEL)
         row.pack(fill=tk.X)
         tk.Label(row, text=label_text, bg=C_PANEL, fg=C_WHITE,
-                 font=('Arial', 9)).pack(side=tk.LEFT)
+                 font=('Arial', F(9))).pack(side=tk.LEFT)
         var = self.settings[key]
         entry_var = tk.StringVar(value=f"{var.get():.1f}")
         _busy = [False]
         entry = tk.Entry(row, textvariable=entry_var,
-                         bg='#1e1e1e', fg=C_WHITE, font=('Arial', 9),
+                         bg='#1e1e1e', fg=C_WHITE, font=('Arial', F(9)),
                          width=6, insertbackground=C_WHITE,
                          relief=tk.FLAT, highlightthickness=1,
                          highlightbackground='#444', highlightcolor='#66BB6A')
@@ -537,11 +577,11 @@ class RadarVisualizer:
                               fill='#78909C', width=1, tags=T)
 
         c.create_text(CX, CY + 22, text="▲  ZONA VIGILADA  ▲",
-                      fill='#546E7A', font=('Arial', 9, 'bold'), tags=T)
+                      fill='#546E7A', font=('Arial', F(9), 'bold'), tags=T)
         c.create_oval(CX - 6, CY - 6, CX + 6, CY + 6,
                       fill=C_PERIM, outline=C_WHITE, width=1, tags=T)
         c.create_text(CX, CY + 40, text="PUNTO DE ORIGEN",
-                      fill=C_PERIM, font=('Arial', 8), tags=T)
+                      fill=C_PERIM, font=('Arial', F(8)), tags=T)
 
         for r, color, w in [
             (r_valla, C_VALLA, 2),
@@ -583,7 +623,7 @@ class RadarVisualizer:
             if 70 < ang < 110:
                 ox, oy = 0, -18
             c.create_text(nx + ox, ny - oy, text=f"N{nid}", fill=col,
-                          font=('Arial', 10, 'bold'), tags=T)
+                          font=('Arial', F(10), 'bold'), tags=T)
 
             if self.mode == 'design' and not selected:
                 c.create_oval(nx - NODE_HIT_RADIUS, ny - NODE_HIT_RADIUS,
@@ -685,7 +725,7 @@ class RadarVisualizer:
                 c.create_oval(px-rd-3, py-rd-3, px+rd+3, py+rd+3,
                               outline=dot_col, width=1, dash=(4, 3), tags=T)
             c.create_text(px, py-16, text=f"{d:.1f}cm",
-                          fill=C_WHITE, font=('Arial', 8), tags=T)
+                          fill=C_WHITE, font=('Arial', F(8)), tags=T)
 
         # Punto combinado: punto medio visual de los dos nodos detectados en zona sucia
         for pair, nids in [('N1-N2', (1, 2)), ('N2-N3', (2, 3))]:
@@ -710,7 +750,7 @@ class RadarVisualizer:
                 pos = state['trilat'][pair]
                 c.create_text(tx, ty - 20,
                               text=f"({pos['x']:.1f},{pos['y']:.1f})",
-                              fill='yellow', font=('Arial', 8, 'bold'), tags=T)
+                              fill='yellow', font=('Arial', F(8), 'bold'), tags=T)
 
     def _draw_node_beam(self, c, r_nodes, r_outer, nid, half_beam, tag=''):
         ang_deg = self._get_angle(nid)
@@ -849,19 +889,19 @@ class RadarVisualizer:
         row = tk.Frame(frame, bg='#161616')
         row.pack(fill=tk.X, padx=10, pady=(6, 2))
         tk.Label(row, text='SERVIDOR', bg='#161616', fg='#78909C',
-                 font=('Arial', 8, 'bold')).pack(side=tk.LEFT)
+                 font=('Arial', F(8), 'bold')).pack(side=tk.LEFT)
         running = self._server_is_running()
         dot = tk.Label(row,
                        text='● ACTIVO' if running else '● PARADO',
                        bg='#161616',
                        fg='#ef5350' if running else '#546E7A',
-                       font=('Arial', 8, 'bold'))
+                       font=('Arial', F(8), 'bold'))
         dot.pack(side=tk.RIGHT)
 
-        btn = tk.Button(frame,
+        btn = FlatButton(frame,
                         text="■  DETENER SERVIDOR" if running else "▶  INICIAR SERVIDOR",
                         bg='#7f0000' if running else '#1b5e20',
-                        fg=C_WHITE, font=('Arial', 9, 'bold'),
+                        fg=C_WHITE, font=('Arial', F(9), 'bold'),
                         relief=tk.FLAT, cursor='hand2',
                         activeforeground=C_WHITE,
                         activebackground='#4a0000' if running else '#003300',
@@ -875,6 +915,10 @@ class RadarVisualizer:
         proc = self._server_proc
         buf  = ""
         prompt_fired = False
+        # Decodificador incremental: un carácter UTF-8 puede ocupar varios
+        # bytes (tildes, °, etc). Decodificar byte a byte de forma aislada
+        # rompe esos caracteres multibyte y los reemplaza por '�'.
+        decoder = codecs.getincrementaldecoder('utf-8')(errors='replace')
         while proc and proc.poll() is None:
             try:
                 ch = proc.stdout.read(1)
@@ -882,7 +926,9 @@ class RadarVisualizer:
                 break
             if not ch:
                 break
-            char = ch.decode('utf-8', errors='replace')
+            char = decoder.decode(ch)
+            if not char:
+                continue
             buf += char
             if self._server_log:
                 try:
