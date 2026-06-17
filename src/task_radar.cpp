@@ -117,23 +117,50 @@ void RadarHardware::moveToAngle(float targetAngle) {
 
     for (long i = 0; i < steps; i++) {
         digitalWrite(PIN_MOTOR_STEP, HIGH);
-        delayMicroseconds(1000);
+        delayMicroseconds(NORMAL_STEP_US);
         digitalWrite(PIN_MOTOR_STEP, LOW);
-        delayMicroseconds(1000);
+        delayMicroseconds(NORMAL_STEP_US);
     }
 
     currentStepPos = target;
     currentAngle = targetAngle;
 }
 
+// Mueve el motor a un ángulo con velocidad reducida (HOMING_STEP_US).
+// Usado solo durante homing para no saltarse el trigger del reed.
+static void homingMove(float targetAngle) {
+    float targetStepFloat = (targetAngle / 360.0) * STEPS_PER_REV * MICROSTEPPING * GEAR_RATIO;
+    long target = (long)round(targetStepFloat);
+    long steps = target - currentStepPos;
+    if (steps == 0) return;
+
+    bool dir = (steps > 0);
+    steps = abs(steps);
+    bool phys_dir = dir ^ SystemManager::instance().motorDirInvert;
+    digitalWrite(PIN_MOTOR_DIR, phys_dir ? HIGH : LOW);
+    delay(2);
+
+    for (long i = 0; i < steps; i++) {
+        digitalWrite(PIN_MOTOR_STEP, HIGH);
+        delayMicroseconds(HOMING_STEP_US);
+        digitalWrite(PIN_MOTOR_STEP, LOW);
+        delayMicroseconds(HOMING_STEP_US);
+    }
+
+    currentStepPos = target;
+    // No actualizamos currentAngle aquí — goHome() lo hace al finalizar
+}
+
 void RadarHardware::goHome() {
     Serial.printf("[HOME] Volviendo a 0° desde %.2f° via tracking de pasos.\n", currentAngle);
 
-    moveToAngle(0.0f);
+    homingMove(0.0f);
     delay(50);
 
     bool reed_ok = (digitalRead(PIN_REED_SWITCH) == SystemManager::instance().reedTriggerLevel);
     if (reed_ok) {
+        currentAngle   = 0.0f;
+        currentStepPos = 0;
         Serial.println("[HOME] Reed activo en 0° — posicion verificada.");
         Serial.println("[HOME] Homing completado.");
         return;
@@ -144,11 +171,10 @@ void RadarHardware::goHome() {
     Serial.println("[HOME] Reed no activo en 0°. Buscando posicion de referencia...");
     const float offsets[] = {2.0f, -2.0f, 4.0f, -4.0f, 8.0f, -8.0f, 12.0f, -12.0f, 18.0f, -18.0f};
     for (float offset : offsets) {
-        moveToAngle(offset);
-        delay(30);
+        homingMove(offset);
+        delay(50);
         if (digitalRead(PIN_REED_SWITCH) == SystemManager::instance().reedTriggerLevel) {
             Serial.printf("[HOME] Reed encontrado en offset %.1f° — corrigiendo posicion a 0°.\n", offset);
-            // La posicion fisica actual ES el 0° real; reajustamos el conteo de pasos.
             currentAngle   = 0.0f;
             currentStepPos = 0;
             Serial.println("[HOME] Homing completado con correccion de posicion.");
@@ -156,8 +182,9 @@ void RadarHardware::goHome() {
         }
     }
 
-    // Reed no encontrado en ±20°: volver al 0° calculado por pasos.
-    moveToAngle(0.0f);
+    // Reed no encontrado en ±20°: dejar la posicion calculada por pasos como mejor estimacion.
+    currentAngle   = 0.0f;
+    currentStepPos = 0;
     Serial.println("[HOME] Reed no encontrado. Homing por pasos completado sin verificacion.");
 }
 

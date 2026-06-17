@@ -20,7 +20,7 @@ struct NodeProfile {
 static const NodeProfile PROFILES[] = {
     {"88:13:BF:C8:40:30",   1,  false,     HIGH},  
     {"F0:24:F9:44:0A:20",   2,  true,    LOW},  
-    {"CC:DB:A7:98:CC:E4",   3,  true,    HIGH}, 
+    {"F0:24:F9:44:CD:90",   3,  true,    HIGH},
 };
 
 void applyNodeProfile() {
